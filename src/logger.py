@@ -11,8 +11,7 @@ logging.getLogger().propagate = True
 logging.basicConfig(
     filename= LOG_FILE_PATH,
     format="[%(asctime)s] %(lineno)d %(name)s - %(levelname)s - %(message)s",
-    level=logging.INFO,
-    handlers=[logging.StreamHandler()]
+    level=logging.INFO
 )
 
 if __name__=="__main__":
