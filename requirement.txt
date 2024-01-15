@@ -5,6 +5,7 @@ matplotlib
 catboost
 xgboost
 scikit-learn
-pickle
+
 dill
+lightgbm
 #-e .
