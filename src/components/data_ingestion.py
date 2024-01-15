@@ -1,6 +1,8 @@
 import os
 import sys
 from pathlib import Path
+
+from data_transformation import DataTransformation
 sys.path.append(str(Path(__file__).parent.parent))
 
 from exception import CustomException
@@ -37,4 +39,7 @@ class DataIngection:
             
 if __name__=="__main__":
     obj = DataIngection()
-    obj.initiate_data_ingestion()
+    train_data,test_data=obj.initiate_data_ingestion()
+
+    data_transform = DataTransformation()
+    data_transform.initiate_data_transformation(train_data,test_data)
