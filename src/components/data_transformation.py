@@ -80,8 +80,8 @@ class DataTransformation():
 
             input_feature_train_arr = preproceesion_obj.fit_transform(input_feature_train_df)
             input_feature_test_arr = preproceesion_obj.transform(input_feature_test_df)
-            print("input_feature_train_arr", input_feature_train_arr[0])
-            print("input_feature_test_arr", input_feature_test_arr[0])
+            # print("input_feature_train_arr", input_feature_train_arr[0])
+            # print("input_feature_test_arr", input_feature_test_arr[0])
             
             train_arr = np.c_[
                 input_feature_train_arr,np.array(target_feature_train_df)
