@@ -17,3 +17,72 @@ AMTEST201	Test Project_12	13000	2001	28001	531031		31700
 AMTEST201	Test Project_12	13000	2001	28002	526020			4500
 AMTEST201	Test Project_12	13000	2004	10006		000000	4700	
 AMTEST201	Test Project_12	13000	2004	10007		000000		4700
+
+
+
+
+select
+ 
+ppab.segment1 AS  Project_Id,
+ 
+ppat.name AS Project_Name,
+ 
+PEIA.EXPENDITURE_ITEM_ID AS TRANSACTION_IDg,
+ 
+-- gcc.CHART_OF_ACCOUNTS_ID,gcc.CODE_COMBINATION_ID,
+ 
+CASE WHEN gcc.CHART_OF_ACCOUNTS_ID=2001 then 
+gcc.segment3   else null end as GAAP_ACCOUNT,
+CASE WHEN gcc.CHART_OF_ACCOUNTS_ID=2004 then 
+gcc.segment3   else null end as FERC_ACCOUNT,
+c.accounted_cr Total_Credits,
+ 
+c.accounted_dr Total_Debits
+ 
+from PJC_EXP_ITEMS_ALL peia,
+ 
+PJC_COST_DIST_LINES_ALL PCDL,
+ 
+PJF_PROJECTS_ALL_B ppab,
+ 
+PJF_PROJECTS_ALL_TL ppat,
+ 
+xla_distribution_links XDA ,
+ 
+xla_ae_lines XAL ,
+ 
+gl_code_combinations gcc,
+ 
+GL_JE_BATCHES A,
+ 
+GL_JE_HEADERS B,
+ 
+GL_JE_LINES C
+ 
+where
+ 
+peia.expenditure_item_id=PCDL.expenditure_item_id (+)
+ 
+AND pcdl.expenditure_item_id = xda.source_distribution_id_num_1
+ 
+-- AND pcdl.acct_event_id (+)= xda.event_id
+ 
+AND xda.ae_header_id = xal.ae_header_id
+ 
+AND xda.ae_line_num = xal.ae_line_num
+ 
+AND xal.code_combination_id = gcc.code_combination_id
+ 
+and PEIA.EXPENDITURE_ITEM_ID = 13000
+ 
+AND gcc.code_combination_id = c.code_combination_id
+ 
+and B.NAME='01-03-2024 Miscellaneous Cost'
+ 
+and A.JE_BATCH_ID=B.JE_BATCH_ID
+ 
+and B.JE_HEADER_ID =C.JE_HEADER_ID
+ 
+AND peia.project_id = ppab.project_id
+ 
+AND ppab.project_id = ppat.project_id;
