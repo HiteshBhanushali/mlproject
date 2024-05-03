@@ -86,3 +86,48 @@ and B.JE_HEADER_ID =C.JE_HEADER_ID
 AND peia.project_id = ppab.project_id
  
 AND ppab.project_id = ppat.project_id;
+
+
+-------------------------------
+
+SELECT
+    ppat.name AS Project_Name,
+    PEIA.EXPENDITURE_ITEM_ID AS TRANSACTION_IDG,
+    MAX(CASE WHEN gcc.CHART_OF_ACCOUNTS_ID = gaap_coa_id THEN gcc.segment3 ELSE NULL END) AS GAAP_ACCOUNT,
+    MAX(CASE WHEN gcc.CHART_OF_ACCOUNTS_ID = ferc_coa_id THEN gcc.segment3 ELSE NULL END) AS FERC_ACCOUNT,
+    SUM(CASE WHEN gcc.CHART_OF_ACCOUNTS_ID = gaap_coa_id THEN xal.accounted_cr ELSE 0 END) AS GAAP_CREDIT,
+    SUM(CASE WHEN gcc.CHART_OF_ACCOUNTS_ID = gaap_coa_id THEN xal.accounted_dr ELSE 0 END) AS GAAP_DEBITS,
+    SUM(CASE WHEN gcc.CHART_OF_ACCOUNTS_ID = ferc_coa_id THEN xal.accounted_cr ELSE 0 END) AS FERC_CREDIT,
+    SUM(CASE WHEN gcc.CHART_OF_ACCOUNTS_ID = ferc_coa_id THEN xal.accounted_dr ELSE 0 END) AS FERC_DEBITS
+FROM
+    PJC_EXP_ITEMS_ALL peia
+LEFT JOIN
+    PJC_COST_DIST_LINES_ALL PCDL ON peia.expenditure_item_id = PCDL.expenditure_item_id
+LEFT JOIN
+    xla_distribution_links XDA ON PCDL.expenditure_item_id = XDA.source_distribution_id_num_1
+LEFT JOIN
+    xla_ae_lines XAL ON XDA.ae_header_id = XAL.ae_header_id AND XDA.ae_line_num = XAL.ae_line_num
+LEFT JOIN
+    gl_code_combinations gcc ON XAL.code_combination_id = gcc.code_combination_id
+LEFT JOIN
+    GL_JE_BATCHES A ON XAL.je_batch_id = A.je_batch_id
+LEFT JOIN
+    GL_JE_HEADERS B ON A.je_header_id = B.je_header_id
+LEFT JOIN
+    GL_JE_LINES C ON B.je_header_id = C.je_header_id AND gcc.code_combination_id = C.code_combination_id
+LEFT JOIN
+    PJF_PROJECTS_ALL_B ppab ON peia.project_id = ppab.project_id
+LEFT JOIN
+    PJF_PROJECTS_ALL_TL ppat ON ppab.project_id = ppat.project_id
+LEFT JOIN
+    (SELECT DISTINCT CHART_OF_ACCOUNTS_ID AS gaap_coa_id FROM gl_code_combinations WHERE <condition for GAAP account>) AS gaap_coa
+    ON 1=1
+LEFT JOIN
+    (SELECT DISTINCT CHART_OF_ACCOUNTS_ID AS ferc_coa_id FROM gl_code_combinations WHERE <condition for FERC account>) AS ferc_coa
+    ON 1=1
+WHERE
+    peia.expenditure_item_id = 13000
+    AND B.NAME = '01-03-2024 Miscellaneous Cost'
+GROUP BY
+    ppat.name,
+    PEIA.EXPENDITURE_ITEM_ID;
