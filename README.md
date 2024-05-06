@@ -201,3 +201,20 @@ GROUP BY
     ppat.name,
     PEIA.EXPENDITURE_ITEM_ID;
 
+
+
+
+Current output							
+PROJECT_ID	TRANSACTION_IDG	GAAP_ACC	FERC_ACC	GAAP_CREDIT	GAAP_DEBIT	FERC_CREDIT	FERC_DEBIT
+Test Project_12	13000	526020			4500		
+Test Project_12	13000	531031		31700			
+Test Project_12	13000		0			4700	
+Test Project_12	13000		0				4700
+							
+Required Output							
+PROJECT_ID	TRANSACTION_IDG	GAAP_ACC	FERC_ACC	GAAP_CREDIT	GAAP_DEBIT	FERC_CREDIT	FERC_DEBIT
+Test Project_12	13000	526020			4500	4700	
+Test Project_12	13000	531031		31700			4700
+![image](https://github.com/HiteshBhanushali/mlproject/assets/53942499/5b01a7fc-4320-4672-b212-a24e18ff238b)
+
+
