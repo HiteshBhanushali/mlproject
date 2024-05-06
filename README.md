@@ -89,7 +89,6 @@ AND ppab.project_id = ppat.project_id;
 
 
 -------------------------------
-
 SELECT
     Project_Name,
     TRANSACTION_IDG,
@@ -111,25 +110,26 @@ FROM
             NULL AS FERC_CREDIT,
             NULL AS FERC_DEBITS
         FROM
-            PJC_EXP_ITEMS_ALL peia
-        JOIN
-            PJC_COST_DIST_LINES_ALL PCDL ON peia.expenditure_item_id = PCDL.expenditure_item_id
-        JOIN
-            xla_distribution_links XDA ON PCDL.expenditure_item_id = XDA.source_distribution_id_num_1
-        JOIN
-            xla_ae_lines XAL ON XDA.ae_header_id = XAL.ae_header_id AND XDA.ae_line_num = XAL.ae_line_num
-        JOIN
-            gl_code_combinations gcc ON XAL.code_combination_id = gcc.code_combination_id
-        JOIN
-            GL_JE_LINES c ON gcc.code_combination_id = c.code_combination_id
-        JOIN
-            GL_JE_HEADERS B ON c.je_header_id = B.je_header_id
-        JOIN
-            PJF_PROJECTS_ALL_B ppab ON peia.project_id = ppab.project_id
-        JOIN
-            PJF_PROJECTS_ALL_TL ppat ON ppab.project_id = ppat.project_id
+            PJC_EXP_ITEMS_ALL peia,
+            PJC_COST_DIST_LINES_ALL PCDL,
+            xla_distribution_links XDA,
+            xla_ae_lines XAL,
+            gl_code_combinations gcc,
+            GL_JE_LINES c,
+            GL_JE_HEADERS B,
+            PJF_PROJECTS_ALL_B ppab,
+            PJF_PROJECTS_ALL_TL ppat
         WHERE
-            peia.expenditure_item_id = 13000
+            peia.expenditure_item_id = PCDL.expenditure_item_id (+)
+            AND PCDL.expenditure_item_id = XDA.source_distribution_id_num_1 (+)
+            AND XDA.ae_header_id = XAL.ae_header_id (+)
+            AND XDA.ae_line_num = XAL.ae_line_num (+)
+            AND XAL.code_combination_id = gcc.code_combination_id (+)
+            AND gcc.code_combination_id = c.code_combination_id (+)
+            AND c.je_header_id = B.je_header_id (+)
+            AND peia.project_id = ppab.project_id (+)
+            AND ppab.project_id = ppat.project_id (+)
+            AND peia.expenditure_item_id = 13000
             AND B.name = '01-03-2024 Miscellaneous Cost'
             AND c.name LIKE 'GAAP%'
 
@@ -145,28 +145,28 @@ FROM
             c.accounted_cr AS FERC_CREDIT,
             c.accounted_dr AS FERC_DEBITS
         FROM
-            PJC_EXP_ITEMS_ALL peia
-        JOIN
-            PJC_COST_DIST_LINES_ALL PCDL ON peia.expenditure_item_id = PCDL.expenditure_item_id
-        JOIN
-            xla_distribution_links XDA ON PCDL.expenditure_item_id = XDA.source_distribution_id_num_1
-        JOIN
-            xla_ae_lines XAL ON XDA.ae_header_id = XAL.ae_header_id AND XDA.ae_line_num = XAL.ae_line_num
-        JOIN
-            gl_code_combinations gcc ON XAL.code_combination_id = gcc.code_combination_id
-        JOIN
-            GL_JE_LINES c ON gcc.code_combination_id = c.code_combination_id
-        JOIN
-            GL_JE_HEADERS B ON c.je_header_id = B.je_header_id
-        JOIN
-            PJF_PROJECTS_ALL_B ppab ON peia.project_id = ppab.project_id
-        JOIN
-            PJF_PROJECTS_ALL_TL ppat ON ppab.project_id = ppat.project_id
+            PJC_EXP_ITEMS_ALL peia,
+            PJC_COST_DIST_LINES_ALL PCDL,
+            xla_distribution_links XDA,
+            xla_ae_lines XAL,
+            gl_code_combinations gcc,
+            GL_JE_LINES c,
+            GL_JE_HEADERS B,
+            PJF_PROJECTS_ALL_B ppab,
+            PJF_PROJECTS_ALL_TL ppat
         WHERE
-            peia.expenditure_item_id = 13000
+            peia.expenditure_item_id = PCDL.expenditure_item_id (+)
+            AND PCDL.expenditure_item_id = XDA.source_distribution_id_num_1 (+)
+            AND XDA.ae_header_id = XAL.ae_header_id (+)
+            AND XDA.ae_line_num = XAL.ae_line_num (+)
+            AND XAL.code_combination_id = gcc.code_combination_id (+)
+            AND gcc.code_combination_id = c.code_combination_id (+)
+            AND c.je_header_id = B.je_header_id (+)
+            AND peia.project_id = ppab.project_id (+)
+            AND ppab.project_id = ppat.project_id (+)
+            AND peia.expenditure_item_id = 13000
             AND B.name = '01-03-2024 Miscellaneous Cost'
             AND c.name LIKE 'FERC%'
     ) AS CombinedData
 ORDER BY
     TRANSACTION_IDG, GAAP_ACCOUNT, FERC_ACCOUNT;
-
