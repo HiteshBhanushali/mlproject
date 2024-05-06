@@ -170,3 +170,34 @@ FROM
     ) AS CombinedData
 ORDER BY
     TRANSACTION_IDG, GAAP_ACCOUNT, FERC_ACCOUNT;
+
+
+
+    -=------------------------------------------- TRY -----------------------
+    SELECT
+    ppat.name AS Project_Name,
+    PEIA.EXPENDITURE_ITEM_ID AS TRANSACTION_IDG,
+    MAX(CASE WHEN c.name LIKE 'GAAP%' THEN gcc.segment3 END) AS GAAP_ACCOUNT,
+    MAX(CASE WHEN c.name LIKE 'FERC%' THEN gcc.segment3 END) AS FERC_ACCOUNT,
+    MAX(CASE WHEN c.name LIKE 'GAAP%' THEN c.accounted_cr END) AS GAAP_CREDIT,
+    MAX(CASE WHEN c.name LIKE 'GAAP%' THEN c.accounted_dr END) AS GAAP_DEBITS,
+    MAX(CASE WHEN c.name LIKE 'FERC%' THEN c.accounted_cr END) AS FERC_CREDIT,
+    MAX(CASE WHEN c.name LIKE 'FERC%' THEN c.accounted_dr END) AS FERC_DEBITS
+FROM
+    PJC_EXP_ITEMS_ALL peia
+    LEFT JOIN PJC_COST_DIST_LINES_ALL PCDL ON peia.expenditure_item_id = PCDL.expenditure_item_id
+    LEFT JOIN xla_distribution_links XDA ON PCDL.expenditure_item_id = XDA.source_distribution_id_num_1
+    LEFT JOIN xla_ae_lines XAL ON XDA.ae_header_id = XAL.ae_header_id AND XDA.ae_line_num = XAL.ae_line_num
+    LEFT JOIN gl_code_combinations gcc ON XAL.code_combination_id = gcc.code_combination_id
+    LEFT JOIN GL_JE_LINES c ON gcc.code_combination_id = c.code_combination_id
+    LEFT JOIN GL_JE_HEADERS B ON c.je_header_id = B.je_header_id
+    LEFT JOIN PJF_PROJECTS_ALL_B ppab ON peia.project_id = ppab.project_id
+    LEFT JOIN PJF_PROJECTS_ALL_TL ppat ON ppab.project_id = ppat.project_id
+WHERE
+    peia.expenditure_item_id = 13000
+    AND B.name = '01-03-2024 Miscellaneous Cost'
+    AND (c.name LIKE 'GAAP%' OR c.name LIKE 'FERC%')
+GROUP BY
+    ppat.name,
+    PEIA.EXPENDITURE_ITEM_ID;
+
