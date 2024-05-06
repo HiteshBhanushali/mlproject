@@ -1,94 +1,17 @@
-SELECT
-    Project_Name,
-    TRANSACTION_IDG,
-    GAAP_ACCOUNT,
-    FERC_ACCOUNT,
-    GAAP_CREDIT,
-    GAAP_DEBITS,
-    FERC_CREDIT,
-    FERC_DEBITS
-FROM
-    (
-        select 
-  ppat.name AS Project_Name, 
-  PEIA.EXPENDITURE_ITEM_ID AS TRANSACTION_IDg, 
-  gcc.segment3 AS GAAP_ACCOUNT, 
-  gcc.CHART_OF_ACCOUNTS_ID, 
-  gcc.CODE_COMBINATION_ID, 
-  NULL AS FERC_ACCOUNT, 
-  c.accounted_cr AS GAAP_CREDIT, 
-  c.accounted_dr AS GAAP_DEBITS, 
-  NULL AS FERC_CREDIT, 
-  NULL AS FERC_DEBITS 
-from 
-  PJC_EXP_ITEMS_ALL peia, 
-  PJC_COST_DIST_LINES_ALL PCDL, 
-  xla_distribution_links XDA, 
-  xla_ae_lines XAL, 
-  gl_code_combinations gcc, 
-  GL_JE_LINES c, 
-  GL_JE_HEADERS B, 
-  PJF_PROJECTS_ALL_B ppab, 
-  PJF_PROJECTS_ALL_TL ppat,
-  gl_ledgers d 
-WHERE 
-  peia.expenditure_item_id = PCDL.expenditure_item_id (+) 
-  AND PCDL.expenditure_item_id = XDA.source_distribution_id_num_1 (+) 
-  AND XDA.ae_header_id = XAL.ae_header_id (+) 
-  AND XDA.ae_line_num = XAL.ae_line_num (+) 
-  AND XAL.code_combination_id = gcc.code_combination_id (+) 
-  AND gcc.code_combination_id = c.code_combination_id (+) 
-  AND c.je_header_id = B.je_header_id (+) 
-  AND peia.project_id = ppab.project_id (+) 
-  AND ppab.project_id = ppat.project_id (+) 
-  AND peia.expenditure_item_id = 13000 
-  and B.ledger_id = d.ledger_id(+)
-  AND B.name = '01-03-2024 Miscellaneous Cost' 
-  AND d.name LIKE '%GAAP%'
-
-        UNION ALL
-
-        select 
-  ppat.name AS Project_Name, 
-  PEIA.EXPENDITURE_ITEM_ID AS TRANSACTION_IDg, 
-  Null AS GAAP_ACCOUNT, 
-  gcc.CHART_OF_ACCOUNTS_ID, 
-  gcc.CODE_COMBINATION_ID, 
-  gcc.segment3 AS FERC_ACCOUNT,
-  NULL AS GAAP_CREDIT,
-  NULL AS GAAP_DEBITS,
-  c.accounted_cr AS FERC_CREDIT,
-  c.accounted_dr AS FERC_DEBITS
-from 
-  PJC_EXP_ITEMS_ALL peia, 
-  PJC_COST_DIST_LINES_ALL PCDL, 
-  xla_distribution_links XDA, 
-  xla_ae_lines XAL, 
-  gl_code_combinations gcc, 
-  GL_JE_LINES c, 
-  GL_JE_HEADERS B, 
-  PJF_PROJECTS_ALL_B ppab, 
-  PJF_PROJECTS_ALL_TL ppat,
-  gl_ledgers d 
-WHERE 
-  peia.expenditure_item_id = PCDL.expenditure_item_id (+) 
-  AND PCDL.expenditure_item_id = XDA.source_distribution_id_num_1 (+) 
-  AND XDA.ae_header_id = XAL.ae_header_id (+) 
-  AND XDA.ae_line_num = XAL.ae_line_num (+) 
-  AND XAL.code_combination_id = gcc.code_combination_id (+) 
-  AND gcc.code_combination_id = c.code_combination_id (+) 
-  AND c.je_header_id = B.je_header_id (+) 
-  AND peia.project_id = ppab.project_id (+) 
-  AND ppab.project_id = ppat.project_id (+) 
-  AND peia.expenditure_item_id = 13000 
-  and B.ledger_id = d.ledger_id(+)
-  AND B.name = '01-03-2024 Miscellaneous Cost' 
-  AND d.name LIKE '%FERC%'
-
-    ) AS CombinedData
-ORDER BY
-    TRANSACTION_IDG, GAAP_ACCOUNT, FERC_ACCOUNT;
-
+Current Output							
+PROJECT_NAME	TRANSACTION_IDG	GAAP_ACC	GAAP_CREDIT	GAAP_DEBIT			
+POW POET FUT04 PJ14	31005	184175	223				
+POW POET FUT04 PJ14	31005	510050		223			
+							
+PROJECT_NAME	TRANSACTION_IDG	FERC_ACC	FERC_CREDIT	FERC_DEBIT			
+POW POET FUT04 PJ14	31005	000000	223				
+POW POET FUT04 PJ14	31005	859001		223			
+							
+							
+Required OUTPUT							
+PROJECT_NAME	TRANSACTION_IDG	GAAP_ACC	GAAP_CREDIT	GAAP_DEBIT	FERC_ACC	FERC_CREDIT	FERC_DEBIT
+POW POET FUT04 PJ14	31005	184175	223		000000	223	
+POW POET FUT04 PJ14	31005	510050		223	859001		223
 
     ---------------------------------------------
 
