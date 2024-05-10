@@ -1,3 +1,81 @@
+SELECT 
+  which, 
+  Project_Name, 
+  TRANSACTION_IDG, 
+  Journal_name, 
+  ferc, 
+  GAAP_ACCOUNT, 
+  FERC_ACCOUNT, 
+  GAAP_CREDIT, 
+  GAAP_DEBITS, 
+  FERC_CREDIT, 
+  FERC_DEBITS,
+  gaap_event_id,
+  gaap_line_num,
+  ferc_event_id,
+  ferc_line_num 
+FROM 
+  (
+    -- First Union Query
+    SELECT 
+      'Union 1' AS which, 
+      GAAP_DATA.Project_Name, 
+      GAAP_DATA.TRANSACTION_IDG, 
+      GAAP_DATA.Journal_name, 
+      FERC_DATA.Journal_name AS ferc, 
+      GAAP_DATA.GAAP_ACCOUNT, 
+      FERC_DATA.FERC_ACCOUNT, 
+      GAAP_DATA.GAAP_CREDIT, 
+      GAAP_DATA.GAAP_DEBITS, 
+      FERC_DATA.FERC_CREDIT, 
+      FERC_DATA.FERC_DEBITS,
+      GAAP_DATA.gaap_event_id,
+      GAAP_DATA.gaap_line_num,
+      GAAP_DATA.ferc_event_id,
+      GAAP_DATA.ferc_line_num  
+    FROM 
+      (
+        -- Your existing first union subquery
+      ) GAAP_DATA
+    LEFT JOIN (
+        -- Your existing second union subquery
+      ) FERC_DATA 
+    ON GAAP_DATA.Journal_name = FERC_DATA.Journal_name
+    WHERE FERC_DATA.Journal_name IS NULL -- Only include if Journal_name not in First Union
+
+    UNION
+
+    -- Second Union Query
+    SELECT 
+      'FERC only and GAAP tied data at GL' AS which, 
+      null AS Project_Name, 
+      null AS TRANSACTION_IDG, 
+      GAAP_DATA.Journal_name, 
+      FERC_DATA.Journal_name AS ferc, 
+      GAAP_DATA.GAAP_ACCOUNT, 
+      FERC_DATA.FERC_ACCOUNT, 
+      GAAP_DATA.GAAP_CREDIT, 
+      GAAP_DATA.GAAP_DEBITS, 
+      FERC_DATA.FERC_CREDIT, 
+      FERC_DATA.FERC_DEBITS,
+      null AS gaap_event_id,
+      null AS gaap_line_num,
+      null AS ferc_event_id,
+      null AS ferc_line_num 
+    FROM 
+      (
+        -- Your existing GAAP tied data subquery
+      ) GAAP_DATA
+    JOIN (
+        -- Your existing FERC only subquery
+      ) FERC_DATA 
+    ON GAAP_DATA.Journal_name = FERC_DATA.Journal_name
+    WHERE GAAP_DATA.Journal_name IS NULL -- Only include if Journal_name not in First Union
+  ) CombinedData
+WHERE 
+  Journal_name = 'GL-FUT-014-J2' OR ferc = 'GL-FUT-014-J2';
+
+
 ------------------- Change from previous query ---------
 -- Union 1: a.	FERC data should be driving. So, please use outer-join.  
 -- Union 3 – FERC data (FERC only and GAAP tied data)
