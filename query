@@ -1,3 +1,217 @@
+------------------- Change from previous query ---------
+-- Union 1: a.	FERC data should be driving. So, please use outer-join.  
+-- Union 3 – FERC data (FERC only and GAAP tied data)
+------------------------------------------------------------
+
+SELECT 
+  which, 
+  Project_Name, 
+  TRANSACTION_IDG, 
+  Journal_name, 
+--   ferc, 
+  GAAP_ACCOUNT, 
+  FERC_ACCOUNT, 
+  GAAP_CREDIT, 
+  GAAP_DEBITS, 
+  FERC_CREDIT, 
+  FERC_DEBITS,
+  gaap_event_id,
+  gaap_line_num,
+  ferc_event_id,
+  ferc_line_num 
+from 
+  (
+    SELECT 
+      'Union 1' as which, 
+      GAAP_DATA.Project_Name, 
+      GAAP_DATA.TRANSACTION_IDG, 
+      GAAP_DATA.Journal_name, 
+      FERC_DATA.Journal_name as ferc, 
+      GAAP_DATA.GAAP_ACCOUNT, 
+      FERC_DATA.FERC_ACCOUNT, 
+      GAAP_DATA.GAAP_CREDIT, 
+      GAAP_DATA.GAAP_DEBITS, 
+      FERC_DATA.FERC_CREDIT, 
+      FERC_DATA.FERC_DEBITS,
+      GAAP_DATA.event_id as gaap_event_id,
+      GAAP_DATA.ae_line_num as gaap_line_num,
+      GAAP_DATA.event_id as ferc_event_id,
+      FERC_DATA.ae_line_num as ferc_line_num  
+    FROM 
+      (
+        SELECT 
+          ppat.name AS Project_Name, 
+          PEIA.EXPENDITURE_ITEM_ID AS TRANSACTION_IDG, 
+          gcc.segment3 AS GAAP_ACCOUNT, 
+          --             NULL AS FERC_ACCOUNT,
+          c.accounted_cr AS GAAP_CREDIT, 
+          c.accounted_dr AS GAAP_DEBITS, 
+          --             NULL AS FERC_CREDIT,
+          --             NULL AS FERC_DEBITS,
+          xda.event_id as event_id, 
+          xda.ae_line_num as ae_line_num, 
+          B.name as Journal_name 
+        FROM 
+          PJC_EXP_ITEMS_ALL peia, 
+          PJC_COST_DIST_LINES_ALL PCDL, 
+          xla_distribution_links XDA, 
+          xla_ae_lines XAL, 
+          gl_code_combinations gcc, 
+          gl_import_references gir, 
+          GL_JE_LINES c, 
+          GL_JE_HEADERS B, 
+          PJF_PROJECTS_ALL_B ppab, 
+          PJF_PROJECTS_ALL_TL ppat, 
+          GL_LEDGERS gll 
+        WHERE 
+          peia.expenditure_item_id = PCDL.expenditure_item_id (+) 
+          AND PCDL.expenditure_item_id = XDA.source_distribution_id_num_1 (+) 
+          AND XDA.ae_header_id = XAL.ae_header_id 
+          AND XDA.ae_line_num = XAL.ae_line_num 
+          and XAL.GL_SL_LINK_ID = gir.GL_SL_LINK_ID(+) 
+          and xal.GL_SL_LINK_TABLE = gir.GL_SL_LINK_TABLE(+) ----
+          and gir.JE_HEADER_ID = c.JE_HEADER_ID(+) 
+          AND XAL.code_combination_id = gcc.code_combination_id 
+          AND gcc.code_combination_id = c.code_combination_id (+) 
+          AND c.je_header_id = b.je_header_id 
+          AND peia.project_id = ppab.project_id (+) 
+          AND ppab.project_id = ppat.project_id (+) 
+          AND B.LEDGER_ID = gll.LEDGER_ID (+) --             AND peia.expenditure_item_id = 31005
+          --             AND B.name = '21-03-2024 Miscellaneous Cost'
+          AND gll.name LIKE '%GAAP%'
+      ) GAAP_DATA, 
+      (
+        SELECT 
+          ppat.name AS Project_Name, 
+          PEIA.EXPENDITURE_ITEM_ID AS TRANSACTION_IDG, 
+          --             NULL AS GAAP_ACCOUNT,
+          gcc.segment3 AS FERC_ACCOUNT, 
+          --             NULL AS GAAP_CREDIT,
+          --             NULL AS GAAP_DEBITS,
+          c.accounted_cr AS FERC_CREDIT, 
+          c.accounted_dr AS FERC_DEBITS, 
+          xda.event_id as event_id, 
+          xda.ae_line_num as ae_line_num, 
+          B.name as Journal_name 
+        FROM 
+          PJC_EXP_ITEMS_ALL peia, 
+          PJC_COST_DIST_LINES_ALL PCDL, 
+          xla_distribution_links XDA, 
+          xla_ae_lines XAL, 
+          gl_code_combinations gcc, 
+          gl_import_references gir, 
+          GL_JE_LINES c, 
+          GL_JE_HEADERS B, 
+          PJF_PROJECTS_ALL_B ppab, 
+          PJF_PROJECTS_ALL_TL ppat, 
+          GL_LEDGERS gll 
+        WHERE 
+          peia.expenditure_item_id = PCDL.expenditure_item_id (+) 
+          AND PCDL.expenditure_item_id = XDA.source_distribution_id_num_1 (+) 
+          AND XDA.ae_header_id = XAL.ae_header_id 
+          AND XDA.ae_line_num = XAL.ae_line_num 
+          and XAL.GL_SL_LINK_ID = gir.GL_SL_LINK_ID(+) 
+          and xal.GL_SL_LINK_TABLE = gir.GL_SL_LINK_TABLE(+) ----
+          and gir.JE_HEADER_ID = b.JE_HEADER_ID(+) 
+          AND XAL.code_combination_id = gcc.code_combination_id 
+          AND gcc.code_combination_id = c.code_combination_id (+) 
+          AND B.je_header_id = c.je_header_id 
+          AND peia.project_id = ppab.project_id (+) 
+          AND ppab.project_id = ppat.project_id (+) 
+          AND B.LEDGER_ID = gll.LEDGER_ID (+) --             AND peia.expenditure_item_id = 31004
+          --             AND B.name = '21-03-2024 Miscellaneous Cost'
+          AND gll.name LIKE '%FERC%'
+      ) FERC_DATA 
+    where 
+      FERC_DATA.TRANSACTION_IDG = GAAP_DATA.TRANSACTION_IDG(+) 
+      and FERC_DATA.event_id = GAAP_DATA.event_id(+) 
+      and FERC_DATA.ae_line_num = GAAP_DATA.ae_line_num(+) 
+      and FERC_DATA.Journal_name = GAAP_DATA.Journal_name(+) --     and GAAP_DATA.TRANSACTION_IDG = 31004
+      --     AND GAAP_DATA.Journal_name = '21-03-2024 Miscellaneous Cost'
+      --     ORDER BY
+      --     TRANSACTION_IDG, GAAP_ACCOUNT, FERC_ACCOUNT
+    union 
+    SELECT 
+      'FERC only and GAAP tied data at GL' as which, 
+      null as Project_Name, 
+      null as TRANSACTION_IDG, 
+      GAAP_DATA.Journal_name, 
+      FERC_DATA.Journal_name as ferc, 
+      GAAP_DATA.GAAP_ACCOUNT, 
+      FERC_DATA.FERC_ACCOUNT, 
+      GAAP_DATA.GAAP_CREDIT, 
+      GAAP_DATA.GAAP_DEBITS, 
+      FERC_DATA.FERC_CREDIT, 
+      FERC_DATA.FERC_DEBITS,
+      null as gaap_event_id,
+      GAAP_DATA.GAAP_LINE_NUM as gaap_line_num,
+      null as ferc_event_id,
+      FERC_DATA.FERC_LINE_NUM as ferc_line_num 
+    FROM 
+      (
+        SELECT 
+          gcc.segment3 AS GAAP_ACCOUNT, 
+          c.accounted_cr AS GAAP_CREDIT, 
+          c.accounted_dr AS GAAP_DEBITS, 
+          B.name as Journal_name ,
+          c.je_line_num as GAAP_LINE_NUM
+        FROM  
+          gl_code_combinations gcc, 
+          GL_JE_LINES c, 
+          GL_JE_HEADERS B, 
+          GL_LEDGERS gll 
+        WHERE 1=1
+          and gcc.code_combination_id = c.code_combination_id 
+          AND c.je_header_id = b.je_header_id  
+          AND B.LEDGER_ID = gll.LEDGER_ID (+)
+          AND gll.name LIKE '%GAAP%'
+      ) GAAP_DATA, 
+      (
+        SELECT 
+          gcc.segment3 AS FERC_ACCOUNT, 
+          c.accounted_cr AS FERC_CREDIT, 
+          c.accounted_dr AS FERC_DEBITS,  
+          B.name as Journal_name,
+          c.je_line_num as FERC_LINE_NUM
+        FROM 
+          gl_code_combinations gcc,  
+          GL_JE_LINES c, 
+          GL_JE_HEADERS B, 
+          GL_LEDGERS gll 
+        WHERE 1=1
+          and gcc.code_combination_id = c.code_combination_id
+          AND c.je_header_id = b.je_header_id 
+          AND B.LEDGER_ID = gll.LEDGER_ID (+)
+          AND gll.name LIKE '%FERC%'
+--           and gcc.segment3 = '234001'
+--           and B.name = 'GL-FUT-014-J2'
+      ) FERC_DATA 
+    where  
+      FERC_DATA.Journal_name = GAAP_DATA.Journal_name(+)
+      and FERC_DATA.FERC_LINE_NUM = GAAP_DATA.GAAP_LINE_NUM(+)
+            --and (FERC_DATA.Journal_name = 'GL-FUT-014-J2') --     and gjh.name = '22-03-2024 Miscellaneous Cost'
+      ) 
+where 
+  1 = 1 
+  AND (
+    Journal_name = 'Case 4 Test 03-2132 CIP Category Change' 
+    or FERC = 'Case 4 Test 03-2132 CIP Category Change'
+  ) --     'CASE 2 FUT TEST-2132 POWERPLAN'
+  ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+---------------------------------
 SELECT 
   which, 
   Project_Name, 
