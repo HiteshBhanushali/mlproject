@@ -1,63 +1,37 @@
-ODI-1228: Task Create staging (C$) table-LKM Object Storage to ADWC Copy- fails on the target connection EFS_DEV_RAW.
-Caused by: java.sql.SQLSyntaxErrorException: ORA-00904: : invalid identifier
- 
-	atoracle.jdbc.driver.T4CTTIoer11.processError(T4CTTIoer11.java:510)
-	atoracle.jdbc.driver.T4CTTIoer11.processError(T4CTTIoer11.java:462)
-	atoracle.jdbc.driver.T4C8Oall.processError(T4C8Oall.java:1105)
-	atoracle.jdbc.driver.T4CTTIfun.receive(T4CTTIfun.java:551)
-	atoracle.jdbc.driver.T4CTTIfun.doRPC(T4CTTIfun.java:269)
-	atoracle.jdbc.driver.T4C8Oall.doOALL(T4C8Oall.java:656)
-	atoracle.jdbc.driver.T4CStatement.doOall8(T4CStatement.java:230)
-	atoracle.jdbc.driver.T4CStatement.doOall8(T4CStatement.java:42)
-	atoracle.jdbc.driver.T4CStatement.executeForRows(T4CStatement.java:929)
-	atoracle.jdbc.driver.OracleStatement.doExecuteWithTimeout(OracleStatement.java:1280)
-	atoracle.jdbc.driver.OracleStatement.executeInternal(OracleStatement.java:1921)
-	atoracle.jdbc.driver.OracleStatement.execute(OracleStatement.java:1876)
-	atoracle.jdbc.driver.OracleStatementWrapper.execute(OracleStatementWrapper.java:304)
-	atoracle.odi.runtime.agent.execution.sql.SQLCommand.execute(SQLCommand.java:271)
-	atoracle.odi.runtime.agent.execution.sql.SQLExecutor.execute(SQLExecutor.java:142)
-	atoracle.odi.runtime.agent.execution.sql.SQLExecutor.execute(SQLExecutor.java:28)
-	atoracle.odi.runtime.agent.execution.TaskExecutionHandler.handleTask(TaskExecutionHandler.java:52)
-	atoracle.odi.runtime.agent.execution.SessionTask.processTask(SessionTask.java:217)
-	atoracle.odi.runtime.agent.execution.SessionTask.doExecuteTask(SessionTask.java:129)
-	atoracle.odi.runtime.agent.execution.AbstractSessionTask.execute(AbstractSessionTask.java:892)
-	atoracle.odi.runtime.agent.execution.SessionExecutor$SerialTrain.runTasks(SessionExecutor.java:2264)
-	atoracle.odi.runtime.agent.execution.SessionExecutor.executeSession(SessionExecutor.java:630)
-	atoracle.odi.runtime.agent.processor.TaskExecutorAgentRequestProcessor$1.doAction(TaskExecutorAgentRequestProcessor.java:718)
-	atoracle.odi.runtime.agent.processor.TaskExecutorAgentRequestProcessor$1.doAction(TaskExecutorAgentRequestProcessor.java:611)
-	atoracle.odi.core.persistence.dwgobject.DwgObjectTemplate.execute(DwgObjectTemplate.java:203)
-	atoracle.odi.runtime.agent.processor.TaskExecutorAgentRequestProcessor.doProcessStartAgentTask(TaskExecutorAgentRequestProcessor.java:800)
-	atoracle.odi.runtime.agent.processor.impl.StartSessRequestProcessor.access$1400(StartSessRequestProcessor.java:74)
-	atoracle.odi.runtime.agent.processor.impl.StartSessRequestProcessor$StartSessTask.doExecute(StartSessRequestProcessor.java:713)
-	atoracle.odi.runtime.agent.processor.task.AgentTask.execute(AgentTask.java:180)
-	atoracle.odi.runtime.agent.support.DefaultAgentTaskExecutor$2.run(DefaultAgentTaskExecutor.java:108)
-	atjava.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
-	atoracle.odi.runtime.agent.execution.job.OdiJob.call(OdiJob.java:73)
-	atoracle.odi.runtime.agent.execution.job.OdiJob.call(OdiJob.java:73)
-	atjava.util.concurrent.FutureTask.run(FutureTask.java:266)
-	atjava.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
-	atjava.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
-	atjava.lang.Thread.run(Thread.java:750)
-Caused by: Sql = 
-create table EFS_RAW.C$_0EFS_ACCOUNT_CURRENT_SORT1
-(
-  NAME VARCHAR2(50),
-NODE_TYPE VARCHAR2(50),
-PARENT VARCHAR2(50),
-PARENT_NODE_TYPE VARCHAR2(50),
-START_DATE DATE,
-END_DATE VARCHAR2(50),
-SUMMARY VARCHAR2(50),
-ENABLED VARCHAR2(50),
-THIRD_PARTY_CONTROL_ACCOUNT VARCHAR2(50),
-RECONCILE VARCHAR2(50),
-ACCOUNT_TYPE VARCHAR2(50),
-ALLOW_POSTING VARCHAR2(50),
-ALLOW_BUDGETING VARCHAR2(50),
-FINANCIAL_CATEGORY VARCHAR2(50),
-DESCRIPTION_US VARCHAR2(50),
-LEVEL NUMBER(12),
-TREE_LABEL VARCHAR2(50),
-SIBLING_SORT_ORDER NUMBER
-)
-, Error Msg = java.sql.SQLSyntaxErrorException: ORA-00904: : invalid identifier
+CREATE OR REPLACE PROCEDURE LoadDimTable
+IS
+    CURSOR raw_cursor IS
+        SELECT level_1, name, sibling, level
+        FROM raw_table;
+
+    v_level_1 raw_table.level_1%TYPE;
+    v_name raw_table.name%TYPE;
+    v_sibling raw_table.sibling%TYPE;
+    v_level raw_table.level%TYPE;
+    v_sql VARCHAR2(4000);
+BEGIN
+    FOR rec IN raw_cursor LOOP
+        FOR i IN 1..31 LOOP
+            IF rec.level_1 = i AND rec.level = 1 THEN
+                v_sql := 'UPDATE dim_table ' ||
+                         'SET customer_sort_' || TO_CHAR(31 - (i - 1)) || ' = :1 ' ||
+                         'WHERE flex = :2 AND account = :3';
+
+                EXECUTE IMMEDIATE v_sql USING rec.sibling, rec.level_1, rec.name;
+            ELSIF rec.level_1 = i AND rec.level = 2 THEN
+                v_sql := 'UPDATE dim_table ' ||
+                         'SET customer_sort_' || TO_CHAR(31 - (i - 2)) || ' = :1 ' ||
+                         'WHERE flex = :2 AND account = :3';
+
+                EXECUTE IMMEDIATE v_sql USING rec.sibling, rec.level_1, rec.name;
+            END IF;
+        END LOOP;
+    END LOOP;
+
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        RAISE;
+END LoadDimTable;
+/
