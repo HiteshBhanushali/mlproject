@@ -1,31 +1,38 @@
-CREATE OR REPLACE PROCEDURE CUSTOM_SORT_1
-IS
-    CURSOR raw_cursor IS
-        SELECT 
-            NAME as name,
-            LEVEL_1,
-            Sibling_Sort_Order as sibling
-        FROM EFS_RAW.EFS_ACCOUNT_CURRENT_SORT;
-
-    v_sql VARCHAR2(4000);
-
-BEGIN
-    FOR rec IN raw_cursor LOOP
-        FOR i IN 1..31 LOOP
-            IF rec.level_1 = i THEN
-                v_sql := 'UPDATE EFS_DATA_LAYER.efs_account_dimh ' ||
-                         'SET custom_sort_lvl_' || TO_CHAR(31 - i + 1) || ' = :1 ' ||
-                         'WHERE fixed_hier_level = :2 AND account_segment = :3 AND HIERARCHY_VERSION_NAME = ''Account_Current''';
-
-                EXECUTE IMMEDIATE v_sql USING rec.sibling, TO_CHAR(rec.level_1-1), rec.name;
-            END IF;
-        END LOOP;
-    END LOOP;
-
-    COMMIT;
-EXCEPTION
-    WHEN OTHERS THEN
-        ROLLBACK;
-        RAISE;
-END CUSTOM_SORT_1;
-/
+UPDATE dimh_table
+SET
+    custom_sort_lvl1 = CASE WHEN raw_table.level - 1 = 1 THEN raw_table.sibling ELSE custom_sort_lvl1 END,
+    custom_sort_lvl2 = CASE WHEN raw_table.level - 1 = 2 THEN raw_table.sibling ELSE custom_sort_lvl2 END,
+    custom_sort_lvl3 = CASE WHEN raw_table.level - 1 = 3 THEN raw_table.sibling ELSE custom_sort_lvl3 END,
+    custom_sort_lvl4 = CASE WHEN raw_table.level - 1 = 4 THEN raw_table.sibling ELSE custom_sort_lvl4 END,
+    custom_sort_lvl5 = CASE WHEN raw_table.level - 1 = 5 THEN raw_table.sibling ELSE custom_sort_lvl5 END,
+    custom_sort_lvl6 = CASE WHEN raw_table.level - 1 = 6 THEN raw_table.sibling ELSE custom_sort_lvl6 END,
+    custom_sort_lvl7 = CASE WHEN raw_table.level - 1 = 7 THEN raw_table.sibling ELSE custom_sort_lvl7 END,
+    custom_sort_lvl8 = CASE WHEN raw_table.level - 1 = 8 THEN raw_table.sibling ELSE custom_sort_lvl8 END,
+    custom_sort_lvl9 = CASE WHEN raw_table.level - 1 = 9 THEN raw_table.sibling ELSE custom_sort_lvl9 END,
+    custom_sort_lvl10 = CASE WHEN raw_table.level - 1 = 10 THEN raw_table.sibling ELSE custom_sort_lvl10 END,
+    custom_sort_lvl11 = CASE WHEN raw_table.level - 1 = 11 THEN raw_table.sibling ELSE custom_sort_lvl11 END,
+    custom_sort_lvl12 = CASE WHEN raw_table.level - 1 = 12 THEN raw_table.sibling ELSE custom_sort_lvl12 END,
+    custom_sort_lvl13 = CASE WHEN raw_table.level - 1 = 13 THEN raw_table.sibling ELSE custom_sort_lvl13 END,
+    custom_sort_lvl14 = CASE WHEN raw_table.level - 1 = 14 THEN raw_table.sibling ELSE custom_sort_lvl14 END,
+    custom_sort_lvl15 = CASE WHEN raw_table.level - 1 = 15 THEN raw_table.sibling ELSE custom_sort_lvl15 END,
+    custom_sort_lvl16 = CASE WHEN raw_table.level - 1 = 16 THEN raw_table.sibling ELSE custom_sort_lvl16 END,
+    custom_sort_lvl17 = CASE WHEN raw_table.level - 1 = 17 THEN raw_table.sibling ELSE custom_sort_lvl17 END,
+    custom_sort_lvl18 = CASE WHEN raw_table.level - 1 = 18 THEN raw_table.sibling ELSE custom_sort_lvl18 END,
+    custom_sort_lvl19 = CASE WHEN raw_table.level - 1 = 19 THEN raw_table.sibling ELSE custom_sort_lvl19 END,
+    custom_sort_lvl20 = CASE WHEN raw_table.level - 1 = 20 THEN raw_table.sibling ELSE custom_sort_lvl20 END,
+    custom_sort_lvl21 = CASE WHEN raw_table.level - 1 = 21 THEN raw_table.sibling ELSE custom_sort_lvl21 END,
+    custom_sort_lvl22 = CASE WHEN raw_table.level - 1 = 22 THEN raw_table.sibling ELSE custom_sort_lvl22 END,
+    custom_sort_lvl23 = CASE WHEN raw_table.level - 1 = 23 THEN raw_table.sibling ELSE custom_sort_lvl23 END,
+    custom_sort_lvl24 = CASE WHEN raw_table.level - 1 = 24 THEN raw_table.sibling ELSE custom_sort_lvl24 END,
+    custom_sort_lvl25 = CASE WHEN raw_table.level - 1 = 25 THEN raw_table.sibling ELSE custom_sort_lvl25 END,
+    custom_sort_lvl26 = CASE WHEN raw_table.level - 1 = 26 THEN raw_table.sibling ELSE custom_sort_lvl26 END,
+    custom_sort_lvl27 = CASE WHEN raw_table.level - 1 = 27 THEN raw_table.sibling ELSE custom_sort_lvl27 END,
+    custom_sort_lvl28 = CASE WHEN raw_table.level - 1 = 28 THEN raw_table.sibling ELSE custom_sort_lvl28 END,
+    custom_sort_lvl29 = CASE WHEN raw_table.level - 1 = 29 THEN raw_table.sibling ELSE custom_sort_lvl29 END,
+    custom_sort_lvl30 = CASE WHEN raw_table.level - 1 = 30 THEN raw_table.sibling ELSE custom_sort_lvl30 END,
+    custom_sort_lvl31 = CASE WHEN raw_table.level - 1 = 31 THEN raw_table.sibling ELSE custom_sort_lvl31 END
+FROM raw_table
+WHERE
+    dimh_table.fixed = raw_table.level - 1
+    AND dimh_table.account = raw_table.name
+    AND raw_table.hierarchy = 'ACCOUNT_CURRENT';
