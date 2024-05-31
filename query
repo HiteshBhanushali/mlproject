@@ -1,29 +1,51 @@
-CREATE OR REPLACE PROCEDURE LoadDimTable
+create or replace PROCEDURE CUSTOM_SORT_1
 IS
     CURSOR raw_cursor IS
-        SELECT level_1, name, sibling, level
-        FROM raw_table;
+        SELECT 
+        NAME as name,
+       /* NODE_TYPE,
+        PARENT,
+        PARENT_NODE_TYPE,
+        START_DATE,
+        END_DATE,
+        SUMMARY,
+        ENABLED,
+        THIRD_PARTY_CONTROL_ACCOUNT,
+        RECONCILE,
+        ACCOUNT_TYPE,
+        ALLOW_POSTING,
+        ALLOW_BUDGETING,
+        FINANCIAL_CATEGORY,
+        DESCRIPTION_US ,*/
+        LEVEL_1,
+        --TREE_LABEL,
+        Sibling_Sort_Order as sibling
+        FROM EFS_RAW.EFS_ACCOUNT_CURRENT_SORT;
 
-    v_level_1 raw_table.level_1%TYPE;
-    v_name raw_table.name%TYPE;
-    v_sibling raw_table.sibling%TYPE;
-    v_level raw_table.level%TYPE;
+    --v_level_1 EFS_RAW.EFS_ACCOUNT_CURRENT_SORT.level_1%TYPE;
+    --v_name raw_table.name%TYPE;
+    --v_sibling raw_table.sibling%TYPE;
+    --v_level raw_table.level%TYPE;
     v_sql VARCHAR2(4000);
+
 BEGIN
     FOR rec IN raw_cursor LOOP
-        FOR i IN 1..31 LOOP
-            IF rec.level_1 = i AND rec.level = 1 THEN
-                v_sql := 'UPDATE dim_table ' ||
-                         'SET customer_sort_' || TO_CHAR(31 - (i - 1)) || ' = :1 ' ||
-                         'WHERE flex = :2 AND account = :3';
-
-                EXECUTE IMMEDIATE v_sql USING rec.sibling, rec.level_1, rec.name;
-            ELSIF rec.level_1 = i AND rec.level = 2 THEN
-                v_sql := 'UPDATE dim_table ' ||
+        FOR i IN 2..3 LOOP
+            IF rec.level_1 = i THEN
+            dbms_output.put_line('hello');
+            dbms_output.put_line( rec.level_1);
+            dbms_output.put_line( rec.sibling);
+                v_sql := 'UPDATE EFS_DATA_LAYER.efs_account_dimh ' ||
+                         'SET custom_sort_lvl_' || TO_CHAR(31 - i + 1) || ' = '||rec.sibling|| 
+                         'WHERE fixed_hier_level = '''||to_char(rec.level_1-1)||''' AND account_segment = '''||rec.name||'''' AND HIERARCHY_VERSION_NAME = "Account_Current"';
+            dbms_output.put_line('hem');
+                EXECUTE IMMEDIATE v_sql; --USING rec.sibling, rec.level_1, rec.name;
+            /*ELSIF rec.level_1 = i AND rec.level = 2 THEN
+                v_sql := 'UPDATE EFS_DATA_LAYER.efs_account_dimh ' ||
                          'SET customer_sort_' || TO_CHAR(31 - (i - 2)) || ' = :1 ' ||
                          'WHERE flex = :2 AND account = :3';
 
-                EXECUTE IMMEDIATE v_sql USING rec.sibling, rec.level_1, rec.name;
+                EXECUTE IMMEDIATE v_sql USING rec.sibling, rec.level_1, rec.name;*/
             END IF;
         END LOOP;
     END LOOP;
@@ -33,5 +55,4 @@ EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
         RAISE;
-END LoadDimTable;
-/
+END CUSTOM_SORT_1;
