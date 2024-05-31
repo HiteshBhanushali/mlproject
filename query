@@ -1,11 +1,27 @@
-UPDATE EFS_DATA_LAYER.efs_account_dimh
+UPDATE EFS_DATA_LAYER.efs_account_dimh d
 SET
-    EFS_DATA_LAYER.efs_account_dimh.custom_sort_lvl28 = CASE WHEN EFS_RAW.EFS_ACCOUNT_CURRENT_SORT.level - 1 = 28 THEN EFS_RAW.EFS_ACCOUNT_CURRENT_SORT.SIBLING_SORT_ORDER ELSE null END,
-    EFS_DATA_LAYER.efs_account_dimh.custom_sort_lvl29 = CASE WHEN EFS_RAW.EFS_ACCOUNT_CURRENT_SORT.level - 1 = 29 THEN EFS_RAW.EFS_ACCOUNT_CURRENT_SORT.SIBLING_SORT_ORDER ELSE null END,
-    EFS_DATA_LAYER.efs_account_dimh.custom_sort_lvl30 = CASE WHEN EFS_RAW.EFS_ACCOUNT_CURRENT_SORT.level - 1 = 30 THEN EFS_RAW.EFS_ACCOUNT_CURRENT_SORT.SIBLING_SORT_ORDER ELSE null END,
-    EFS_DATA_LAYER.efs_account_dimh.custom_sort_lvl31 = CASE WHEN EFS_RAW.EFS_ACCOUNT_CURRENT_SORT.level - 1 = 31 THEN EFS_RAW.EFS_ACCOUNT_CURRENT_SORT.SIBLING_SORT_ORDER ELSE null END
-FROM EFS_RAW.EFS_ACCOUNT_CURRENT_SORT
-WHERE
-    EFS_DATA_LAYER.efs_account_dimh.FIXED_HIER_LEVEL = EFS_RAW.EFS_ACCOUNT_CURRENT_SORT.level_1 - 1
-    AND EFS_DATA_LAYER.efs_account_dimh.ACCOUNT_SEGMENT = EFS_RAW.EFS_ACCOUNT_CURRENT_SORT.name
-    AND EFS_DATA_LAYER.efs_account_dimh.HIERARCHY_VERSION_NAME = 'ACCOUNT_CURRENT';
+    d.custom_sort_lvl28 = (SELECT CASE WHEN r.level - 1 = 28 THEN r.SIBLING_SORT_ORDER ELSE null END
+                          FROM EFS_RAW.EFS_ACCOUNT_CURRENT_SORT r
+                          WHERE d.FIXED_HIER_LEVEL = r.level - 1
+                          AND d.ACCOUNT_SEGMENT = r.name
+                          AND d.HIERARCHY_VERSION_NAME = 'ACCOUNT_CURRENT'),
+    d.custom_sort_lvl29 = (SELECT CASE WHEN r.level - 1 = 29 THEN r.SIBLING_SORT_ORDER ELSE null END
+                          FROM EFS_RAW.EFS_ACCOUNT_CURRENT_SORT r
+                          WHERE d.FIXED_HIER_LEVEL = r.level - 1
+                          AND d.ACCOUNT_SEGMENT = r.name
+                          AND d.HIERARCHY_VERSION_NAME = 'ACCOUNT_CURRENT'),
+    d.custom_sort_lvl30 = (SELECT CASE WHEN r.level - 1 = 30 THEN r.SIBLING_SORT_ORDER ELSE null END
+                          FROM EFS_RAW.EFS_ACCOUNT_CURRENT_SORT r
+                          WHERE d.FIXED_HIER_LEVEL = r.level - 1
+                          AND d.ACCOUNT_SEGMENT = r.name
+                          AND d.HIERARCHY_VERSION_NAME = 'ACCOUNT_CURRENT'),
+    d.custom_sort_lvl31 = (SELECT CASE WHEN r.level - 1 = 31 THEN r.SIBLING_SORT_ORDER ELSE null END
+                          FROM EFS_RAW.EFS_ACCOUNT_CURRENT_SORT r
+                          WHERE d.FIXED_HIER_LEVEL = r.level - 1
+                          AND d.ACCOUNT_SEGMENT = r.name
+                          AND d.HIERARCHY_VERSION_NAME = 'ACCOUNT_CURRENT')
+WHERE EXISTS (SELECT 1 
+              FROM EFS_RAW.EFS_ACCOUNT_CURRENT_SORT r
+              WHERE d.FIXED_HIER_LEVEL = r.level - 1
+              AND d.ACCOUNT_SEGMENT = r.name
+              AND d.HIERARCHY_VERSION_NAME = 'ACCOUNT_CURRENT');
