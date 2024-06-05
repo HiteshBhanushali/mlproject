@@ -1,27 +1,45 @@
-UPDATE EFS_DATA_LAYER.efs_account_dimh d
-SET
-    d.custom_sort_lvl28 = (SELECT CASE WHEN r.level - 1 = 28 THEN r.SIBLING_SORT_ORDER ELSE null END
-                          FROM EFS_RAW.EFS_ACCOUNT_CURRENT_SORT r
-                          WHERE d.FIXED_HIER_LEVEL = r.level - 1
-                          AND d.ACCOUNT_SEGMENT = r.name
-                          AND d.HIERARCHY_VERSION_NAME = 'ACCOUNT_CURRENT'),
-    d.custom_sort_lvl29 = (SELECT CASE WHEN r.level - 1 = 29 THEN r.SIBLING_SORT_ORDER ELSE null END
-                          FROM EFS_RAW.EFS_ACCOUNT_CURRENT_SORT r
-                          WHERE d.FIXED_HIER_LEVEL = r.level - 1
-                          AND d.ACCOUNT_SEGMENT = r.name
-                          AND d.HIERARCHY_VERSION_NAME = 'ACCOUNT_CURRENT'),
-    d.custom_sort_lvl30 = (SELECT CASE WHEN r.level - 1 = 30 THEN r.SIBLING_SORT_ORDER ELSE null END
-                          FROM EFS_RAW.EFS_ACCOUNT_CURRENT_SORT r
-                          WHERE d.FIXED_HIER_LEVEL = r.level - 1
-                          AND d.ACCOUNT_SEGMENT = r.name
-                          AND d.HIERARCHY_VERSION_NAME = 'ACCOUNT_CURRENT'),
-    d.custom_sort_lvl31 = (SELECT CASE WHEN r.level - 1 = 31 THEN r.SIBLING_SORT_ORDER ELSE null END
-                          FROM EFS_RAW.EFS_ACCOUNT_CURRENT_SORT r
-                          WHERE d.FIXED_HIER_LEVEL = r.level - 1
-                          AND d.ACCOUNT_SEGMENT = r.name
-                          AND d.HIERARCHY_VERSION_NAME = 'ACCOUNT_CURRENT')
-WHERE EXISTS (SELECT 1 
-              FROM EFS_RAW.EFS_ACCOUNT_CURRENT_SORT r
-              WHERE d.FIXED_HIER_LEVEL = r.level - 1
-              AND d.ACCOUNT_SEGMENT = r.name
-              AND d.HIERARCHY_VERSION_NAME = 'ACCOUNT_CURRENT');
+WITH base_data AS (
+    SELECT
+        Project_ID,
+        Version_Number,
+        attribut1_date,
+        LAG(attribut1_date, 1) OVER (PARTITION BY Project_ID ORDER BY Version_Number) AS prev_attribut1_date,
+        LAG(new_eis_date, 1) OVER (PARTITION BY Project_ID ORDER BY Version_Number) AS prev_new_eis_date,
+        LAG(last_updated_date, 1) OVER (PARTITION BY Project_ID ORDER BY Version_Number) AS prev_last_updated_date
+    FROM
+        pjb_temp_table
+),
+updated_data AS (
+    SELECT
+        Project_ID,
+        Version_Number,
+        attribut1_date,
+        CASE
+            WHEN Version_Number = 1 THEN attribut1_date
+            WHEN Version_Number > 1 AND attribut1_date != prev_attribut1_date THEN attribut1_date
+            ELSE prev_attribut1_date
+        END AS new_eis_date,
+        CASE
+            WHEN Version_Number = 1 THEN NULL
+            ELSE prev_new_eis_date
+        END AS old_eis_date,
+        CASE
+            WHEN Version_Number = 1 THEN attribut1_date
+            WHEN Version_Number > 1 AND attribut1_date != prev_attribut1_date THEN attribut1_date
+            ELSE prev_last_updated_date
+        END AS last_updated_date
+    FROM
+        base_data
+)
+SELECT
+    Project_ID,
+    Version_Number,
+    attribut1_date,
+    new_eis_date,
+    old_eis_date,
+    last_updated_date
+FROM
+    updated_data
+ORDER BY
+    Project_ID,
+    Version_Number;
