@@ -112,3 +112,75 @@ FROM
 ORDER BY
     Project_ID,
     Version_Number;
+
+
+
+=============================== version 3
+
+WITH previous_versions AS (
+    SELECT 
+        p.Project_ID,
+        p.Version_Number,
+        p.start_date AS current_start_date,
+        p.attribute1_date AS current_attribute1_date,
+        LAG(p.start_date) OVER (PARTITION BY p.Project_ID ORDER BY p.Version_Number) AS previous_start_date,
+        LAG(p.attribute1_date) OVER (PARTITION BY p.Project_ID ORDER BY p.Version_Number) AS previous_attribute1_date
+    FROM 
+        pjf_projects_all_b_ p
+)
+SELECT 
+    Project_ID,
+    Version_Number,
+    current_start_date AS start_date,
+    current_attribute1_date AS attribute1_date,
+    last_updated_date,
+    last_updated_by,
+    
+    -- New Start Date Calculation
+    CASE 
+        WHEN Version_Number = 1 THEN current_start_date
+        ELSE 
+            CASE 
+                WHEN current_start_date != previous_start_date
+                THEN current_start_date
+                ELSE previous_start_date
+            END
+    END AS new_start_date,
+    
+    -- New EIS Date Calculation
+    CASE 
+        WHEN Version_Number = 1 THEN current_attribute1_date
+        ELSE 
+            CASE 
+                WHEN current_attribute1_date != previous_attribute1_date
+                THEN current_attribute1_date
+                ELSE previous_attribute1_date
+            END
+    END AS new_eis_date,
+    
+    -- Old Start Date Calculation
+    CASE 
+        WHEN Version_Number = 1 THEN NULL
+        ELSE 
+            CASE 
+                WHEN current_start_date != previous_start_date
+                THEN previous_start_date
+                ELSE previous_start_date
+            END
+    END AS old_start_date,
+    
+    -- Old EIS Date Calculation
+    CASE 
+        WHEN Version_Number = 1 THEN NULL
+        ELSE 
+            CASE 
+                WHEN current_attribute1_date != previous_attribute1_date
+                THEN previous_attribute1_date
+                ELSE previous_attribute1_date
+            END
+    END AS old_eis_date
+
+FROM 
+    previous_versions
+ORDER BY 
+    Project_ID, Version_Number;
