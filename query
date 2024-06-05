@@ -43,3 +43,72 @@ FROM
 ORDER BY
     Project_ID,
     Version_Number;
+
+
+
+============================================================== version 2
+
+WITH base_data AS (
+    SELECT
+        Project_ID,
+        Version_Number,
+        attribut1_date,
+        LAG(attribut1_date, 1) OVER (PARTITION BY Project_ID ORDER BY Version_Number) AS prev_attribut1_date
+    FROM
+        pjb_temp_table
+),
+calculated_data AS (
+    SELECT
+        Project_ID,
+        Version_Number,
+        attribut1_date,
+        CASE
+            WHEN Version_Number = 1 THEN attribut1_date
+            WHEN Version_Number > 1 AND attribut1_date != prev_attribut1_date THEN attribut1_date
+            ELSE NULL
+        END AS new_eis_date,
+        CASE
+            WHEN Version_Number = 1 THEN NULL
+            ELSE NULL -- Placeholder for now
+        END AS old_eis_date,
+        CASE
+            WHEN Version_Number = 1 THEN attribut1_date
+            WHEN Version_Number > 1 AND attribut1_date != prev_attribut1_date THEN attribut1_date
+            ELSE NULL -- Placeholder for now
+        END AS last_updated_date
+    FROM
+        base_data
+),
+filled_data AS (
+    SELECT
+        Project_ID,
+        Version_Number,
+        attribut1_date,
+        new_eis_date,
+        LAG(new_eis_date, 1) OVER (PARTITION BY Project_ID ORDER BY Version_Number) AS prev_new_eis_date,
+        CASE
+            WHEN Version_Number = 1 THEN attribut1_date
+            WHEN new_eis_date IS NULL THEN LAG(new_eis_date, 1) OVER (PARTITION BY Project_ID ORDER BY Version_Number)
+            ELSE new_eis_date
+        END AS filled_new_eis_date,
+        last_updated_date,
+        CASE
+            WHEN Version_Number = 1 THEN attribut1_date
+            WHEN last_updated_date IS NULL THEN LAG(last_updated_date, 1) OVER (PARTITION BY Project_ID ORDER BY Version_Number)
+            ELSE last_updated_date
+        END AS filled_last_updated_date
+    FROM
+        calculated_data
+)
+SELECT
+    Project_ID,
+    Version_Number,
+    attribut1_date,
+    filled_new_eis_date AS new_eis_date,
+    prev_new_eis_date AS old_eis_date,
+    filled_last_updated_date AS last_updated_date
+FROM
+    filled_data
+ORDER BY
+    Project_ID,
+    Version_Number;
