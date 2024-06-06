@@ -22,3 +22,84 @@ txnStatus=tm.getTransaction(txnDef)
 decpw= DwgObject.snpsDecypher(#PASS, odiInstance);
 File f= new File('/home/oracle/efs_data/efs_erp_bicc_pwd') 
 f.write(decpw)
+
+
+
+
+
+
+_------------
+
+
+import com.sunopsis.dwg.DwgObject
+import oracle.odi.core.OdiInstance
+import oracle.odi.domain.project.OdiVariable
+import oracle.odi.domain.project.finder.*
+import oracle.odi.domain.runtime.variable.OdiVariableValue
+import oracle.odi.domain.runtime.variable.finder.*
+import java.sql.*
+import oracle.odi.domain.project.OdiProject
+import oracle.odi.core.persistence.transaction.support.DefaultTransactionDefinition
+import oracle.odi.domain.xrefs.expression.*
+import oracle.odi.languages.support.*
+
+try {
+    // Get ODI instance
+    OdiInstance odiInstance = odiRef.getOdiInstance()
+    if (odiInstance == null) {
+        throw new Exception("ODI instance is null")
+    }
+    println "ODI instance obtained successfully"
+
+    // Define transaction
+    txnDef = new DefaultTransactionDefinition()
+    if (txnDef == null) {
+        throw new Exception("Transaction definition is null")
+    }
+    println "Transaction definition created successfully"
+
+    // Get transaction manager
+    tm = odiInstance.getTransactionManager()
+    if (tm == null) {
+        throw new Exception("Transaction manager is null")
+    }
+    println "Transaction manager obtained successfully"
+
+    // Get entity manager
+    tme = odiInstance.getTransactionalEntityManager()
+    if (tme == null) {
+        throw new Exception("Transactional entity manager is null")
+    }
+    println "Transactional entity manager obtained successfully"
+
+    // Begin transaction
+    txnStatus = tm.getTransaction(txnDef)
+    if (txnStatus == null) {
+        throw new Exception("Transaction status is null")
+    }
+    println "Transaction started successfully"
+
+    // Decrypt password
+    decpw = DwgObject.snpsDecypher("#PASS", odiInstance)
+    if (decpw == null) {
+        throw new Exception("Decrypted password is null")
+    }
+    println "Password decrypted successfully"
+
+    // Write decrypted password to file
+    File f = new File('/home/oracle/efs_data/efs_erp_bicc_pwd')
+    f.write(decpw)
+    println "Password written to file successfully"
+
+    // Commit transaction
+    tm.commit(txnStatus)
+    println "Transaction committed successfully"
+} catch (Exception e) {
+    // Rollback transaction in case of error
+    if (txnStatus != null && !txnStatus.isCompleted()) {
+        tm.rollback(txnStatus)
+    }
+    // Log the exception or handle it as necessary
+    println "Error: " + e.message
+}
+
