@@ -1,186 +1,24 @@
-WITH base_data AS (
-    SELECT
-        Project_ID,
-        Version_Number,
-        attribut1_date,
-        LAG(attribut1_date, 1) OVER (PARTITION BY Project_ID ORDER BY Version_Number) AS prev_attribut1_date,
-        LAG(new_eis_date, 1) OVER (PARTITION BY Project_ID ORDER BY Version_Number) AS prev_new_eis_date,
-        LAG(last_updated_date, 1) OVER (PARTITION BY Project_ID ORDER BY Version_Number) AS prev_last_updated_date
-    FROM
-        pjb_temp_table
-),
-updated_data AS (
-    SELECT
-        Project_ID,
-        Version_Number,
-        attribut1_date,
-        CASE
-            WHEN Version_Number = 1 THEN attribut1_date
-            WHEN Version_Number > 1 AND attribut1_date != prev_attribut1_date THEN attribut1_date
-            ELSE prev_attribut1_date
-        END AS new_eis_date,
-        CASE
-            WHEN Version_Number = 1 THEN NULL
-            ELSE prev_new_eis_date
-        END AS old_eis_date,
-        CASE
-            WHEN Version_Number = 1 THEN attribut1_date
-            WHEN Version_Number > 1 AND attribut1_date != prev_attribut1_date THEN attribut1_date
-            ELSE prev_last_updated_date
-        END AS last_updated_date
-    FROM
-        base_data
-)
-SELECT
-    Project_ID,
-    Version_Number,
-    attribut1_date,
-    new_eis_date,
-    old_eis_date,
-    last_updated_date
-FROM
-    updated_data
-ORDER BY
-    Project_ID,
-    Version_Number;
+import com.sunopsis.dwg.DwgObject
+import oracle.odi.core.OdiInstance;
+import oracle.odi.domain.project.OdiVariable;
+import oracle.odi.domain.project.finder.*;
+import oracle.odi.domain.runtime.variable.OdiVariableValue;
+import oracle.odi.domain.runtime.variable.finder.*;
+import java.sql.*;
+import oracle.odi.domain.project.OdiProject;
+import oracle.odi.core.persistence.transaction.support.DefaultTransactionDefinition;
+import oracle.odi.domain.xrefs.expression.*;
+import oracle.odi.languages.support.*;
 
+OdiInstance odiInstance = odiRef.getOdiInstance();
+//throw new Exception("got instance")
+txnDef = new DefaultTransactionDefinition(); 
+//throw new Exception("got txn def")
 
-
-============================================================== version 2
-
-WITH base_data AS (
-    SELECT
-        Project_ID,
-        Version_Number,
-        attribut1_date,
-        LAG(attribut1_date, 1) OVER (PARTITION BY Project_ID ORDER BY Version_Number) AS prev_attribut1_date
-    FROM
-        pjb_temp_table
-),
-calculated_data AS (
-    SELECT
-        Project_ID,
-        Version_Number,
-        attribut1_date,
-        CASE
-            WHEN Version_Number = 1 THEN attribut1_date
-            WHEN Version_Number > 1 AND attribut1_date != prev_attribut1_date THEN attribut1_date
-            ELSE NULL
-        END AS new_eis_date,
-        CASE
-            WHEN Version_Number = 1 THEN NULL
-            ELSE NULL -- Placeholder for now
-        END AS old_eis_date,
-        CASE
-            WHEN Version_Number = 1 THEN attribut1_date
-            WHEN Version_Number > 1 AND attribut1_date != prev_attribut1_date THEN attribut1_date
-            ELSE NULL -- Placeholder for now
-        END AS last_updated_date
-    FROM
-        base_data
-),
-filled_data AS (
-    SELECT
-        Project_ID,
-        Version_Number,
-        attribut1_date,
-        new_eis_date,
-        LAG(new_eis_date, 1) OVER (PARTITION BY Project_ID ORDER BY Version_Number) AS prev_new_eis_date,
-        CASE
-            WHEN Version_Number = 1 THEN attribut1_date
-            WHEN new_eis_date IS NULL THEN LAG(new_eis_date, 1) OVER (PARTITION BY Project_ID ORDER BY Version_Number)
-            ELSE new_eis_date
-        END AS filled_new_eis_date,
-        last_updated_date,
-        CASE
-            WHEN Version_Number = 1 THEN attribut1_date
-            WHEN last_updated_date IS NULL THEN LAG(last_updated_date, 1) OVER (PARTITION BY Project_ID ORDER BY Version_Number)
-            ELSE last_updated_date
-        END AS filled_last_updated_date
-    FROM
-        calculated_data
-)
-SELECT
-    Project_ID,
-    Version_Number,
-    attribut1_date,
-    filled_new_eis_date AS new_eis_date,
-    prev_new_eis_date AS old_eis_date,
-    filled_last_updated_date AS last_updated_date
-FROM
-    filled_data
-ORDER BY
-    Project_ID,
-    Version_Number;
-
-
-
-=============================== version 3
-
-WITH previous_versions AS (
-    SELECT 
-        p.Project_ID,
-        p.Version_Number,
-        p.start_date AS current_start_date,
-        p.attribute1_date AS current_attribute1_date,
-        LAG(p.start_date) OVER (PARTITION BY p.Project_ID ORDER BY p.Version_Number) AS previous_start_date,
-        LAG(p.attribute1_date) OVER (PARTITION BY p.Project_ID ORDER BY p.Version_Number) AS previous_attribute1_date
-    FROM 
-        pjf_projects_all_b_ p
-)
-SELECT 
-    Project_ID,
-    Version_Number,
-    current_start_date AS start_date,
-    current_attribute1_date AS attribute1_date,
-    last_updated_date,
-    last_updated_by,
-    
-    -- New Start Date Calculation
-    CASE 
-        WHEN Version_Number = 1 THEN current_start_date
-        ELSE 
-            CASE 
-                WHEN current_start_date != previous_start_date
-                THEN current_start_date
-                ELSE previous_start_date
-            END
-    END AS new_start_date,
-    
-    -- New EIS Date Calculation
-    CASE 
-        WHEN Version_Number = 1 THEN current_attribute1_date
-        ELSE 
-            CASE 
-                WHEN current_attribute1_date != previous_attribute1_date
-                THEN current_attribute1_date
-                ELSE previous_attribute1_date
-            END
-    END AS new_eis_date,
-    
-    -- Old Start Date Calculation
-    CASE 
-        WHEN Version_Number = 1 THEN NULL
-        ELSE 
-            CASE 
-                WHEN current_start_date != previous_start_date
-                THEN previous_start_date
-                ELSE previous_start_date
-            END
-    END AS old_start_date,
-    
-    -- Old EIS Date Calculation
-    CASE 
-        WHEN Version_Number = 1 THEN NULL
-        ELSE 
-            CASE 
-                WHEN current_attribute1_date != previous_attribute1_date
-                THEN previous_attribute1_date
-                ELSE previous_attribute1_date
-            END
-    END AS old_eis_date
-
-FROM 
-    previous_versions
-ORDER BY 
-    Project_ID, Version_Number;
+tm = odiInstance.getTransactionManager();
+tme = odiInstance.getTransactionalEntityManager(); 
+txnStatus=tm.getTransaction(txnDef)
+//decpw- DwgObject.snpsDecypher (#PASS, odiInstance): 
+decpw= DwgObject.snpsDecypher(#PASS, odiInstance);
+File f= new File('/home/oracle/efs_data/efs_erp_bicc_pwd') 
+f.write(decpw)
