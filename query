@@ -103,3 +103,11 @@ try {
     println "Error: " + e.message
 }
 
+------------------------------------
+
+ODI-1226: Step PRC_DECRYPT_ERP_PWD fails after 1 attempt(s).
+ODI-1232: Procedure PRC_DECRYPT_ERP_PWD execution fails.
+Caused By: java.lang.IllegalStateException: Can't overwrite cause with org.codehaus.groovy.control.MultipleCompilationErrorsException: startup failed:
+Script23.groovy: 52: unexpected token: 1 @ line 52, column 38.
+       decpw = DwgObject.snpsDecypher(""1cl2mXXvo603SiklJRAT+9iTfevj0HsD5TDYKQ3wqHE="", odiInstance)
+                                        ^
