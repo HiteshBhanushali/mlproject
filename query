@@ -1,3 +1,10 @@
+file_suffix=$1
+now=`date +%Y-%m-%d-%s`
+trap_res=`cat /home/oracle/efs_data/projectstatushistory/output/response_project_status_history.xml | grep -i reportbytes | awk -F '<reportBytes>' '{printf $2}' | awk -F '</reportBytes>' '{printf $1}' | base64 --decode`
+echo "$trap_res" >>/home/oracle/efs_data/projectstatushistory/logs/project_status_history_$file_suffix.csv
+
+
+----------------
 logs_path = /home/oracle/efs_data/projectstatushistory/logs
 rm -rf $logs_path/*
 
