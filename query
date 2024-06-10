@@ -1,3 +1,23 @@
+
+#!/bin/bash
+
+# Ensure file_suffix is provided
+if [ -z "$1" ]; then
+    echo "Usage: $0 <file_suffix>"
+    exit 1
+fi
+
+file_suffix=$1
+now=$(date +%Y-%m-%d-%s)
+
+# Extract and decode the reportBytes element
+trap_res=$(grep -i '<reportBytes>' /home/oracle/efs_data/projectstatushistory/output/response_project_status_history.xml | awk -F '<reportBytes>|</reportBytes>' '{print $2}' | base64 --decode)
+
+# Append the decoded result to the CSV file
+echo "$trap_res" >> /home/oracle/efs_data/projectstatushistory/logs/project_status_history_$file_suffix.csv
+
+
+-------
 file_suffix=$1
 now=`date +%Y-%m-%d-%s`
 trap_res=`cat /home/oracle/efs_data/projectstatushistory/output/response_project_status_history.xml | grep -i reportbytes | awk -F '<reportBytes>' '{printf $2}' | awk -F '</reportBytes>' '{printf $1}' | base64 --decode`
