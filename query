@@ -1,4 +1,42 @@
+CIHOME=/usr/bin 
+SBUCKET=$1
+DBUCKET=$2
+NAMESPACE=$3
+YEAR=$(date | awk '{print $6}')
+MONTH=$(date | awk '{print $2}')
+DAY=$(date | awk '{print $3}')
+TIME=$(date | awk '{print $4" "$5}'| sed 's/:/-/g')
+FOLDER_NAME=$4
+FILE_FILTER=$5
 
+# object store list to find the file
+cd $OCIHOME
+oci os object list --bucket-name $SBUCKET --auth instance_principal --all | grep name | awk '{ print $2 }' | sed 's/"//g' | sed 's/,//g' > /tmp/cfs_oos_copy_file.list
+# copy file to Archive Bucket 
+if [ -z "$FOLDER_NAME" ]
+then
+	echo "IN FIRST"
+    for filename in `cat /tmp/cfs_oos_copy_file.list` 
+        do oci os object copy --bucket-name $SBUCKET --source-object-name $filename --destination-namespace $NAMESPACE --destination-bucket $DBUCKET --destination-object-name "$YEAR/$MONTH/$DAY/$TIME/$filename" --auth instance_principal 
+        #do echo "$filename"
+		done
+	# delete file from ODI Bucket
+	oci os object bulk-delete --namespace $NAMESPACE --bucket-name $SBUCKET --auth instance_principal --force
+else
+	echo "IN ELSE"
+	for filename in `cat /tmp/cfs_oos_copy_file.list`
+		do 
+		if [[ "$filename" == *"$FILE_FILTER"* ]];
+		then
+			oci os object copy --bucket-name $SBUCKET --source-object-name $filename --destination-namespace $NAMESPACE --destination-bucket $DBUCKET --destination-object-name "$FOLDER_NAME/$YEAR/$MONTH/$DAY/$TIME/$filename" --auth instance_principal 
+        #do echo "$filename"
+		fi
+	done
+	# delete file from ODI Bucket
+	oci os object bulk-delete --namespace $NAMESPACE --bucket-name $SBUCKET --auth instance_principal --force --include *$FILE_FILTER*
+fi
+
+------------------------------------
 #!/bin/bash
 
 # Ensure file_suffix is provided
