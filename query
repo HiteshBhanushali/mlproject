@@ -1,3 +1,75 @@
+WITH CODE_JE_LINES AS (
+    SELECT
+        gcc.code_combination_id,
+        gcc.segment3,
+        gcc.segment6,
+        c.accounted_cr,
+        c.accounted_dr,
+        c.je_line_num,
+        c.je_header_id,
+        c.status AS line_status
+    FROM
+        gl_code_combinations gcc
+        JOIN GL_JE_LINES c ON gcc.code_combination_id = c.code_combination_id
+),
+GAAP_DATA AS (
+    SELECT
+        cj.segment3 AS GAAP_ACCOUNT,
+        cj.segment6 AS segment,
+        cj.accounted_cr AS GAAP_CREDIT,
+        cj.accounted_dr AS GAAP_DEBITS,
+        b.name AS Journal_name,
+        cj.je_line_num AS GAAP_LINE_NUM,
+        b.je_source AS source,
+        b.je_header_id AS header_id,
+        b.parent_je_header_id AS parent_header,
+        cj.line_status AS line_status,
+        b.status AS header_status
+    FROM
+        CODE_JE_LINES cj
+        JOIN GL_JE_HEADERS b ON cj.je_header_id = b.je_header_id
+        JOIN GL_LEDGERS gll ON b.ledger_id = gll.ledger_id(+)
+    WHERE
+        gll.name LIKE '%GAAP%'
+),
+FERC_DATA AS (
+    SELECT
+        cj.segment3 AS FERC_ACCOUNT,
+        cj.segment6 AS segment,
+        cj.accounted_cr AS FERC_CREDIT,
+        cj.accounted_dr AS FERC_DEBITS,
+        b.name AS Journal_name,
+        cj.je_line_num AS FERC_LINE_NUM,
+        b.je_source AS source,
+        b.je_header_id AS header_id,
+        b.parent_je_header_id AS parent_header,
+        cj.line_status AS line_status,
+        b.status AS header_status
+    FROM
+        CODE_JE_LINES cj
+        JOIN GL_JE_HEADERS b ON cj.je_header_id = b.je_header_id
+        JOIN GL_LEDGERS gll ON b.ledger_id = gll.ledger_id(+)
+    WHERE
+        gll.name LIKE '%FERC%'
+)
+SELECT
+    -- your select clause here, which can include columns from GAAP_DATA and FERC_DATA
+FROM
+    FERC_DATA
+    LEFT JOIN GAAP_DATA ON
+        FERC_DATA.FERC_LINE_NUM = GAAP_DATA.GAAP_LINE_NUM(+)
+        AND FERC_DATA.parent_header = GAAP_DATA.header_id(+)
+WHERE
+    NVL(GAAP_DATA.source, FERC_DATA.source) NOT IN ('Payables', 'Receivables', 'Receipt Accounting', 'projects', 'Project Accounting')
+    AND FERC_DATA.line_status = 'P'
+ORDER BY
+    Transaction_idg;
+
+
+
+
+---------
+
 with filter_table as (
     select 
     gcc.segment3 AS GAAP_ACCOUNT, 
