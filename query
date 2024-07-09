@@ -1,3 +1,111 @@
+-----------response ------
+
+
+SELECT 
+  company, 
+  initiative, 
+  cost_center, 
+  ACCOUNT, 
+  office, 
+  trader, 
+  future_1, 
+  period_name "GL Period Name", 
+  description, 
+  je_source "SysDesc", 
+  je_category "Category", 
+  NAME "Batch", 
+  vendor_name "Vendor Name/Customer Name", 
+  chk_num "Invoice Number", 
+  segment1 "Purchase Order Number", 
+  NULL "Comments", 
+  SUM(unrounded_entered_dr) "Entered Debit", 
+  SUM(unrounded_entered_cr) "Entered Credit", 
+  SUM(ENT_DR_CR) "Entered Debit-Credit", 
+  currency_code "Entered Currency", 
+  SUM(unrounded_accounted_cr) "Accounted Credit", 
+  SUM(unrounded_accounted_dr) "Accounted Debit", 
+  SUM(ACCT_DR_CR) "Accounted Debit-Credit", 
+  accounted_currency, 
+  source_id 
+FROM 
+(
+    SELECT 
+      gcc.segment1 company, 
+      gcc.segment2 initiative, 
+      gcc.segment3 cost_center, 
+      gcc.segment4 ACCOUNT, 
+      gcc.segment5 office, 
+      gcc.segment6 trader, 
+      gcc.segment7 future_1, 
+      gjh.period_name, 
+      xal.description description, 
+      gjh.je_source, 
+      gjh.je_category, 
+      gjb.NAME, 
+      aps.vendor_name, 
+      TO_CHAR(aca.check_number) chk_num, 
+      pha.segment1, 
+      xdl.unrounded_entered_dr, 
+      xdl.unrounded_entered_cr, 
+      NVL(xdl.unrounded_entered_dr, 0) - NVL(xdl.unrounded_entered_cr, 0) ENT_DR_CR, 
+      xal.currency_code, 
+      xdl.unrounded_accounted_cr, 
+      xdl.unrounded_accounted_dr, 
+      NVL(xdl.unrounded_accounted_dr, 0) - NVL(xdl.unrounded_accounted_cr, 0) ACCT_DR_CR, 
+      gl.currency_code accounted_currency, 
+      xte.source_id_int_1 source_id, 
+      xal.ae_line_num 
+    FROM 
+      xla_distribution_links xdl
+    INNER JOIN xla_ae_lines xal ON xdl.ae_header_id = xal.ae_header_id AND xdl.ae_line_num = xal.ae_line_num AND xdl.event_id = xev.event_id
+    INNER JOIN xla_ae_headers xah ON xal.ae_header_id = xah.ae_header_id
+    INNER JOIN xla_events xev ON xah.event_id = xev.event_id
+    INNER JOIN xla_transaction_entities xte ON xev.entity_id = xte.entity_id AND xah.entity_id = xte.entity_id
+    INNER JOIN gl_import_references gir ON xal.gl_sl_link_id = gir.gl_sl_link_id
+    INNER JOIN gl_je_lines gjl ON gir.je_line_num = gjl.je_line_num AND gjl.je_header_id = gir.je_header_id
+    INNER JOIN gl_je_headers gjh ON gjl.je_header_id = gjh.je_header_id AND gjh.je_header_id = gir.je_header_id
+    INNER JOIN gl_code_combinations gcc ON gjl.code_combination_id = gcc.code_combination_id
+    INNER JOIN gl_je_batches gjb ON gjh.je_batch_id = gjb.je_batch_id
+    INNER JOIN gl_ledgers gl ON gjh.ledger_id = gl.ledger_id
+    LEFT JOIN ap_checks_all aca ON xte.source_id_int_1 = aca.check_id
+    LEFT JOIN ap_payment_hist_dists aphd ON aphd.payment_hist_dist_id = xdl.source_distribution_id_num_1
+    LEFT JOIN ap_invoice_distributions_all aida ON aida.invoice_distribution_id = aphd.invoice_distribution_id
+    LEFT JOIN ap_invoice_payments_all aipa ON aipa.invoice_payment_id = aphd.invoice_payment_id AND aipa.invoice_id = aia.invoice_id AND aipa.check_id = aca.check_id
+    LEFT JOIN ap_invoices_all aia ON aida.invoice_id = aia.invoice_id AND aia.invoice_id = aipa.invoice_id AND aia.vendor_id = aps.vendor_id(+)
+    LEFT JOIN poz_suppliers_v aps ON aia.vendor_id = aps.vendor_id(+)
+    LEFT JOIN po_distributions_all pda ON aida.po_distribution_id = pda.po_distribution_id(+)
+    LEFT JOIN po_headers_all pha ON pda.po_header_id = pha.po_header_id(+)
+    WHERE 
+      xah.gl_transfer_status_code = 'Y' 
+      AND gjh.je_source = 'Payables' 
+      AND gjh.status = 'P' 
+      AND gjh.actual_flag = 'A'
+) 
+GROUP BY 
+  company, 
+  initiative, 
+  cost_center, 
+  ACCOUNT, 
+  office, 
+  trader, 
+  future_1, 
+  period_name, 
+  description, 
+  je_source, 
+  je_category, 
+  NAME, 
+  vendor_name, 
+  chk_num, 
+  segment1, 
+  currency_code, 
+  accounted_currency, 
+  source_id, 
+  ae_line_num
+
+
+
+-----------------------
+
 select 
   company, 
   initiative, 
