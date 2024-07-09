@@ -1,3 +1,234 @@
+select 
+  company, 
+  initiative, 
+  cost_center, 
+  ACCOUNT, 
+  office, 
+  trader, 
+  future_1, 
+  period_name "GL Period Name", 
+  description, 
+  je_source "SysDesc", 
+  je_category "Category", 
+  NAME "Batch", 
+  vendor_name "Vendor Name/Customer Name", 
+  chk_num "Invoice Number", 
+  segment1 "Purchase Order Number", 
+  NULL "Comments", 
+  sum (unrounded_entered_dr) "Entered Debit", 
+  sum(unrounded_entered_cr) "Entered Credit", 
+  sum(ENT_DR_CR) "Entered Debit-Credit", 
+  currency_code "Entered Currency", 
+  SUM(unrounded_accounted_cr) "Accounted Credit", 
+  SUM(unrounded_accounted_dr) "Accounted Debit", 
+  sum(ACCT_DR_CR) "Accounted Debit-Credit", 
+  accounted_currency, 
+  source_id 
+from 
+  (
+    SELECT 
+      gcc.segment1 company, 
+      gcc.segment2 initiative, 
+      gcc.segment3 cost_center, 
+      gcc.segment4 ACCOUNT, 
+      gcc.segment5 office, 
+      gcc.segment6 trader, 
+      gcc.segment7 future_1, 
+      gjh.period_name, 
+      xal.description description, 
+      gjh.je_source, 
+      gjh.je_category, 
+      gjb.NAME, 
+      aps.vendor_name, 
+      to_char(aca.check_number) chk_num, 
+      pha.segment1, 
+      xdl.unrounded_entered_dr, 
+      xdl.unrounded_entered_cr, 
+      NVL (xdl.unrounded_entered_dr, 0) - NVL (xdl.unrounded_entered_cr, 0) ENT_DR_CR, 
+      xal.currency_code, 
+      xdl.unrounded_accounted_cr, 
+      xdl.unrounded_accounted_dr, 
+      (
+        NVL (xdl.unrounded_accounted_dr, 0) - NVL (xdl.unrounded_accounted_cr, 0)
+      ) ACCT_DR_CR, 
+      gl.currency_code accounted_currency, 
+      xte.source_id_int_1 source_id, 
+      xal.ae_line_num 
+    FROM 
+      gl_je_headers gjh, 
+      gl_je_lines gjl, 
+      gl_code_combinations gcc, 
+      gl_je_batches gjb, 
+      gl_ledgers gl, 
+      gl_import_references gir, 
+      -- XLA Tables
+      xla_events xev, 
+      xla_ae_headers xah, 
+      xla_ae_lines xal, 
+      xla_transaction_entities xte, 
+      XLA_DISTRIBUTION_LINKS xdl, ---starting point
+      AP_PAYMENT_HIST_DISTS aphd, 
+      ap_invoices_All aia, 
+      poz_suppliers_v aps, 
+      ap_checks_all aca, 
+      AP_INVOICE_PAYMENTS_ALL aipa, 
+      ap_invoice_distributions_all aida, 
+      po_distributions_all pda, 
+      po_headers_all pha 
+    WHERE 
+      1 = 1 
+      AND gjl.je_header_id = gjh.je_header_id 
+      AND gcc.code_combination_id = gjl.code_combination_id 
+      AND gjb.je_batch_id = gjh.je_batch_id 
+      AND gl.ledger_id = gjh.ledger_id 
+      AND gjh.je_header_id = gir.je_header_id 
+      AND gjl.je_header_id = gir.je_header_id 
+      AND gir.je_line_num = gjl.je_line_num 
+      AND xal.gl_sl_link_id = gir.gl_sl_link_id 
+      AND xah.gl_transfer_status_code = 'Y' 
+      AND xev.entity_id = xte.entity_id 
+      AND xah.entity_id = xte.entity_id 
+      AND xah.event_id = xev.event_id 
+      AND xah.ae_header_id = xal.ae_header_id 
+      AND aca.check_id = xte.source_id_int_1 
+      and xdl.ae_header_id = xah.ae_header_id 
+      and xdl.ae_line_num = xal.ae_line_num 
+      and xdl.event_id = xev.event_id 
+      and aphd.payment_hist_dist_id = xdl.source_distribution_id_num_1 
+      and aida.invoice_distribution_id = aphd.invoice_distribution_id 
+      and aipa.invoice_payment_id = aphd.invoice_payment_id 
+      and aipa.invoice_id = aia.invoice_id 
+      and aipa.check_id = aca.check_id 
+      AND aia.vendor_id = aps.vendor_id(+) 
+      AND gjh.je_source = 'Payables' 
+      AND gjh.status = 'P' 
+      AND gjh.actual_flag = 'A' 
+      and aida.invoice_id = aia.invoice_id 
+      AND aida.po_distribution_id = pda.po_distribution_id(+) 
+      AND pda.po_header_id = pha.po_header_id(+) --and gjh.period_name             = 'Dec-18'
+      --and gcc.segment4                = '15020'
+      AND gl.NAME = : p_ledger 
+      AND gjl.currency_code = NVL (
+        DECODE (
+          : p_currency, 'All', gjl.currency_code, 
+          : p_currency
+        ), 
+        gjl.currency_code
+      ) 
+      AND gcc.segment1 BETWEEN : p_company_from 
+      AND : p_company_to 
+      AND TRUNC (gjh.default_effective_date) BETWEEN : p_from_date 
+      AND : p_to_date 
+      AND gcc.segment2 BETWEEN NVL (
+        DECODE (
+          : p_initiative_from, 'All', gcc.segment2, 
+          : p_initiative_from
+        ), 
+        gcc.segment2
+      ) 
+      AND NVL (
+        DECODE (
+          : p_initiative_to, 'All', gcc.segment2, 
+          : p_initiative_to
+        ), 
+        gcc.segment2
+      ) 
+      AND gcc.segment3 BETWEEN NVL (
+        DECODE (
+          : p_costcentre_from, 'All', gcc.segment3, 
+          : p_costcentre_from
+        ), 
+        gcc.segment3
+      ) 
+      AND NVL (
+        DECODE (
+          : p_costcentre_to, 'All', gcc.segment3, 
+          : p_costcentre_to
+        ), 
+        gcc.segment3
+      ) 
+      AND gcc.segment4 BETWEEN NVL (
+        DECODE (
+          : p_account_from, 'All', gcc.segment4, 
+          : p_account_from
+        ), 
+        gcc.segment4
+      ) 
+      AND NVL (
+        DECODE (
+          : p_account_to, 'All', gcc.segment4, 
+          : p_account_to
+        ), 
+        gcc.segment4
+      ) 
+      AND gcc.segment5 BETWEEN NVL (
+        DECODE (
+          : p_office_from, 'All', gcc.segment5, 
+          : p_office_from
+        ), 
+        gcc.segment5
+      ) 
+      AND NVL (
+        DECODE (
+          : p_office_to, 'All', gcc.segment5, 
+          : p_office_to
+        ), 
+        gcc.segment5
+      ) 
+      AND gcc.segment6 BETWEEN NVL (
+        DECODE (
+          : p_trader_from, 'All', gcc.segment6, 
+          : p_trader_from
+        ), 
+        gcc.segment6
+      ) 
+      AND NVL (
+        DECODE (
+          : p_trader_to, 'All', gcc.segment6, 
+          : p_trader_to
+        ), 
+        gcc.segment6
+      ) 
+      AND gcc.segment7 BETWEEN NVL (
+        DECODE (
+          : p_future_from, 'All', gcc.segment7, 
+          : p_future_from
+        ), 
+        gcc.segment7
+      ) 
+      AND NVL (
+        DECODE (
+          : p_future_to, 'All', gcc.segment7, 
+          : p_future_to
+        ), 
+        gcc.segment7
+      )
+  ) 
+group by 
+  company, 
+  initiative, 
+  cost_center, 
+  ACCOUNT, 
+  office, 
+  trader, 
+  future_1, 
+  period_name, 
+  description, 
+  je_source, 
+  je_category, 
+  NAME, 
+  vendor_name, 
+  chk_num, 
+  segment1, 
+  currency_code, 
+  accounted_currency, 
+  source_id, 
+  ae_line_num
+
+
+
+---------------------------
+
 WITH CODE_JE_LINES AS (
     SELECT
         gcc.code_combination_id,
