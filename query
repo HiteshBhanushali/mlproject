@@ -1,3 +1,42 @@
+with filter_table as (
+    select 
+    gcc.segment3 AS GAAP_ACCOUNT, 
+          gcc.segment6 AS segment, 
+          c.accounted_cr AS GAAP_CREDIT, 
+          c.accounted_dr AS GAAP_DEBITS, 
+          c.je_line_num as GAAP_LINE_NUM,
+          c.status as line_status,
+          c.je_header_id
+          from 
+          gl_code_combinations gcc, 
+          GL_JE_LINES c
+          where 
+          gcc.code_combination_id = c.code_combination_id
+          and c.status = 'P'
+),
+SELECT 
+          f.GAAP_ACCOUNT,
+          f.segment,  
+          f.GAAP_CREDIT, 
+          f.GAAP_DEBITS,  
+          B.name as Journal_name,
+          f.GAAP_LINE_NUM,
+          b.je_source as source,
+          b.je_header_id as header_id,
+          b.parent_je_header_id as parent_header,
+          f.line_status,
+          b.status as header_status 
+        FROM 
+          filter_table f,
+          GL_JE_HEADERS B, 
+          GL_LEDGERS gll 
+        WHERE 1=1
+          AND f.je_header_id = b.je_header_id 
+          AND B.LEDGER_ID = gll.LEDGER_ID (+)
+          AND gll.name LIKE '%GAAP%'
+
+
+
 ------------------- Change from previous query ---------
 -- Union 1: a.	FERC data should be driving. So, please use outer-join.  
 -- Union 3 – FERC data (FERC only and GAAP tied data)
