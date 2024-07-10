@@ -1,3 +1,15 @@
+HCM_LOAD:
+SCEN_PKG_SDE_EFS_GLOBAL_PERSON
+ 
+ODI-1217: Session SCEN_PKG_SDE_EFS_GLOBAL_PERSON (1278) fails with return code 6550.
+ODI-1226: Step UPDATE EFS_TECH_CLN_PROCESS_LOG_TBL  fails after 1 attempt(s).
+ODI-1232: Procedure UPDATE EFS_TECH_CLN_PROCESS_LOG_TBL  execution fails.
+ODI-1228: Task Procedure-UPDATE EFS_TECH_CLN_PROCESS_LOG_TBL -UPDATE EFS_TECH_CLN_PROCESS_LOG_TBL fails on the target connection EFS_DEV_DATA_LAYER.
+Caused By: java.sql.BatchUpdateException: ORA-06550: line 586, column 23:
+PL/SQL: ORA-01704: string literal too long
+ORA-06550: line 2, column 1:
+PL/SQL: SQL Statement ignored
+
 -----------response ------
 
 
