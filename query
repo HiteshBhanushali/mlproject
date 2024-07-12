@@ -1,4 +1,173 @@
+SELECT 
+      Case when GAAP_DATA.GAAP_ACCOUNT is null then 'Only FERC' else 'FERC Ledger data in GL (linked GAAP accounts)' end as which, 
+      GAAP_DATA.segment as GAAP_SEGEMNT,
+      FERC_DATA.segment as FERC_SEGEMNT,
+      null as TRANSACTION_IDG, 
+      GAAP_DATA.Journal_name, 
+      FERC_DATA.Journal_name as ferc,
+      nvl(GAAP_DATA.source, FERC_DATA.source) as source, 
+      GAAP_DATA.GAAP_ACCOUNT, 
+      FERC_DATA.FERC_ACCOUNT, 
+      GAAP_DATA.GAAP_CREDIT, 
+      GAAP_DATA.GAAP_DEBITS, 
+      FERC_DATA.FERC_CREDIT, 
+      FERC_DATA.FERC_DEBITS,
+      null as gaap_event_id,
+      GAAP_DATA.GAAP_LINE_NUM as gaap_line_num,
+      null as ferc_event_id,
+      FERC_DATA.FERC_LINE_NUM as ferc_line_num
+      ,
+      nvl(GAAP_DATA.line_status, FERC_DATA.line_status)  as line_status,
+      nvl(GAAP_DATA.header_status, FERC_DATA.header_status) as header_status 
+    FROM 
+      (
+        SELECT 
+          gcc.CodeCombinationSegment3 AS GAAP_ACCOUNT, 
+          gcc.CodeCombinationSegment6 AS segment, 
+          c.GlJeLinesAccountedCr AS GAAP_CREDIT, 
+          c.GlJeLinesAccountedDr AS GAAP_DEBITS, 
+          B.GlJeHeadersName as Journal_name ,
+          c.JeLineNum as GAAP_LINE_NUM,
+          b.GlJeHeadersJeSource as source,
+          b.JeHeaderId as header_id,
+          b.GlJeHeadersParentJeHeaderId as parent_header,
+          c.GlJeLinesStatus as line_status,
+          b.GlJeHeadersStatus as header_status 
+        FROM  
+          EXTERNAL('ADF','"oracle.apps.fscm.model.analytics.applicationModule.FscmTopModelAM_FscmTopModelAMLocal"."Connection Pool"').'FscmTopModelAM.FinExtractAM.GlBiccExtractAM.CodeCombinationExtractPVO' gcc,          
+EXTERNAL('ADF','"oracle.apps.fscm.model.analytics.applicationModule.FscmTopModelAM_FscmTopModelAMLocal"."Connection Pool"').
+'FscmTopModelAM.FinExtractAM.GlBiccExtractAM.JournalLineExtractPVO' c,
+EXTERNAL('ADF','"oracle.apps.fscm.model.analytics.applicationModule.FscmTopModelAM_FscmTopModelAMLocal"."Connection Pool"').
+'FscmTopModelAM.FinExtractAM.GlBiccExtractAM.JournalHeaderExtractPVO' B,
+ EXTERNAL('ADF','"oracle.apps.fscm.model.analytics.applicationModule.FscmTopModelAM_FscmTopModelAMLocal"."Connection Pool"').
+'FscmTopModelAM.FinExtractAM.GlBiccExtractAM.LedgerExtractPVO' gll
+        WHERE 1=1
+          and gcc.CodeCombinationCodeCombinationId = c.GlJeLinesCodeCombinationId 
+          AND c.JeHeaderId = b.JeHeaderId  
+          AND B.GlJeHeadersLedgerId = gll.LedgerLedgerId (+)
+          AND gll.LedgerName LIKE '%GAAP%'
+		  and c.GlJeLinesStatus = 'P'
+      ) GAAP_DATA, 
+      (
+        SELECT 
+          gcc.CodeCombinationSegment3 AS FERC_ACCOUNT,
+          gcc.CodeCombinationSegment6 AS segment,  
+          c.GlJeLinesAccountedCr AS FERC_CREDIT, 
+          c.GlJeLinesAccountedDr AS FERC_DEBITS,  
+          B.GlJeHeadersName as Journal_name,
+          c.JeLineNum as FERC_LINE_NUM,
+          b.GlJeHeadersJeSource as source,
+          b.JeHeaderId as header_id,
+          b.GlJeHeadersParentJeHeaderId as parent_header,
+          c.GlJeLinesStatus as line_status,
+          b.GlJeHeadersStatus as header_status 
+        FROM 
+		EXTERNAL('ADF','"oracle.apps.fscm.model.analytics.applicationModule.FscmTopModelAM_FscmTopModelAMLocal"."Connection Pool"').'FscmTopModelAM.FinExtractAM.GlBiccExtractAM.CodeCombinationExtractPVO' gcc,          
+EXTERNAL('ADF','"oracle.apps.fscm.model.analytics.applicationModule.FscmTopModelAM_FscmTopModelAMLocal"."Connection Pool"').
+'FscmTopModelAM.FinExtractAM.GlBiccExtractAM.JournalLineExtractPVO' c,
+EXTERNAL('ADF','"oracle.apps.fscm.model.analytics.applicationModule.FscmTopModelAM_FscmTopModelAMLocal"."Connection Pool"').
+'FscmTopModelAM.FinExtractAM.GlBiccExtractAM.JournalHeaderExtractPVO' B,
+ EXTERNAL('ADF','"oracle.apps.fscm.model.analytics.applicationModule.FscmTopModelAM_FscmTopModelAMLocal"."Connection Pool"').
+'FscmTopModelAM.FinExtractAM.GlBiccExtractAM.LedgerExtractPVO' gll
+        WHERE 1=1
+          and gcc.CodeCombinationCodeCombinationId = c.GlJeLinesCodeCombinationId
+          AND c.JeHeaderId = b.JeHeaderId 
+          AND B.GlJeHeadersLedgerId = gll.LedgerLedgerId (+)
+          AND gll.LedgerName LIKE '%FERC%'
+		  and c.GlJeLinesStatus = 'P'
+      ) FERC_DATA 
+    where  
+      FERC_DATA.FERC_LINE_NUM = GAAP_DATA.GAAP_LINE_NUM(+)
+      and FERC_DATA.parent_header = GAAP_DATA.header_id(+)
+      and nvl(GAAP_DATA.source, FERC_DATA.source) not in ('Payables', 'Receivables', 'Receipt Accounting', 'projects', 'Project Accounting')
+            --and (FERC_DATA.Journal_name = 'GL-FUT-014-J2') --     and gjh.name = '22-03-2024 Miscellaneous Cost'
+	union 
+    SELECT 
+      Case when FERC_DATA.FERC_ACCOUNT is null then 'GAAP Only' else 'Please check this scenario' end as which, 
+      GAAP_DATA.segment as GAAP_SEGEMNT,
+      FERC_DATA.segment as FERC_SEGEMNT,
+      null as TRANSACTION_IDG, 
+      GAAP_DATA.Journal_name, 
+      FERC_DATA.Journal_name as ferc,
+      nvl(GAAP_DATA.source, FERC_DATA.source) as source, 
+      GAAP_DATA.GAAP_ACCOUNT, 
+      FERC_DATA.FERC_ACCOUNT, 
+      GAAP_DATA.GAAP_CREDIT, 
+      GAAP_DATA.GAAP_DEBITS, 
+      FERC_DATA.FERC_CREDIT, 
+      FERC_DATA.FERC_DEBITS,
+      null as gaap_event_id,
+      GAAP_DATA.GAAP_LINE_NUM as gaap_line_num,
+      null as ferc_event_id,
+      FERC_DATA.FERC_LINE_NUM as ferc_line_num
+      ,
+      nvl(GAAP_DATA.line_status, FERC_DATA.line_status)  as line_status,
+      nvl(GAAP_DATA.header_status, FERC_DATA.header_status) as header_status 
+    FROM 
+      (
+        SELECT 
+          gcc.CodeCombinationSegment3 AS GAAP_ACCOUNT, 
+          gcc.CodeCombinationSegment6 AS segment, 
+          c.GlJeLinesAccountedCr AS GAAP_CREDIT, 
+          c.GlJeLinesAccountedDr AS GAAP_DEBITS, 
+          B.GlJeHeadersName as Journal_name ,
+          c.JeLineNum as GAAP_LINE_NUM,
+          b.GlJeHeadersJeSource as source,
+          b.JeHeaderId as header_id,
+          b.GlJeHeadersParentJeHeaderId as parent_header,
+          c.GlJeLinesStatus as line_status,
+          b.GlJeHeadersStatus as header_status 
+        FROM  
+          EXTERNAL('ADF','"oracle.apps.fscm.model.analytics.applicationModule.FscmTopModelAM_FscmTopModelAMLocal"."Connection Pool"').'FscmTopModelAM.FinExtractAM.GlBiccExtractAM.CodeCombinationExtractPVO' gcc,          
+EXTERNAL('ADF','"oracle.apps.fscm.model.analytics.applicationModule.FscmTopModelAM_FscmTopModelAMLocal"."Connection Pool"').
+'FscmTopModelAM.FinExtractAM.GlBiccExtractAM.JournalLineExtractPVO' c,
+EXTERNAL('ADF','"oracle.apps.fscm.model.analytics.applicationModule.FscmTopModelAM_FscmTopModelAMLocal"."Connection Pool"').
+'FscmTopModelAM.FinExtractAM.GlBiccExtractAM.JournalHeaderExtractPVO' B,
+ EXTERNAL('ADF','"oracle.apps.fscm.model.analytics.applicationModule.FscmTopModelAM_FscmTopModelAMLocal"."Connection Pool"').
+'FscmTopModelAM.FinExtractAM.GlBiccExtractAM.LedgerExtractPVO' gll
+        WHERE 1=1
+          and gcc.CodeCombinationCodeCombinationId = c.GlJeLinesCodeCombinationId 
+          AND c.JeHeaderId = b.JeHeaderId  
+          AND B.GlJeHeadersLedgerId = gll.LedgerLedgerId (+)
+          AND gll.LedgerName LIKE '%GAAP%'
+		  and c.GlJeLinesStatus = 'P'
+      ) GAAP_DATA, 
+      (
+        SELECT 
+          gcc.CodeCombinationSegment3 AS FERC_ACCOUNT,
+          gcc.CodeCombinationSegment6 AS segment,  
+          c.GlJeLinesAccountedCr AS FERC_CREDIT, 
+          c.GlJeLinesAccountedDr AS FERC_DEBITS,  
+          B.GlJeHeadersName as Journal_name,
+          c.JeLineNum as FERC_LINE_NUM,
+          b.GlJeHeadersJeSource as source,
+          b.JeHeaderId as header_id,
+          b.GlJeHeadersParentJeHeaderId as parent_header,
+          c.GlJeLinesStatus as line_status,
+          b.GlJeHeadersStatus as header_status 
+        FROM 
+          EXTERNAL('ADF','"oracle.apps.fscm.model.analytics.applicationModule.FscmTopModelAM_FscmTopModelAMLocal"."Connection Pool"').'FscmTopModelAM.FinExtractAM.GlBiccExtractAM.CodeCombinationExtractPVO' gcc,          
+EXTERNAL('ADF','"oracle.apps.fscm.model.analytics.applicationModule.FscmTopModelAM_FscmTopModelAMLocal"."Connection Pool"').
+'FscmTopModelAM.FinExtractAM.GlBiccExtractAM.JournalLineExtractPVO' c,
+EXTERNAL('ADF','"oracle.apps.fscm.model.analytics.applicationModule.FscmTopModelAM_FscmTopModelAMLocal"."Connection Pool"').
+'FscmTopModelAM.FinExtractAM.GlBiccExtractAM.JournalHeaderExtractPVO' B,
+ EXTERNAL('ADF','"oracle.apps.fscm.model.analytics.applicationModule.FscmTopModelAM_FscmTopModelAMLocal"."Connection Pool"').
+'FscmTopModelAM.FinExtractAM.GlBiccExtractAM.LedgerExtractPVO' gll 
+        WHERE 1=1
+          and gcc.CodeCombinationCodeCombinationId = c.GlJeLinesCodeCombinationId
+          AND c.JeHeaderId = b.JeHeaderId 
+          AND B.GlJeHeadersLedgerId = gll.LedgerLedgerId (+)
+          AND gll.LedgerName LIKE '%FERC%'
+		  and c.GlJeLinesStatus = 'P'
+      ) FERC_DATA 
+    where  
+      GAAP_DATA.GAAP_LINE_NUM  = FERC_DATA.FERC_LINE_NUM(+)
+      and GAAP_DATA.header_id  = FERC_DATA.parent_header(+)
+      and nvl(GAAP_DATA.source, FERC_DATA.source) not in ('Payables', 'Receivables', 'Receipt Accounting', 'projects', 'Project Accounting')
+	  and header_status = 'P'
+	  and FERC_DATA.FERC_ACCOUNT is null
 
+----------------
 SELECT 
       'FERC at PPM(Transaction)' AS which,
       GAAP_DATA.segment AS GAAP_SEGEMNT,
