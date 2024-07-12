@@ -1,3 +1,119 @@
+
+SELECT 
+      'FERC at PPM(Transaction)' AS which,
+      GAAP_DATA.segment AS GAAP_SEGEMNT,
+      FERC_DATA.segment AS FERC_SEGEMNT,
+      GAAP_DATA.TRANSACTION_IDG, 
+      GAAP_DATA.Journal_name, 
+      FERC_DATA.Journal_name AS ferc, 
+      NVL(GAAP_DATA.source, FERC_DATA.source) AS source,
+      GAAP_DATA.GAAP_ACCOUNT, 
+      FERC_DATA.FERC_ACCOUNT, 
+      GAAP_DATA.GAAP_CREDIT, 
+      GAAP_DATA.GAAP_DEBITS, 
+      FERC_DATA.FERC_CREDIT, 
+      FERC_DATA.FERC_DEBITS,
+      GAAP_DATA.event_id AS gaap_event_id,
+      GAAP_DATA.ae_line_num AS gaap_line_num,
+      GAAP_DATA.event_id AS ferc_event_id,
+      FERC_DATA.ae_line_num AS ferc_line_num,
+      NVL(GAAP_DATA.line_status, FERC_DATA.line_status) AS line_status,
+      NVL(GAAP_DATA.header_status, FERC_DATA.header_status) AS header_status
+FROM 
+      (
+        SELECT 
+          xda.JournalEntryDistributionSourceDistributionIdNum1 AS TRANSACTION_IDG, 
+          gcc.CodeCombinationSegment3 AS GAAP_ACCOUNT, 
+          gcc.CodeCombinationSegment6 AS segment, 
+          c.GlJeLinesAccountedCr AS GAAP_CREDIT, 
+          c.GlJeLinesAccountedDr AS GAAP_DEBITS, 
+          xda.JournalEntryDistributionEventId AS event_id, 
+          xda.JournalEntryDistributionAeLineNum AS ae_line_num, 
+          B.GlJeHeadersName AS Journal_name,
+          b.GlJeHeadersJeSource AS source,
+          c.GlJeLinesStatus AS line_status,
+          b.GlJeHeadersStatus AS header_status  
+        FROM 
+          EXTERNAL('ADF', '"oracle.apps.fscm.model.analytics.applicationModule.FscmTopModelAM_FscmTopModelAMLocal"."Connection Pool"').
+          'FscmTopModelAM.FinExtractAM.XlaBiccExtractAM.SubledgerJournalDistributionExtractPVO' XDA
+        LEFT JOIN EXTERNAL('ADF', '"oracle.apps.fscm.model.analytics.applicationModule.FscmTopModelAM_FscmTopModelAMLocal"."Connection Pool"').
+          'FscmTopModelAM.FinExtractAM.XlaBiccExtractAM.SubledgerJournalLineExtractPVO' XAL
+          ON XDA.JournalEntryDistributionAeHeaderId = XAL.JournalEntryLineAeHeaderId 
+          AND XDA.JournalEntryDistributionAeLineNum = XAL.JournalEntryLineAeLineNum 
+        LEFT JOIN EXTERNAL('ADF', '"oracle.apps.fscm.model.analytics.applicationModule.FscmTopModelAM_FscmTopModelAMLocal"."Connection Pool"').
+          'FscmTopModelAM.FinExtractAM.GlBiccExtractAM.CodeCombinationExtractPVO' gcc
+          ON XAL.JournalEntryLineCodeCombinationId = gcc.CodeCombinationCodeCombinationId 
+        LEFT JOIN EXTERNAL('ADF', '"oracle.apps.fscm.model.analytics.applicationModule.FscmTopModelAM_FscmTopModelAMLocal"."Connection Pool"').
+          'FscmTopModelAM.FinExtractAM.GlBiccExtractAM.JournalImportReferenceExtractPVO' gir
+          ON XAL.JournalEntryLineGlSlLinkId = gir.GlImportReferencesGlSlLinkId 
+          AND XAL.JournalEntryLineGlSlLinkTable = gir.GlImportReferencesGlSlLinkTable 
+        LEFT JOIN EXTERNAL('ADF', '"oracle.apps.fscm.model.analytics.applicationModule.FscmTopModelAM_FscmTopModelAMLocal"."Connection Pool"').
+          'FscmTopModelAM.FinExtractAM.GlBiccExtractAM.JournalLineExtractPVO' c
+          ON gir.GlImportReferencesJeHeaderId = c.JeHeaderId 
+          AND gcc.CodeCombinationCodeCombinationId = c.GlJeLinesCodeCombinationId 
+        LEFT JOIN EXTERNAL('ADF', '"oracle.apps.fscm.model.analytics.applicationModule.FscmTopModelAM_FscmTopModelAMLocal"."Connection Pool"').
+          'FscmTopModelAM.FinExtractAM.GlBiccExtractAM.JournalHeaderExtractPVO' B
+          ON c.JeHeaderId = B.JeHeaderId 
+        LEFT JOIN EXTERNAL('ADF', '"oracle.apps.fscm.model.analytics.applicationModule.FscmTopModelAM_FscmTopModelAMLocal"."Connection Pool"').
+          'FscmTopModelAM.FinExtractAM.GlBiccExtractAM.LedgerExtractPVO' gll
+          ON B.GlJeHeadersLedgerId = gll.LedgerLedgerId 
+        WHERE 
+          gll.LedgerName LIKE '%GAAP%'
+          AND c.GlJeLinesStatus = 'P'
+      ) GAAP_DATA
+LEFT JOIN 
+      (
+        SELECT 
+          xda.JournalEntryDistributionSourceDistributionIdNum1 AS TRANSACTION_IDG,  
+          gcc.CodeCombinationSegment3 AS FERC_ACCOUNT, 
+          gcc.CodeCombinationSegment6 AS segment, 
+          c.GlJeLinesAccountedCr AS FERC_CREDIT, 
+          c.GlJeLinesAccountedDr AS FERC_DEBITS, 
+          xda.JournalEntryDistributionEventId AS event_id, 
+          xda.JournalEntryDistributionAeLineNum AS ae_line_num, 
+          B.GlJeHeadersName AS Journal_name,
+          b.GlJeHeadersJeSource AS source,
+          c.GlJeLinesStatus AS line_status,
+          b.GlJeHeadersStatus AS header_status 
+        FROM  
+          EXTERNAL('ADF', '"oracle.apps.fscm.model.analytics.applicationModule.FscmTopModelAM_FscmTopModelAMLocal"."Connection Pool"').
+          'FscmTopModelAM.FinExtractAM.XlaBiccExtractAM.SubledgerJournalDistributionExtractPVO' XDA
+        LEFT JOIN EXTERNAL('ADF', '"oracle.apps.fscm.model.analytics.applicationModule.FscmTopModelAM_FscmTopModelAMLocal"."Connection Pool"').
+          'FscmTopModelAM.FinExtractAM.XlaBiccExtractAM.SubledgerJournalLineExtractPVO' XAL
+          ON XDA.JournalEntryDistributionAeHeaderId = XAL.JournalEntryLineAeHeaderId 
+          AND XDA.JournalEntryDistributionAeLineNum = XAL.JournalEntryLineAeLineNum 
+        LEFT JOIN EXTERNAL('ADF', '"oracle.apps.fscm.model.analytics.applicationModule.FscmTopModelAM_FscmTopModelAMLocal"."Connection Pool"').
+          'FscmTopModelAM.FinExtractAM.GlBiccExtractAM.CodeCombinationExtractPVO' gcc
+          ON XAL.JournalEntryLineCodeCombinationId = gcc.CodeCombinationCodeCombinationId 
+        LEFT JOIN EXTERNAL('ADF', '"oracle.apps.fscm.model.analytics.applicationModule.FscmTopModelAM_FscmTopModelAMLocal"."Connection Pool"').
+          'FscmTopModelAM.FinExtractAM.GlBiccExtractAM.JournalImportReferenceExtractPVO' gir
+          ON XAL.JournalEntryLineGlSlLinkId = gir.GlImportReferencesGlSlLinkId 
+          AND XAL.JournalEntryLineGlSlLinkTable = gir.GlImportReferencesGlSlLinkTable 
+        LEFT JOIN EXTERNAL('ADF', '"oracle.apps.fscm.model.analytics.applicationModule.FscmTopModelAM_FscmTopModelAMLocal"."Connection Pool"').
+          'FscmTopModelAM.FinExtractAM.GlBiccExtractAM.JournalLineExtractPVO' c
+          ON gir.GlImportReferencesJeHeaderId = c.JeHeaderId 
+          AND gcc.CodeCombinationCodeCombinationId = c.GlJeLinesCodeCombinationId 
+        LEFT JOIN EXTERNAL('ADF', '"oracle.apps.fscm.model.analytics.applicationModule.FscmTopModelAM_FscmTopModelAMLocal"."Connection Pool"').
+          'FscmTopModelAM.FinExtractAM.GlBiccExtractAM.JournalHeaderExtractPVO' B
+          ON c.JeHeaderId = B.JeHeaderId 
+        LEFT JOIN EXTERNAL('ADF', '"oracle.apps.fscm.model.analytics.applicationModule.FscmTopModelAM_FscmTopModelAMLocal"."Connection Pool"').
+          'FscmTopModelAM.FinExtractAM.GlBiccExtractAM.LedgerExtractPVO' gll
+          ON B.GlJeHeadersLedgerId = gll.LedgerLedgerId 
+        WHERE 
+          gll.LedgerName LIKE '%FERC%'
+          AND c.GlJeLinesStatus = 'P'
+      ) FERC_DATA 
+ON 
+      FERC_DATA.TRANSACTION_IDG = GAAP_DATA.TRANSACTION_IDG 
+      AND FERC_DATA.event_id = GAAP_DATA.event_id 
+      AND FERC_DATA.ae_line_num = GAAP_DATA.ae_line_num 
+      AND FERC_DATA.Journal_name = GAAP_DATA.Journal_name;
+
+
+
+
+----------
+
 SELECT 
       'FERC at PPM(Transaction)' as which,
       GAAP_DATA.segment as GAAP_SEGEMNT,
