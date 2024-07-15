@@ -1,3 +1,10 @@
+Hi Shiva,
+
+Thanks for sharing these details, I have initiated the build and will keep you posted.
+
+Also wants to bring up this point that including this BIP report, we have a total count of BIP reports 6, which exceeds our previous estimation of 5 BIP.
+Details as below
+
 SELECT 
       'FERC at PPM(Transaction)' AS which,
       GAAP_DATA.segment AS GAAP_SEGEMNT,
