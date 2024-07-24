@@ -1,27 +1,7 @@
 ------------------- Script
 #!/bin/ksh
 
-#-----------------------------------------------------------------------------------------------------------------------------------
-# Script Name: cfs_common_faw_trigger_custom_load_plan.sh
-# Author: Monish S.S.
-# Date: 04-Nov-2022
-# Description: A KornShell script to trigger an ODI loadplan via dSeries.
-#-----------------------------------------------------------------------------------------------------------------------------------
-# Change History
-# Date          Description                                         Changed by
-# 09-Nov-2022   Made code changes to be able to fetch data from     Monish S. S.
-#                               CLN Tables in DAL
-# 23-Nov-2022    - All hardcoded values moved to ENV config file         Monish S. S.
-#                               - Made code changes to generate log files as per
-#                                 dSeries Dev and Standards Documentaion
-#                               - Used SSH to execute OOTB ODI shell scripts
-# 24-Nov-2022    Used -tt option with SSH to force pseudo-terminal      Monish S. S.
-#                               allocation.
-# 04-May-2023    Changed the code of log file generation so that         Monish S. S.
-#                               Each load plan triggered will have its respective
-#                               log file
-# 15-Sep-2023	Added and sourced new config file as per UAT requirements  Monish S. S.
-#
+
 #-----------------------------------------------------------------------------------------------------------------------------------
 #Sourcing the ENV Config File
 . ../config/cfs_faw_env.cfg
