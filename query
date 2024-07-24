@@ -1,3 +1,318 @@
+------------------- Script
+#!/bin/ksh
+
+#-----------------------------------------------------------------------------------------------------------------------------------
+# Script Name: cfs_common_faw_trigger_custom_load_plan.sh
+# Author: Monish S.S.
+# Date: 04-Nov-2022
+# Description: A KornShell script to trigger an ODI loadplan via dSeries.
+#-----------------------------------------------------------------------------------------------------------------------------------
+# Change History
+# Date          Description                                         Changed by
+# 09-Nov-2022   Made code changes to be able to fetch data from     Monish S. S.
+#                               CLN Tables in DAL
+# 23-Nov-2022    - All hardcoded values moved to ENV config file         Monish S. S.
+#                               - Made code changes to generate log files as per
+#                                 dSeries Dev and Standards Documentaion
+#                               - Used SSH to execute OOTB ODI shell scripts
+# 24-Nov-2022    Used -tt option with SSH to force pseudo-terminal      Monish S. S.
+#                               allocation.
+# 04-May-2023    Changed the code of log file generation so that         Monish S. S.
+#                               Each load plan triggered will have its respective
+#                               log file
+# 15-Sep-2023	Added and sourced new config file as per UAT requirements  Monish S. S.
+#
+#-----------------------------------------------------------------------------------------------------------------------------------
+#Sourcing the ENV Config File
+. ../config/cfs_faw_env.cfg
+
+#Sourcing the GLOBAL Config File
+. ../config/cfs_faw_global.cfg
+
+#Sourcing the PWD Config File
+. ../config/cfs_faw_pwd.cfg
+
+#Generating Log file dynamically with timestamp
+#LOG_FILE_NAME=cfs_faw_custom_load_plan_trigger_`date +"%m_%d_%Y_%H_%M_%S"`.log
+LOG_FILE_NAME=cfs_faw_`echo $1`_`date +"%m_%d_%Y_%H_%M_%S"`.log
+
+touch $LOG_PATH/$LOG_FILE_NAME
+LOG_FILE=$LOG_PATH/$LOG_FILE_NAME
+
+dt=`date +"%d-%b-%y"`
+
+log_to_file(){
+        log_dt=`date +"%Y/%m/%d %T:%3N %Z"`
+        log_type=""
+        case "$1" in
+        "E") log_type="ERROR"
+        ;;
+        "D") log_type="DEBUG"
+        ;;
+        "I")
+        ;&
+        *) log_type="INFO"
+        ;;
+        esac
+        echo -e "$log_dt [$log_type] $2 - $3"
+
+} >> $LOG_FILE
+
+get_status()
+{
+        status=""
+        case "$1" in
+        "E") status="Error"
+        ;;
+        "D") status="Done"
+        ;;
+        "R") status="Running"
+        ;;
+        *) status="Processing"
+        ;;
+        esac
+
+        echo "$status"
+}
+
+
+#boolean flags to handle flow control
+is_load_plan_running=true
+exception_encountered=false
+did_load_plan_complete=false
+
+#SQL to get latest PROCESS_ID, PROCESS_LOG_STATUS_ID and LOADPLAN_INSTANCE_ID from CLN Table cfs_odi_cln_process_log_tbl
+#revised query
+get_latest_process_log_status_id_query="with cln_tmp as (select CORRELATION_ID,RESTART_ATTEMPTS,PROCESS_ID,PROCESS_LOG_STATUS_ID,PROCESS_START_UTC_DTM,LOAD_PLAN_INSTANCE_ID,LOAD_PLAN_NAME, row_number() over (partition by LOAD_PLAN_INSTANCE_ID,LOAD_PLAN_NAME,PROCESS_LOG_STATUS_ID order by PROCESS_START_UTC_DTM desc) as rnk from cfs_data_layer.cfs_odi_cln_process_log_tbl where PROCESS_ID=9999) select NVL(PROCESS_ID,-1),NVL(PROCESS_LOG_STATUS_ID,'Processing'),NVL(LOAD_PLAN_INSTANCE_ID,'-1'),CORRELATION_ID,RESTART_ATTEMPTS from cln_tmp where rnk=1 and load_plan_name='$1' order by LOAD_PLAN_INSTANCE_ID desc,RESTART_ATTEMPTS desc,PROCESS_LOG_STATUS_ID desc;"
+
+
+#SQL to get realtime load plan status from SNP Table snp_lpi_run
+get_realtime_load_plan_status="with snp_tmp as
+( select status, row_number() over (partition by load_plan_name order by i_lp_inst desc, nb_run desc ) as rnk from snp_lpi_run WHERE load_plan_name='$1' ) select status from snp_tmp where rnk=1;"
+
+#SQL to reset PROCESS_LOG_STATUS_ID and RESTART_ATTEMPTS counter of LP Status Record 9999 to 'R' (R or Running - will be used after restart)
+#get_load_plan_status_record_update_query(){
+#       echo "update cfs_data_layer.cfs_odi_cln_process_log_tbl set PROCESS_LOG_STATUS_ID='$1',RESTART_ATTEMPTS= RESTART_ATTEMPTS+1 where LOAD_PLAN_NAME='$2' and LOAD_PLAN_INSTANCE_ID=$3 and Process_ID=9999;"
+#}
+
+
+# If no record in CLN table for execution date, trigger startloadplan.sh
+# else if PROCESS_LOG_STATUS_ID = 'D' for PROCESS_ID=9999, end Load planning
+# else if PROCESS_LOG_STATUS_ID ='E' for any record, trigger restartloadplan.sh
+
+res=`sqlplus -s $uname/$pw@$svcname <<EOF
+        set pagesize 0 feedback off verify off heading off echo off
+        $get_latest_process_log_status_id_query
+        exit
+        EOF`
+IFS=$'\n';
+arrIN=($res)
+PROCESS_ID=${arrIN[0]}
+PROCESS_LOG_STATUS_ID=${arrIN[1]}
+PREV_LOAD_PLAN_INSTANCE_ID=${arrIN[2]}
+PROCESS_ID=`echo $PROCESS_ID | awk '{$1=$1};1'`
+PROCESS_LOG_STATUS_ID=`echo $PROCESS_LOG_STATUS_ID | awk '{$1=$1};1'`
+PREV_LOAD_PLAN_INSTANCE_ID=`echo $PREV_LOAD_PLAN_INSTANCE_ID | awk '{$1=$1};1'`
+ODI_AGENT_URL="http://$ODI_VM_IP:$ODI_VM_PORT/$ODI_VM_ODI_AGENT_NAME"
+
+#log_to_file "I" "PROCESS_ID" $PROCESS_ID
+#Agent URL (For Debugging)
+#echo $ODI_AGENT_URL
+
+if [ \( -z "$res" \) -o \( "$PROCESS_ID" = "9999" -a "$PROCESS_LOG_STATUS_ID" = "D" \) ];
+then
+        op=`ssh -T $ODI_VM_UNAME@$ODI_VM_IP 2>&1 <<EOF
+        $ODI/startloadplan.sh "-INSTANCE=$ODI_VM_ODI_INSTANCE" "$1" GLOBAL "-AGENT_URL=$ODI_AGENT_URL"
+        exit
+        EOF`
+        # >>$LOG_FILE 2>&1
+        OOTB_SH_EXEC_RETURN_VAL=$?
+
+        log_to_file "I" "ODIStartLoadPlan.SH" `echo $op`
+
+        #echo $op >>$LOG_FILE
+        if [ $OOTB_SH_EXEC_RETURN_VAL -ne 0 ];
+        then
+                is_load_plan_running=false
+                #echo "$dt [ERROR]:FATAL ERROR. LOAD PLAN EXECUTION FAILED TO START. EXITING WITH CODE 1." >>$LOG_FILE
+                log_to_file "E" "LoadPlanExecution" "FATAL ERROR. LOAD PLAN EXECUTION FAILED TO START. EXITING WITH CODE 1."
+                exit 1
+        else
+                if [ -z "$res" ];
+                then
+                        #echo "$dt [INFO]: No previous load plan executions detected for today. Starting load plan." >>$LOG_FILE
+                        log_to_file "I" "LoadPlanExecution" "No previous load plan executions detected for today. Starting load plan."
+                else
+                        #echo "$dt [INFO]: Previous load plan execution with exit code 0 detected. Starting load plan." >>$LOG_FILE
+                        log_to_file "I" "LoadPlanExecution" "Previous load plan execution with exit code 0 detected. Starting load plan."
+                fi
+                while [ "$did_load_plan_complete" = "false" -a "$exception_encountered" = "false" ];
+                do
+                        res=`sqlplus -s $uname/$pw@$svcname <<EOF
+                                set pagesize 0 feedback off verify off heading off echo off
+                                $get_latest_process_log_status_id_query
+                                exit
+                                EOF`
+                        IFS=$'\n';
+                        arrIN=($res)
+                        #echo -n "$dt [DEBUG]:RESULT SET:\n$res" >>$LOG_FILE
+
+                        log_to_file "D" "Result Set" $res
+
+                        PROCESS_ID=${arrIN[0]}
+                        PROCESS_LOG_STATUS_ID=${arrIN[1]}
+                        LOAD_PLAN_INSTANCE_ID=${arrIN[2]}
+                        PACKAGE_SCENARIO_NAME=${arrIN[3]}
+                        EXECUTION_ATTEMPT=${arrIN[4]}
+                        PROCESS_ID=`echo $PROCESS_ID | awk '{$1=$1};1'`
+                        PROCESS_LOG_STATUS_ID=`echo $PROCESS_LOG_STATUS_ID | awk '{$1=$1};1'`
+                        LOAD_PLAN_INSTANCE_ID=`echo $LOAD_PLAN_INSTANCE_ID | awk '{$1=$1};1'`
+                        PACKAGE_SCENARIO_NAME=`echo $PACKAGE_SCENARIO_NAME | awk '{$1=$1};1'`
+                        EXECUTION_ATTEMPT=`echo $EXECUTION_ATTEMPT | awk '{$1=$1};1'`
+
+                        res_realtime_status=`sqlplus -s $snp_uname/$snp_pwd@$snp_svcname <<EOF
+                                set pagesize 0 feedback off verify off heading off echo off
+                                $get_realtime_load_plan_status
+                                exit
+                                EOF`
+
+
+                        log_to_file "D" "Load Plan Execution Attempt" $EXECUTION_ATTEMPT
+                        LP_REALTIME_STATUS=$res_realtime_status
+                        #echo "$dt [DEBUG]:PROCESS_ID: $PROCESS_ID" >>$LOG_FILE
+                        log_to_file "D" "CLN Process ID" $PROCESS_ID
+                        log_to_file "D" "CLN Load Plan Package Scenario Name" $PACKAGE_SCENARIO_NAME
+                        #echo "$dt [DEBUG]:PROCESS_LOG_STATUS_ID: $PROCESS_LOG_STATUS_ID" >>$LOG_FILE
+                        log_to_file "D" "CLN Process Log Status" `get_status $PROCESS_LOG_STATUS_ID`
+                        #echo "$dt [DEBUG]:LOAD_PLAN_INSTANCE_ID: $LOAD_PLAN_INSTANCE_ID" >>$LOG_FILE
+                        log_to_file "D" "CLN Load Plan Instance ID" $LOAD_PLAN_INSTANCE_ID
+                        echo `date +"%Y/%m/%d %T:%3N %Z"`" [DEBUG] LoadPlanExecution - LOAD PLAN IS STILL EXECUTING...."
+                        #echo "$dt [DEBUG]:new res: $res_realtime_status" >>$LOG_FILE
+                        log_to_file "D" "SNP Real Time Status" `get_status $res_realtime_status`
+                        #echo "$dt [DEBUG]:Realtime LP status from SNP: $LP_REALTIME_STATUS" >>$LOG_FILE
+
+                        sleep 5
+                        unset IFS
+
+                        if [ "$LP_REALTIME_STATUS" = "E" ]
+                        then
+                                exception_encountered=true
+                        elif  [ \( "$PROCESS_LOG_STATUS_ID" = "D" -a "$PROCESS_ID" = "9999" \) -a \( "$LOAD_PLAN_INSTANCE_ID" -ne "$PREV_LOAD_PLAN_INSTANCE_ID" \) ]
+                        then
+                                did_load_plan_complete=true
+                                #echo "$dt [DEBUG]:LP Complete in while" >>$LOG_FILE
+                                log_to_file "D" "LoadPlanExecution" "Inside while loop, load plan completed flag set to TRUE."
+
+                        fi
+
+                done
+        fi
+
+elif [ "$PROCESS_LOG_STATUS_ID" = "E" ]
+then
+        #echo "$dt [DEBUG]: Previous Instance ID found with PROCESS_LOG_STATUS_ID=E. Restarting Load plan." >>$LOG_FILE
+        log_to_file "D" "LoadPlanExecution" "Previous Instance ID found with PROCESS_LOG_STATUS_ID=E. Restarting Load plan."
+
+        #new_query = `get_load_plan_status_record_update_query 'R' $1 $PREV_LOAD_PLAN_INSTANCE_ID`
+        #update_query =`get_load_plan_status_record_update_query 'R' $1 $PREV_LOAD_PLAN_INSTANCE_ID`
+        res=`sqlplus -s $uname/$pw@$svcname <<EOF
+                                set pagesize 0 feedback off verify off heading off echo off
+                                update cfs_data_layer.cfs_odi_cln_process_log_tbl set PROCESS_LOG_STATUS_ID='R',RESTART_ATTEMPTS= RESTART_ATTEMPTS+1 where LOAD_PLAN_NAME='$1' and LOAD_PLAN_INSTANCE_ID=$PREV_LOAD_PLAN_INSTANCE_ID and Process_ID=9999;
+                                commit;
+                                exit
+                                EOF`
+
+        log_to_file "D" "LoadPlanUpdate" "Updated 9999 record."
+
+        op=`ssh -T $ODI_VM_UNAME@$ODI_VM_IP 2>&1 <<EOF
+        $ODI/restartloadplan.sh "-INSTANCE=$ODI_VM_ODI_INSTANCE" "$PREV_LOAD_PLAN_INSTANCE_ID" "-AGENT_URL=$ODI_AGENT_URL"
+        exit
+        EOF`
+        # >>$LOG_FILE 2>&1
+        OOTB_SH_EXEC_RETURN_VAL=$?
+        #echo $op
+        log_to_file "I" "ODIRestartLoadPlan.SH" `echo $op`
+
+        if [ $OOTB_SH_EXEC_RETURN_VAL -ne 0 ];
+        then
+                is_load_plan_running=false
+                #echo "$dt [ERROR]:FATAL ERROR. LOAD PLAN EXECUTION FAILED TO START. EXITING WITH CODE 1." >>$LOG_FILE
+                log_to_file "E" "LoadPlanExecution" "FATAL ERROR. LOAD PLAN EXECUTION FAILED TO START. EXITING WITH CODE 1."
+                exit 1
+        else
+        while [ "$did_load_plan_complete" = "false" -a "$exception_encountered" = "false" ];
+                do
+                        res=`sqlplus -s $uname/$pw@$svcname <<EOF
+                                set pagesize 0 feedback off verify off heading off echo off
+                                $get_latest_process_log_status_id_query
+                                exit
+                                EOF`
+                        IFS=$'\n';
+                        arrIN=($res)
+                        PROCESS_ID=${arrIN[0]}
+                        PROCESS_LOG_STATUS_ID=${arrIN[1]}
+                        LOAD_PLAN_INSTANCE_ID=${arrIN[2]}
+                        PACKAGE_SCENARIO_NAME=${arrIN[3]}
+                        EXECUTION_ATTEMPT=${arrIN[4]}
+
+                        PROCESS_ID=`echo $PROCESS_ID | awk '{$1=$1};1'`
+                        PROCESS_LOG_STATUS_ID=`echo $PROCESS_LOG_STATUS_ID | awk '{$1=$1};1'`
+                        LOAD_PLAN_INSTANCE_ID=`echo $LOAD_PLAN_INSTANCE_ID | awk '{$1=$1};1'`
+                        PACKAGE_SCENARIO_NAME=`echo $PACKAGE_SCENARIO_NAME | awk '{$1=$1};1'`
+                        EXECUTION_ATTEMPT=`echo $EXECUTION_ATTEMPT | awk '{$1=$1};1'`
+
+
+                        res_realtime_status=`sqlplus -s $snp_uname/$snp_pwd@$snp_svcname <<EOF
+                                set pagesize 0 feedback off verify off heading off echo off
+                                $get_realtime_load_plan_status
+                                exit
+                                EOF`
+
+                        log_to_file "D" "Load Plan Execution Attempt" $EXECUTION_ATTEMPT
+                        LP_REALTIME_STATUS=$res_realtime_status
+                        #LP_REALTIME_STATUS=$res_realtime_status
+                        #echo "$dt [DEBUG]:PROCESS_ID: $PROCESS_ID" >>$LOG_FILE
+                        log_to_file "D" "CLN Process ID" $PROCESS_ID
+                        log_to_file "D" "CLN Load Plan Package Scenario Name" $PACKAGE_SCENARIO_NAME
+                        #echo "$dt [DEBUG]:PROCESS_LOG_STATUS_ID: $PROCESS_LOG_STATUS_ID" >>$LOG_FILE
+                        log_to_file "D" "CLN Process Log Status" `get_status $PROCESS_LOG_STATUS_ID`
+                        #echo "$dt [DEBUG]:LOAD_PLAN_INSTANCE_ID: $LOAD_PLAN_INSTANCE_ID" >>$LOG_FILE
+                        log_to_file "D" "CLN Load Plan Instance ID" $LOAD_PLAN_INSTANCE_ID
+                        echo `date +"%Y/%m/%d %T:%3N %Z"`" [DEBUG] LoadPlanExecution - LOAD PLAN IS STILL EXECUTING...."
+                        #echo "$dt [DEBUG]:new res: $res_realtime_status" >>$LOG_FILE
+                        log_to_file "D" "SNP Real Time Status" `get_status $res_realtime_status`
+                        sleep 5
+                        unset IFS
+
+                        if [ "$LP_REALTIME_STATUS" = "E" ]
+                        then
+                                exception_encountered=true
+                        elif  [ "$PROCESS_LOG_STATUS_ID" = "D" -a "$PROCESS_ID" = "9999" ]
+                        then
+                                did_load_plan_complete=true
+                                #echo "$dt [DEBUG]: LP Complete in while" >>$LOG_FILE
+                                log_to_file "D" "LoadPlanExecution" "Inside while loop, load plan completed flag set to TRUE."
+                        fi
+
+                done
+        fi
+
+fi
+
+
+if [ "$did_load_plan_complete" = "true" -a "$exception_encountered" = "false" ] ;
+then
+        #echo "$dt [INFO]: Load plan completed successfully! exiting with code 0." >>$LOG_FILE
+        log_to_file "I" "LoadPlanExecution" "Load plan completed successfully. exiting with code 0."
+        exit 0
+
+else
+        #echo "$dt [ERROR]: Load plan failed!, exiting with code 1." >>$LOG_FILE
+        log_to_file "E" "LoadPlanExecution" "Load plan failed. exiting with code 1."
+
+        exit 1
+fi
+---------------------------
 Hi Shiva,
 
 Thanks for sharing these details, I have initiated the build and will keep you posted.
