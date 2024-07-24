@@ -1,0 +1,622 @@
+#!/usr/bin/ksh
+
+#
+# Paramenters 
+# $1= ESS job name         --maps to JobDefName in REST call
+# $2= ESS job parameters   --maps to ESSParameters in REST call
+#                          --concatenated param list
+# $3= Debug flag
+# $4= Automatic Posting USD_GAAP_SA data access set flag
+
+# Source environment
+batch_config="/efswork/erpsched/erp/config"
+. ${batch_config}/efs_erp_env.cfg
+. ${batch_config}/efs_erp_global.cfg
+
+# Validate parameter character set before start of processing
+parameter_string="'"${@}"'"
+echo "Parameter string is: "${parameter_string}
+parameter_strlen=`expr length "${parameter_string}"`
+echo "Parameter string length is: "${parameter_strlen}
+for counter_i in {1..${parameter_strlen}}
+ do
+   ascii_value="-1"
+   ascii_value=`echo  "${parameter_string}" | cut -c${counter_i} | \
+                od -An -vtu1 | awk '{print $1}'`
+   # Error if ASCII value is a non-print character
+   if [ ${ascii_value} -lt 32 ] ||
+      [ ${ascii_value} -gt 126 ]
+     then
+       echo "ERROR: Non-ASCII character found in parameter"
+       echo "Fix parameter values and try again"
+       exit 1
+   fi
+ done															 
+
+ess_job_def_name="${1}"
+
+#Generate Job Id-
+d_series_job_id="${ess_job_def_name}_"`date +%m"_"%d"_"%Y"_"%H"_"%M"_"%N`
+if [ "${3}" == "Y" ] 
+  then
+    debug_flag="Y"
+  else
+    debug_flag="N"
+#echo  `date +%m"_"%d%Y%H%M%N`
+fi
+ess_job_pkg_name=""
+erp_instance_url="${erp_url}"
+
+# Replace string SYSDATE with equivalent date value in provided params
+sys_date=`date +%Y"/"%m"/"%d`
+#sys_date=`date +%Y"-"%m"-"%d`
+if [ -z "${2}" ]
+	then
+		ess_job_params=" "
+	else
+		ess_job_params=`echo ${2} | gawk -v dt=${sys_date} \
+               '{gsub (/SYSDATE/, dt); print}'`
+fi
+
+#ess_job_params=`echo ${3} | gawk -v dt=${sys_date} \
+#              '{gsub (/SYSDATE/, dt); print}'`
+
+#
+# s- submit request i.e. curl command output/ log for the ESS job
+# m- monitor request i.e. curl command output/ log for checking status of
+#    submitted ESS job
+#
+erp_sreq_out_file="${batch_logs}/"${d_series_job_id}"-s.log"
+erp_sreq_err_file="${batch_logs}/"${d_series_job_id}"-s-e.log"
+erp_mreq_out_file="${batch_logs}/"${d_series_job_id}"-m.log"
+erp_mreq_err_file="${batch_logs}/"${d_series_job_id}"-m-e.log"
+erp_req_consol_log_file="${batch_logs}/"${d_series_job_id}".log"
+erp_req_debug_file="${batch_logs}/"${d_series_job_id}"-dbg.log"
+#curl command line
+erp_request=""
+#ESS request id and status
+erp_request_id=""
+erp_request_status=""
+#
+
+# Write debug trace to local file system based on debug flag
+#
+write_to_debug () {
+  if [ "${debug_flag}" == "Y" ]
+    then
+	  # Redact password before priting trace
+	  echo -e "\n"`echo "${1}" | gawk -v pass="${erp_pwd}"\
+                   '{gsub (pass, "REDACTED"); print}'`>>${erp_req_debug_file}
+  fi;
+  return
+}
+#
+# Initialize temp files
+#
+init_temp_files() {
+  if [ -e ${erp_sreq_out_file} ]
+    then
+      rm ${erp_sreq_out_file}
+  fi
+  touch ${erp_sreq_out_file}
+  if [ -e ${erp_sreq_err_file} ]
+    then
+      rm ${erp_sreq_err_file}
+  fi
+  touch ${erp_sreq_err_file}
+  if [ -e ${erp_mreq_out_file} ]
+    then
+      rm ${erp_mreq_out_file}
+  fi
+  touch ${erp_mreq_out_file}
+  if [ -e ${erp_mreq_err_file} ]
+    then
+      rm ${erp_mreq_err_file}
+  fi
+  touch ${erp_mreq_err_file}
+  if [ -e ${erp_req_consol_log_file} ]
+    then
+      rm ${erp_req_consol_log_file}
+  fi
+  touch ${erp_req_consol_log_file}
+  if [ "${debug_flag}" == "Y" ] && [ -e ${erp_req_debug_file} ]
+    then
+      rm ${erp_req_debug_file}
+	  touch ${erp_req_debug_file}
+  fi
+  write_to_debug "Exit- init_temp_files-1"
+  return
+}
+#
+# Perform lookup of ESS job package name in config file
+# based on job def name coming from D-Series
+#
+get_ess_job_pkg_name() {
+  write_to_debug "Enter- get_ess_job_pkg_name-1" 
+  job_count=""
+  job_count=`grep -c "${ess_job_def_name}:"\
+             ${batch_config}/efs_erp_ess_jobpkgname.cfg`
+  # How many hits were found in config file:
+  # 0- erroneous setup, 1- correct setup, >1- erroneoue setup
+  case ${job_count} in
+    0)
+	  write_to_debug "Exit- get_ess_job_pkg_name-2" 
+	  return 1
+	;;
+	1)
+	  write_to_debug "Exit- get_ess_job_pkg_name-3" 
+	  ess_job_pkg_name=`grep "${ess_job_def_name}:"\
+	                    ${batch_config}/efs_erp_ess_jobpkgname.cfg |\
+						awk -F":" '{print $2}'`
+	  return 0
+	;;
+	*)
+	  write_to_debug "Exit- get_ess_job_pkg_name-4"
+	  return 1
+	;;
+  esac
+}
+
+# Determine which ERP user to use based on the job name and parameters
+if [ -z "${4}" ]; then
+    erp_user_credentials="${erp_user_1}:${erp_pwd_1}"
+else
+    erp_user_credentials="${erp_user_2}:${erp_pwd_2}"
+fi
+#
+
+# Create curl command line for ESS job that needs to be submitted
+#
+create_submit_erp_request_cmd_ln() {
+  write_to_debug "Enter- create_submit_erp_request_cmd_ln-1:${erp_request}"
+  erp_request=" -o "${erp_sreq_out_file}" --stderr "${erp_sreq_err_file}
+  erp_request+=" -i -u "\"${erp_user_credentials}\"
+  erp_request+=" -H 'Content-Type: application/vnd.oracle.adf.resourceitem+json'"
+  erp_request+=" -X POST -d "
+  erp_request+="'{\"OperationName\":\"submitESSJobRequest\","
+  erp_request+="\"JobPackageName\":\"${ess_job_pkg_name}\","
+  erp_request+="\"JobDefName\":\"${ess_job_def_name}\","
+  erp_request+="\"ESSParameters\":\"${ess_job_params}\"}'"
+  erp_request+=" -v \"${erp_instance_url}\""
+  write_to_debug "Exit- create_submit_erp_request_cmd_ln-2:${erp_request}"
+  return
+}
+#
+# Retrive ESS request id from submitted curl request output file
+#
+unset erp_request_id
+get_submitted_request_id() {
+  erp_request_id=`grep "ReqstId" ${erp_sreq_out_file} | cut -d\" -f4`
+
+  write_to_debug "Enter- get_submitted_request_id-1:${erp_request_id}"
+  if [ ${erp_request_id} -eq -1 ] || [ "${erp_request_id}" == "" ]
+    then
+	  write_to_debug "get_submitted_request_id-2:${erp_request_id}"
+	  return 1
+	else
+	  return 0
+  fi
+}
+#
+# Create curl command line to retrieve ESS job status
+#
+create_monitor_erp_request_cmd_ln() {
+  write_to_debug "Enter- create_monitor_erp_request_cmd_ln-1:${erp_request}"
+  erp_request=""
+  erp_request=" -o "${erp_mreq_out_file}" --stderr "${erp_mreq_err_file}
+  erp_request+=" -i -u "\"${erp_user_credentials}\"
+  erp_request+=" -H 'Content-Type: application/vnd.oracle.adf.resourceitem+json'"
+  erp_request+=" -X GET"
+  erp_request+=" -v \"${erp_instance_url}"
+  erp_request+="?finder=ESSExecutionDetailsRF;requestId="${erp_request_id}"\""
+  write_to_debug "Exit- create_monitor_erp_request_cmd_ln-2:${erp_request}"
+  return
+}
+#
+# Poll ERP to check if request completed
+#
+monitor_erp_request() {
+  write_to_debug "Enter- monitor_erp_request-1:${erp_request_status}" 
+  until [ "${erp_request_status}" == "ERROR" ] ||\
+        [ "${erp_request_status}" == "ERROR AUTO-RETRY" ] ||\
+		[ "${erp_request_status}" == "SUCCEEDED" ] ||\
+		[ "${erp_request_status}" == "WARNING" ] ||\
+		[ "${erp_request_status}" == "ERROR MANUAL RECOVERY" ];
+    do
+	  curl_ret_code=-1
+	  http_ret_code=-1
+	  eval curl "${erp_request}"
+      curl_ret_code=$?
+      http_ret_code=`grep ^HTTP ${erp_mreq_out_file} | cut -d' ' -f2` 
+	  # Error if curl returns > 0 OR HTTP returns 4XX or 5XX
+      if [ ${curl_ret_code} -gt 0 ] ||\
+         [ `echo ${http_ret_code} | cut -c1` -eq 4 ] ||\
+         [ `echo ${http_ret_code} | cut -c1` -eq 5 ] 
+        then
+          echo -e "\n monitor_erp_request-1.1: curl error">>${erp_mreq_err_file}
+          echo -e "\n monitor_erp_request-1.2: curl return code ${curl_ret_code}" >>\
+                  ${erp_mreq_err_file}
+          echo -e "\n monitor_erp_request-1.3: http return code ${http_ret_code}" >>\
+                  ${erp_mreq_err_file}
+        else
+	      erp_request_status=`grep "RequestStatus" ${erp_mreq_out_file} | cut -d: -f2-|\
+	                          gawk -F'{' '{print $3}'| gawk -F '\\\"' '{print $16}' |\
+				    	      tr -d \\\\\\\\`
+          write_to_debug "monitor_erp_request-2:${erp_request_status}" 
+	      sleep ${sleep_time}
+	  fi
+	done
+  write_to_debug "Exit- monitor_erp_request-3"
+#extract_child_job_details
+  return
+}
+
+unset report_bytes
+unset decoded_data
+unset triples
+
+#extract child job details
+extract_child_job_details(){
+
+#var_loop=5
+#var_jobname="XLAFSNAPRPT"
+#var_jobname2="PostingSingleLedger"
+#JobName="XLAFSNAPRPT"
+
+var_parent_requestid="${erp_request_id}"
+echo "Parent Request ID is ${erp_request_id}"
+
+if [ -z "${1}" ]; then
+    username="${erp_user_1}"
+    password="${erp_pwd_1}"
+	#echo "${erp_user_1}:${erp_pwd_1}"
+else
+    username="${erp_user_2}"
+    password="${erp_pwd_2}"
+	#echo "${erp_user_2}:${erp_pwd_2}"
+fi
+
+erp_instance_url_2="${erp_url_2}"
+#echo "${erp_url_2}"
+
+ job_count2=""
+ job_count2=`grep -c "${ess_job_def_name}"\
+             ${batch_config}/efs_erp_ess_childjobs.cfg`
+			 
+#echo "Job Count2 is $job_count2"
+echo "Job Definition Name is ${ess_job_def_name}"
+
+if [[ "$job_count2" == 1 ]]; then
+	echo "Job name matches, starting loop"
+
+  # Main loop logic (same as before)
+	for ((i = 1; i <= $var_loop; i++)); do
+	
+		#sleep $sleep_time
+		
+		if [ -f /efswork/erpsched/erp/config/efs_erp_wsdl_output.xml ]; then
+			#echo "file present"
+			#sleep 2
+			rm /efswork/erpsched/erp/config/efs_erp_wsdl_output.xml
+		fi
+		
+		 # Call report & store in xml file (replace with your actual logic)
+		echo "Generating report (iteration $i)"  
+
+		input_xml_file="/efswork/erpsched/erp/config/efs_erp_wsdl_input.xml"
+
+		# XPath Expression to target the correct <pub:item> tag
+		xpath="//*[local-name()='item' and namespace-uri()='http://xmlns.oracle.com/oxp/service/PublicReportService'][*[local-name()='name' and namespace-uri()='http://xmlns.oracle.com/oxp/service/PublicReportService']='p_requestid']/*[local-name()='values' and namespace-uri()='http://xmlns.oracle.com/oxp/service/PublicReportService']/*[local-name()='item' and namespace-uri()='http://xmlns.oracle.com/oxp/service/PublicReportService']"
+
+		xpath2="//*[local-name()='userID' and namespace-uri()='http://xmlns.oracle.com/oxp/service/PublicReportService']"
+		xpath3="//*[local-name()='password' and namespace-uri()='http://xmlns.oracle.com/oxp/service/PublicReportService']"
+
+		#update userid
+		xmllint --shell $input_xml_file --xpath $xpath << EOF > /dev/null 2>&1
+		cd $xpath2
+		set $username
+		save 
+EOF
+		#update password
+		xmllint --shell $input_xml_file --xpath $xpath << EOF > /dev/null 2>&1
+		cd $xpath3
+		set $password
+		save
+EOF
+		# Update the content using xmllint
+		xmllint --shell $input_xml_file --xpath $xpath << EOF > /dev/null 2>&1
+		cd $xpath
+		set $var_parent_requestid
+		save
+EOF
+
+		echo "${input_xml_file}"
+
+		# Check for errors
+		if [ $? -ne 0 ]; then
+			echo "XML modification failed. Check the file or XPath expression."
+			exit 1
+		else
+			echo "XML modification successful!"
+		fi
+		
+		sleep $sleep_time
+		
+		curl -X POST $erp_instance_url_2 -H 'SOAPAction:' -H "Accept: application/xml" -H "Accept-Charset: UTF-8" -H "Content-Type: application/xml;charset=UTF-8" --data @/efswork/erpsched/erp/config/efs_erp_wsdl_input.xml --output /efswork/erpsched/erp/config/efs_erp_wsdl_output.xml --compressed
+		
+		if [ $? -ne 0 ]; then
+			echo "CURL Command Failed"
+			exit 1
+		else
+			echo "CURL  successful!"
+		fi
+
+
+		# Check for file existence and wait if necessary
+		while [[ ! -f /efswork/erpsched/erp/config/efs_erp_wsdl_output.xml ]]; do
+		  sleep 1 # Wait for 1 second before checking again
+		done
+
+		# Format the XML
+		xmllint --format /efswork/erpsched/erp/config/efs_erp_wsdl_output.xml 
+
+		# Now set 0755 permissions
+		chmod 0755 /efswork/erpsched/erp/config/efs_erp_wsdl_output.xml
+
+		#sleep $sleep_time
+		#chmod 0755 /efswork/erpsched/erp/config/efs_erp_wsdl_output.xml
+		
+		#sleep $sleep_time
+		output_xml="/efswork/erpsched/erp/config/efs_erp_wsdl_output.xml"
+		
+		sleep $sleep_time
+
+		report_bytes=$(xmllint --xpath "//*[local-name()='reportBytes' and namespace-uri()='http://xmlns.oracle.com/oxp/service/PublicReportService']/text()" /efswork/erpsched/erp/config/efs_erp_wsdl_output.xml)
+		report_bytes=$(echo $report_bytes | tr -d '\n') # Optional: Remove line breaks
+
+
+		if [ -z "$report_bytes" ]; then
+		   echo "report_bytes is null or empty"
+		   exit 1
+		else
+		   echo "Extracted reportBytes"
+		   #echo $report_bytes
+		fi
+
+		#echo "Extracted reportBytes:"
+		#echo $report_bytes
+
+		decoded_data=$(echo $report_bytes | base64 -d) 
+
+		# Check for "IN PROGRESS" status
+		if echo "$decoded_data" | grep "IN PROGRESS"; then
+			echo "Job(s) still in progress. Waiting..."
+		else
+			echo "All jobs completed."
+			#triples=$(echo "$decoded_data" | grep -A10000 '<\/G_1>' | tail -n +2 | grep -oP '<REQUESTID>\K[^<]+|<NAME>\K[^<]+|<EXECUTABLE_STATUS>\K[^<]+' | awk 'ORS=NR%3?"|":"\n"')
+			triples=$(echo "$decoded_data" | grep -A10000 '<\/G_1>' | tail -n +2 | grep -oP '<REQUESTID>\K[^<]+|<NAME>\K[^<]+|<EXECUTABLE_STATUS>\K[^<]+' | awk 'ORS=NR%3?"|":"\n"' | sed 's/XLAFSNAPENG/Create Accounting: Subprocess/g;s/XLAFSNAPRPTRPT/Create Accounting Execution Report/g;s/PostingSingleLedger/Post Journals for Single Ledger/g')
+
+			echo "$triples"
+			break  # Exit the loop
+		fi
+	done
+
+else
+  echo "Job name does not match. Exiting."
+fi
+
+if [ -f /efswork/erpsched/erp/config/efs_erp_wsdl_output.xml ]; then
+	rm /efswork/erpsched/erp/config/efs_erp_wsdl_output.xml
+fi
+}
+
+#
+# Consolidate submitted and monitorred curl request output and stderr logs
+# into 1 file along with a summary at the top
+# Printing of end message takes place in archive
+#
+create_consolidated_report() {
+  write_to_debug "Enter- create_consolidated_report-1"
+  echo "Consolidated run log for job:"${d_series_job_id}\
+       >${erp_req_consol_log_file}
+  if [ "${1}" == "NORMAL-RUN" ]
+    then
+      echo -e "\n---Summary---">>${erp_req_consol_log_file}
+      echo "Request Id|JobName|Status">>${erp_req_consol_log_file}
+  #    echo "$triples">>${erp_req_consol_log_file}
+      counter_i=`grep RequestStatus ${erp_mreq_out_file} | cut -d: -f2- |\
+                 gawk -F'{' '{print NF}'`
+      counter_j=""
+      write_to_debug "create_consolidated_report-2:${counter_i}"
+      for counter_j in `seq 3 ${counter_i}`
+        do
+	      write_to_debug "create_consolidated_report-3:${counter_j}"
+	      var_k=""
+	      var_k=`grep "RequestStatus" ${erp_mreq_out_file} | cut -d: -f2- |\
+	             gawk -v counter_l=${counter_j} -F'{' '{print $counter_l}'`
+	      write_to_debug "create_consolidated_report-4:${var_k}"
+	      var_jobnm=`echo ${var_k} | gawk -F '\\\"' '{print $4}' | tr -d \\\\\\\\`
+	      var_reqid=`echo ${var_k} | gawk -F '\\\"' '{print $12}' | tr -d \\\\\\\\`
+	      var_status=`echo ${var_k} | gawk -F '\\\"' '{print $16}' | tr -d \\\\\\\\`
+          echo ${var_reqid}"|"${var_jobnm}"|"${var_status}>>${erp_req_consol_log_file}
+		if [[ "$JobName" == "$var_jobname" || "$JobName" == "$var_jobname2" ]]; then
+			echo "$triples">>${erp_req_consol_log_file}
+		fi
+	    done
+      echo -e "\n---End of Summary---">>${erp_req_consol_log_file}
+  fi
+  echo -e "\n---Submitted run output starts---">>${erp_req_consol_log_file}
+  cat ${erp_sreq_out_file}>>${erp_req_consol_log_file}
+  echo -e "\n---Submitted run output ends---" >>${erp_req_consol_log_file}
+  echo -e "\n---Submitted run stderr starts---">>${erp_req_consol_log_file}
+  cat ${erp_sreq_err_file}>>${erp_req_consol_log_file}
+  echo -e "\n---Submitted run stderr ends---" >>${erp_req_consol_log_file}
+  if [ "${1}" == "NORMAL-RUN" ]
+    then
+      echo -e "\n---Monitor run output starts---">>${erp_req_consol_log_file}
+      cat ${erp_mreq_out_file}>>${erp_req_consol_log_file}
+      echo -e "\n---Monitor run output ends---"  >>${erp_req_consol_log_file}
+      echo -e "\n---Monitor run stderr starts---">>${erp_req_consol_log_file}
+      cat ${erp_mreq_err_file}>>${erp_req_consol_log_file}
+      echo -e "\n---Monitor run stderr ends---">>${erp_req_consol_log_file}
+  fi
+  write_to_debug "Exit- create_consolidated_report-4"
+  return
+}
+#
+# Remove temp files
+#
+cleanup_temp_files() {
+  write_to_debug "Enter- cleanup_temp_files-1"
+  if [ -e ${erp_sreq_out_file} ]
+    then
+      rm ${erp_sreq_out_file}
+  fi
+  if [ -e ${erp_sreq_err_file} ]
+    then
+      rm ${erp_sreq_err_file}
+  fi
+#  if [ -e ${erp_req_consol_log_file} ]
+#   then
+#    rm ${erp_req_consol_log_file}
+#  fi
+  if [ "${1}" == "NORMAL-RUN" ]
+    then
+      if [ -e ${erp_mreq_out_file} ]
+        then
+          rm ${erp_mreq_out_file}
+      fi
+      if [ -e ${erp_mreq_err_file} ]
+        then
+          rm ${erp_mreq_err_file}
+      fi
+  fi
+  write_to_debug "Exit- cleanup_temp_files-2"
+  return
+}
+#
+# Archive old logs and pring end message in consolidated log
+#
+archive_old_logs () {
+  write_to_debug "Enter- archive_old_logs-1"
+  echo -e "\n---Archiving starts---">>${erp_req_consol_log_file}
+  find ${batch_logs}/*log -maxdepth 1 -mmin +${archive_duration} -type f \
+       -exec ls -l {} \; 1>> ${erp_req_consol_log_file} \
+	                     2>>${erp_req_consol_log_file}
+  if [ $? -eq 0 ]
+    then 
+	  write_to_debug "archive_old_logs-2"
+	  find ${batch_logs}/*log -maxdepth 1 -mmin +${archive_duration} -type f \
+           -exec mv "{}" ${batch_backup} \; 1>> ${erp_req_consol_log_file} \
+	                                        2>>${erp_req_consol_log_file}
+  fi
+  echo -e "\n---Archiving ends---">>${erp_req_consol_log_file}
+  #echo -e "\nEnd of consolidated run log for job:"${d_series_job_id}\
+          #>>${erp_req_consol_log_file}
+  write_to_debug "Exit- archive_old_logs-3"
+  return
+}
+
+# Purge logs based on parameters
+purge_logs(){
+#ksh /efswork/common/purgescript/script/efs_common_purge_process_trigger_script.sh /efswork/erpsched/erp/backup "$ess_job_def_name"
+write_to_debug "Enter- purge_logs-1"
+echo -e "\n---Purging starts---">>${erp_req_consol_log_file}
+
+result=$(ksh /efswork/common/purgescript/script/efs_common_purge_process_trigger_script.sh /efswork/erpsched/erp/backup "$ess_job_def_name")
+
+# Extract variable from the result
+my_variable=$(echo $result | cut -d "=" -f2) 
+echo "Number of files that got purged: " $my_variable>>${erp_req_consol_log_file}
+
+
+echo -e "\n---Purging ends---">>${erp_req_consol_log_file}
+echo -e "\nEnd of consolidated run log for job:"${d_series_job_id}\
+          >>${erp_req_consol_log_file}
+
+write_to_debug "Exit- purge_logs-2"
+
+}
+
+init_temp_files
+write_to_debug "Main-2"
+get_ess_job_pkg_name
+#
+# Stop processing if ESS job pkg names is unavailable
+# 1=error
+#
+if [ $? -eq 1 ]
+  then
+	create_consolidated_report "ERROR-RUN"
+	archive_old_logs
+	cleanup_temp_files "ERROR-RUN"
+    exit 1
+fi
+#
+# Create curl command line
+#
+create_submit_erp_request_cmd_ln
+#
+# Submit ESS job
+#
+write_to_debug "Main-3:${erp_request}"
+curl_ret_code=-1
+http_ret_code=-1
+eval curl "${erp_request}"
+curl_ret_code=$?
+http_ret_code=`grep ^HTTP ${erp_sreq_out_file} | cut -d' ' -f2` 
+# Error if curl returns > 0 OR HTTP returns 4XX or 5XX
+if [ ${curl_ret_code} -gt 0 ] ||\
+   [ `echo ${http_ret_code} | cut -c1` -eq 4 ] ||\
+   [ `echo ${http_ret_code} | cut -c1` -eq 5 ] 
+  then
+    echo -e "\n Main-3.1: curl error" >>${erp_sreq_err_file}
+    echo -e "\n Main-3.2: curl return code ${curl_ret_code}" >>\
+            ${erp_sreq_err_file}
+    echo -e "\n Main-3.3: http return code ${http_ret_code}" >>\
+            ${erp_sreq_err_file}
+    create_consolidated_report "ERROR-RUN"
+    archive_old_logs
+    cleanup_temp_files "ERROR-RUN"
+    exit 1
+fi
+get_submitted_request_id
+#
+# Stop processing if request submission fails
+# 1=error
+#
+if [ $? -eq 1 ]
+  then 
+	create_consolidated_report "ERROR-RUN"
+	archive_old_logs
+	cleanup_temp_files "ERROR-RUN"
+    exit 1
+fi
+#
+# Poll submitted request for completion
+#
+create_monitor_erp_request_cmd_ln
+write_to_debug "Main-4:${erp_request}"
+monitor_erp_request
+extract_child_job_details
+create_consolidated_report "NORMAL-RUN"
+archive_old_logs
+purge_logs
+#
+cleanup_temp_files "NORMAL-RUN"
+write_to_debug "Exit- Main-5"
+#
+# Return to D-Series, 0=success, 1=error, 2=warning
+#
+if [ "${erp_request_status}" == "SUCCEEDED" ]
+  then
+    exit 0
+  else if [ "${erp_request_status}" == "ERROR" ] ||\
+          [ "${erp_request_status}" == "ERROR AUTO-RETRY" ] ||\
+		  [ "${erp_request_status}" == "ERROR MANUAL RECOVERY" ]
+        then exit 1
+	   else if [ "${erp_request_status}" == "WARNING" ]
+	         then exit 2
+			fi #End if warning
+	   fi #End if error
+fi #End if success
