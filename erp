@@ -1,3 +1,182 @@
+SELECT  
+--       'FERC at PPM(Transaction)' as which,
+      distinct
+      GAAP_DATA.batch_name as GAAP_BATCH_NAME,
+      FERC_DATA.batch_name as FERC_BATCH_NAME,
+      GAAP_DATA.Journal_name, 
+      FERC_DATA.Journal_name as ferc, 
+--       GAAP_DATA.TRANSACTION_IDG, 
+      nvl(GAAP_DATA.source, FERC_DATA.source) as source,
+      GAAP_DATA.xda_credit_amount as GAAP_XDA_credit_AMOUNT,
+      GAAP_DATA.xda_debit_amount as GAAP_XDA_debit_AMOUNT,
+      FERC_DATA.xda_credit_amount as FERC_XDA_credit_AMOUNT,
+      FERC_DATA.xda_debit_amount as FERC_XDA_debit_AMOUNT,
+      GAAP_DATA.GAAP_CREDIT, 
+      GAAP_DATA.GAAP_DEBITS, 
+      GAAP_DATA.GAAP_PERIOD_CREDIT,
+      GAAP_DATA.GAAP_PERIOD_DEBITS,
+      FERC_DATA.FERC_CREDIT, 
+      FERC_DATA.FERC_DEBITS, 
+      FERC_DATA.FERC_PERIOD_CREDIT,
+      FERC_DATA.FERC_PERIOD_DEBITS,
+      GAAP_DATA.COMPANY	As GAAP_COMPANY,
+      GAAP_DATA.INTERCOMPANY as GAAP_INTERCOMPANY,
+      GAAP_DATA.GAAP_ACCOUNT as GAAP_ACCOUNT, 
+	  GAAP_DATA.OWNING_ORG as GAAP_OWNING_ORG,
+	  GAAP_DATA.COST_CENTER as	GAAP_COST_CENTER,
+	  GAAP_DATA.PROJECT as GAAP_PROJECT,
+	  GAAP_DATA.REGULATORY_CODE as GAAP_REGULATORY_CODE,
+	  GAAP_DATA.PRODUCT as GAAP_PRODUCT,
+	  GAAP_DATA.FUTURE1 as GAAP_FUTURE1,
+	  GAAP_DATA.FUTURE2 as GAAP_FUTURE2,
+
+      FERC_DATA.COMPANY	As FERC_COMPANY,
+      FERC_DATA.INTERCOMPANY as FERC_INTERCOMPANY,
+      FERC_DATA.FERC_ACCOUNT as FERC_ACCOUNT, 
+	  FERC_DATA.OWNING_ORG as FERC_OWNING_ORG,
+	  FERC_DATA.COST_CENTER as	FERC_COST_CENTER,
+	  FERC_DATA.PROJECT as FERC_PROJECT,
+	  FERC_DATA.REGULATORY_CODE as FERC_REGULATORY_CODE,
+	  FERC_DATA.PRODUCT as FERC_PRODUCT,
+	  FERC_DATA.FUTURE1 as FERC_FUTURE1,
+	  FERC_DATA.FUTURE2 as FERC_FUTURE2,
+--       GAAP_DATA.GAAP_CREDIT, 
+--       GAAP_DATA.GAAP_DEBITS, 
+--       FERC_DATA.FERC_CREDIT, 
+--       FERC_DATA.FERC_DEBITS,
+--       GAAP_DATA.event_id as gaap_event_id,
+--       GAAP_DATA.ae_line_num as gaap_line_num,
+--       GAAP_DATA.event_id as ferc_event_id,
+--       FERC_DATA.ae_line_num as ferc_line_num,
+      nvl(GAAP_DATA.line_status, FERC_DATA.line_status)  as line_status,
+      nvl(GAAP_DATA.header_status, FERC_DATA.header_status) as header_status
+    FROM 
+      (
+        SELECT 
+          xda.source_distribution_id_num_1 AS TRANSACTION_IDG, 
+          gcc.SEGMENT1	As COMPANY,
+          gcc.SEGMENT2 as INTERCOMPANY,
+          gcc.segment3 AS GAAP_ACCOUNT, 
+			gcc.SEGMENT4 as OWNING_ORG,
+			gcc.SEGMENT5 as	COST_CENTER,
+			gcc.SEGMENT6 as PROJECT,
+			gcc.SEGMENT7 as REGULATORY_CODE,
+			gcc.SEGMENT8 as PRODUCT,
+			gcc.SEGMENT9 as FUTURE1,
+			gcc.SEGMENT10 as FUTURE2,
+          xda.UNROUNDEd_ACCOUNTED_CR as xda_credit_amount,
+          xda.UNROUNDEd_ACCOUNTED_DR as xda_debit_amount,
+          c.accounted_cr AS GAAP_CREDIT, 
+          c.accounted_dr AS GAAP_DEBITS,
+          gb.begin_balance_cr AS GAAP_CREDIT, 
+          gb.begin_balance_dr AS GAAP_DEBITS, 
+          gb.PERIOD_NET_CR as GAAP_PERIOD_CREDIT,
+          gb.PERIOD_NET_DR as GAAP_PERIOD_DEBITS,
+          gjb.name as batch_name,
+          xda.event_id as event_id, 
+          xda.ae_line_num as ae_line_num, 
+          B.name as Journal_name,
+          b.je_source as source,
+          c.status as line_status,
+          b.status as header_status  
+        FROM 
+          xla_distribution_links XDA, 
+          xla_ae_lines XAL, 
+          gl_code_combinations gcc, 
+          gl_import_references gir, 
+          GL_JE_LINES c, 
+          GL_JE_HEADERS B, 
+          GL_LEDGERS gll ,
+          gl_je_batches gjb,
+          GL_BALANCES gb
+        WHERE 
+          
+		  XDA.ae_header_id = XAL.ae_header_id (+)
+          AND XDA.ae_line_num = XAL.ae_line_num (+)
+          and XAL.GL_SL_LINK_ID = gir.GL_SL_LINK_ID(+) 
+          and xal.GL_SL_LINK_TABLE = gir.GL_SL_LINK_TABLE(+) ----
+          and gir.JE_HEADER_ID = b.JE_HEADER_ID(+) 
+          AND XAL.code_combination_id = gcc.code_combination_id (+)
+          AND gcc.code_combination_id = c.code_combination_id (+) 
+          AND B.je_header_id = c.je_header_id(+)
+          and b.je_batch_id = gjb.je_batch_id(+)
+          AND B.LEDGER_ID = gll.LEDGER_ID (+)
+          and gll.currency_code = gb.currency_code
+          and gll.ledger_id = gb.ledger_id
+          AND gb.period_name='Jul-24'
+            --             AND peia.expenditure_item_id = 31005
+          --             AND B.name = '21-03-2024 Miscellaneous Cost'
+          AND gll.name LIKE '%GAAP%'
+--           and c.status = 'P'
+      ) GAAP_DATA, 
+      (
+        SELECT 
+          xda.source_distribution_id_num_1 AS TRANSACTION_IDG,  
+          gcc.SEGMENT1	As COMPANY,
+          gcc.SEGMENT2 as INTERCOMPANY,
+          gcc.segment3 AS FERC_ACCOUNT, 
+			gcc.SEGMENT4 as OWNING_ORG,
+			gcc.SEGMENT5 as	COST_CENTER,
+			gcc.SEGMENT6 as PROJECT,
+			gcc.SEGMENT7 as REGULATORY_CODE,
+			gcc.SEGMENT8 as PRODUCT,
+			gcc.SEGMENT9 as FUTURE1,
+			gcc.SEGMENT10 as FUTURE2,
+          xda.UNROUNDEd_ACCOUNTED_CR as xda_credit_amount,
+          xda.UNROUNDEd_ACCOUNTED_DR as xda_debit_amount,
+          gb.begin_balance_cr AS FERC_CREDIT, 
+          gb.begin_balance_dr AS FERC_DEBITS, 
+          gb.PERIOD_NET_CR as FERC_PERIOD_CREDIT,
+          gb.PERIOD_NET_DR as FERC_PERIOD_DEBITS,
+          
+          c.accounted_cr AS FERC_CREDIT, 
+          c.accounted_dr AS FERC_DEBITS, 
+          gjb.name as batch_name,
+          xda.event_id as event_id, 
+          xda.ae_line_num as ae_line_num, 
+          B.name as Journal_name,
+          b.je_source as source ,
+          c.status as line_status,
+          b.status as header_status 
+        FROM  
+          xla_distribution_links XDA, 
+          xla_ae_lines XAL, 
+          gl_code_combinations gcc, 
+          gl_import_references gir, 
+          GL_JE_LINES c, 
+          GL_JE_HEADERS B, 
+          GL_LEDGERS gll,
+          gl_je_batches gjb,
+          GL_BALANCES gb
+        WHERE 
+		XDA.ae_header_id = XAL.ae_header_id (+)
+          AND XDA.ae_line_num = XAL.ae_line_num (+)
+          and XAL.GL_SL_LINK_ID = gir.GL_SL_LINK_ID(+) 
+          and xal.GL_SL_LINK_TABLE = gir.GL_SL_LINK_TABLE(+) ----
+          and gir.JE_HEADER_ID = b.JE_HEADER_ID(+) 
+          AND XAL.code_combination_id = gcc.code_combination_id (+)
+          AND gcc.code_combination_id = c.code_combination_id (+) 
+          AND B.je_header_id = c.je_header_id(+)
+          and b.je_batch_id = gjb.je_batch_id(+)
+          AND B.LEDGER_ID = gll.LEDGER_ID (+)
+          and gll.currency_code = gb.currency_code
+          and gll.ledger_id = gb.ledger_id
+          AND gb.period_name='Jul-24'
+            --             AND peia.expenditure_item_id = 31004
+          --             AND B.name = '21-03-2024 Miscellaneous Cost'
+          AND gll.name LIKE '%FERC%'
+      ) FERC_DATA 
+    where 
+      FERC_DATA.TRANSACTION_IDG = GAAP_DATA.TRANSACTION_IDG(+) 
+      and FERC_DATA.event_id = GAAP_DATA.event_id(+) 
+      and FERC_DATA.ae_line_num = GAAP_DATA.ae_line_num(+) 
+      and FERC_DATA.Journal_name = GAAP_DATA.Journal_name(+)
+--       and FERC_DATA.line_status= 'P'
+      and FERC_DATA.Journal_name = '18-07-2024 Miscellaneous Cost';
+
+
+
+--------------------------------------
 #!/usr/bin/ksh
 
 #
