@@ -1,3 +1,336 @@
+
+
+
+
+
+
+
+------------------- Change from previous query ---------
+-- Union 1: a.	FERC data should be driving. So, please use outer-join.  
+-- Union 3 – FERC data (FERC only and GAAP tied data)
+-- Only distinct Journal Name between union
+-- Used PARENT_JE_HEADER_ID in union 2 to get the FERC side.
+-- Added Segment6 as project_code
+-- Added filter on status = posted
+-- Removed PJC tables and replaced Transaction id with XDA column.
+------------------------------------------------------------
+
+SELECT 
+  which, 
+  concat(nvl(concat('GAAP: ',GAAP_PROJECT),''),
+  nvl(concat('  FERC: ',FERC_PROJECT),''))as Project_Code,
+  TRANSACTION_IDG, 
+  nvl(Journal_name, ferc) as Journal_name, 
+  source,
+    GAAP_COMPANY,
+    GAAP_INTERCOMPANY,
+    GAAP_ACCOUNT, 
+	GAAP_OWNING_ORG,
+	GAAP_COST_CENTER,
+	GAAP_PROJECT,
+	GAAP_REGULATORY_CODE,
+	GAAP_PRODUCT,
+	GAAP_FUTURE1,
+    GAAP_FUTURE2,
+    FERC_COMPANY,
+    FERC_INTERCOMPANY,
+    FERC_ACCOUNT, 
+	FERC_OWNING_ORG,
+	FERC_COST_CENTER,
+	FERC_PROJECT,
+	FERC_REGULATORY_CODE,
+	FERC_PRODUCT,
+  FERC_FUTURE1,
+  FERC_FUTURE2,
+  GAAP_ACCOUNT, 
+  FERC_ACCOUNT, 
+  GAAP_CREDIT, 
+  GAAP_DEBITS, 
+  FERC_CREDIT, 
+  FERC_DEBITS,
+  GAAP_CCID,
+  GAAP_POSTED_DATE,
+  GAAP_PERIOD_NAME,
+  FERC_CCID,
+  FERC_POSTED_DATE,
+  FERC_PERIOD_NAME,
+  gaap_event_id,
+  gaap_line_num,
+  ferc_event_id,
+  ferc_line_num
+from 
+  (
+    SELECT 
+      'FERC at PPM(Transaction)' as which,
+      GAAP_DATA.TRANSACTION_IDG, 
+      GAAP_DATA.Journal_name, 
+      FERC_DATA.Journal_name as ferc, 
+      nvl(GAAP_DATA.source, FERC_DATA.source) as source,
+      GAAP_DATA.COMPANY	As GAAP_COMPANY,
+      GAAP_DATA.INTERCOMPANY as GAAP_INTERCOMPANY,
+      GAAP_DATA.GAAP_ACCOUNT as GAAP_ACCOUNT, 
+	  GAAP_DATA.OWNING_ORG as GAAP_OWNING_ORG,
+	  GAAP_DATA.COST_CENTER as	GAAP_COST_CENTER,
+	  GAAP_DATA.PROJECT as GAAP_PROJECT,
+	  GAAP_DATA.REGULATORY_CODE as GAAP_REGULATORY_CODE,
+	  GAAP_DATA.PRODUCT as GAAP_PRODUCT,
+	  GAAP_DATA.FUTURE1 as GAAP_FUTURE1,
+	  GAAP_DATA.FUTURE2 as GAAP_FUTURE2,
+      FERC_DATA.COMPANY	As FERC_COMPANY,
+      FERC_DATA.INTERCOMPANY as FERC_INTERCOMPANY,
+      FERC_DATA.FERC_ACCOUNT as FERC_ACCOUNT, 
+	  FERC_DATA.OWNING_ORG as FERC_OWNING_ORG,
+	  FERC_DATA.COST_CENTER as	FERC_COST_CENTER,
+	  FERC_DATA.PROJECT as FERC_PROJECT,
+	  FERC_DATA.REGULATORY_CODE as FERC_REGULATORY_CODE,
+	  FERC_DATA.PRODUCT as FERC_PRODUCT,
+	  FERC_DATA.FUTURE1 as FERC_FUTURE1,
+	  FERC_DATA.FUTURE2 as FERC_FUTURE2,
+      GAAP_DATA.code_combination_id as GAAP_CCID,
+      GAAP_DATA.posted_date as GAAP_POSTED_DATE,
+      GAAP_DATA.period_name as GAAP_PERIOD_NAME,
+      FERC_DATA.code_combination_id as FERC_CCID,
+      FERC_DATA.posted_date as FERC_POSTED_DATE,
+      FERC_DATA.period_name as FERC_PERIOD_NAME,
+      GAAP_DATA.GAAP_CREDIT, 
+      GAAP_DATA.GAAP_DEBITS, 
+      FERC_DATA.FERC_CREDIT, 
+      FERC_DATA.FERC_DEBITS,
+      GAAP_DATA.event_id as gaap_event_id,
+      GAAP_DATA.ae_line_num as gaap_line_num,
+      GAAP_DATA.event_id as ferc_event_id,
+      FERC_DATA.ae_line_num as ferc_line_num,
+      nvl(GAAP_DATA.line_status, FERC_DATA.line_status)  as line_status,
+      nvl(GAAP_DATA.header_status, FERC_DATA.header_status) as header_status
+    FROM 
+      (
+        SELECT 
+          xda.source_distribution_id_num_1 AS TRANSACTION_IDG, 
+          gcc.SEGMENT1	As COMPANY,
+          gcc.SEGMENT2 as INTERCOMPANY,
+          gcc.segment3 AS GAAP_ACCOUNT, 
+			gcc.SEGMENT4 as OWNING_ORG,
+			gcc.SEGMENT5 as	COST_CENTER,
+			gcc.SEGMENT6 as PROJECT,
+			gcc.SEGMENT7 as REGULATORY_CODE,
+			gcc.SEGMENT8 as PRODUCT,
+			gcc.SEGMENT9 as FUTURE1,
+			gcc.SEGMENT10 as FUTURE2,
+          c.accounted_cr AS GAAP_CREDIT, 
+          c.accounted_dr AS GAAP_DEBITS, 
+          xda.event_id as event_id, 
+          xda.ae_line_num as ae_line_num, 
+          gcc.code_combination_id,
+            b.posted_date as posted_date,
+            b.period_name as period_name,
+          B.name as Journal_name,
+          b.je_source as source,
+          c.status as line_status,
+          b.status as header_status  
+        FROM 
+          xla_distribution_links XDA, 
+          xla_ae_lines XAL, 
+          gl_code_combinations gcc, 
+          gl_import_references gir, 
+          GL_JE_LINES c, 
+          GL_JE_HEADERS B, 
+          GL_LEDGERS gll 
+        WHERE 
+          
+		  XDA.ae_header_id = XAL.ae_header_id 
+          AND XDA.ae_line_num = XAL.ae_line_num 
+          and XAL.GL_SL_LINK_ID = gir.GL_SL_LINK_ID(+) 
+          and xal.GL_SL_LINK_TABLE = gir.GL_SL_LINK_TABLE(+) ----
+          and gir.JE_HEADER_ID = c.JE_HEADER_ID(+) 
+          AND XAL.code_combination_id = gcc.code_combination_id 
+          AND gcc.code_combination_id = c.code_combination_id (+) 
+          AND c.je_header_id = b.je_header_id  
+          AND B.LEDGER_ID = gll.LEDGER_ID (+)
+          AND gll.name LIKE '%GAAP%'
+--           and c.status = 'P'
+      ) GAAP_DATA, 
+      (
+        SELECT 
+          xda.source_distribution_id_num_1 AS TRANSACTION_IDG,  
+          gcc.SEGMENT1	As COMPANY,
+          gcc.SEGMENT2 as INTERCOMPANY,
+          gcc.segment3 AS FERC_ACCOUNT, 
+			gcc.SEGMENT4 as OWNING_ORG,
+			gcc.SEGMENT5 as	COST_CENTER,
+			gcc.SEGMENT6 as PROJECT,
+			gcc.SEGMENT7 as REGULATORY_CODE,
+			gcc.SEGMENT8 as PRODUCT,
+			gcc.SEGMENT9 as FUTURE1,
+			gcc.SEGMENT10 as FUTURE2,
+            gcc.code_combination_id,
+            b.posted_date as posted_date,
+            b.period_name as period_name,
+          c.accounted_cr AS FERC_CREDIT, 
+          c.accounted_dr AS FERC_DEBITS, 
+          xda.event_id as event_id, 
+          xda.ae_line_num as ae_line_num, 
+          B.name as Journal_name,
+          b.je_source as source ,
+          c.status as line_status,
+          b.status as header_status 
+        FROM  
+          xla_distribution_links XDA, 
+          xla_ae_lines XAL, 
+          gl_code_combinations gcc, 
+          gl_import_references gir, 
+          GL_JE_LINES c, 
+          GL_JE_HEADERS B, 
+          GL_LEDGERS gll 
+        WHERE 
+		XDA.ae_header_id = XAL.ae_header_id 
+          AND XDA.ae_line_num = XAL.ae_line_num 
+          and XAL.GL_SL_LINK_ID = gir.GL_SL_LINK_ID(+) 
+          and xal.GL_SL_LINK_TABLE = gir.GL_SL_LINK_TABLE(+) ----
+          and gir.JE_HEADER_ID = b.JE_HEADER_ID(+) 
+          AND XAL.code_combination_id = gcc.code_combination_id 
+          AND gcc.code_combination_id = c.code_combination_id (+) 
+          AND B.je_header_id = c.je_header_id 
+          AND B.LEDGER_ID = gll.LEDGER_ID (+)
+          AND gll.name LIKE '%FERC%'
+      ) FERC_DATA 
+    where 
+      FERC_DATA.TRANSACTION_IDG = GAAP_DATA.TRANSACTION_IDG(+) 
+      and FERC_DATA.event_id = GAAP_DATA.event_id(+) 
+      and FERC_DATA.ae_line_num = GAAP_DATA.ae_line_num(+) 
+      and FERC_DATA.Journal_name = GAAP_DATA.Journal_name(+)
+    union 
+    SELECT 
+      Case when GAAP_DATA.GAAP_ACCOUNT is null then 'Only FERC' else 'FERC Ledger data in GL (linked GAAP accounts)' end as which, 
+      null as TRANSACTION_IDG, 
+      GAAP_DATA.Journal_name, 
+      FERC_DATA.Journal_name as ferc,
+      nvl(GAAP_DATA.source, FERC_DATA.source) as source, 
+      GAAP_DATA.COMPANY	As GAAP_COMPANY,
+      GAAP_DATA.INTERCOMPANY as GAAP_INTERCOMPANY,
+      GAAP_DATA.GAAP_ACCOUNT as GAAP_ACCOUNT, 
+	  GAAP_DATA.OWNING_ORG as GAAP_OWNING_ORG,
+	  GAAP_DATA.COST_CENTER as	GAAP_COST_CENTER,
+	  GAAP_DATA.PROJECT as GAAP_PROJECT,
+	  GAAP_DATA.REGULATORY_CODE as GAAP_REGULATORY_CODE,
+	  GAAP_DATA.PRODUCT as GAAP_PRODUCT,
+	  GAAP_DATA.FUTURE1 as GAAP_FUTURE1,
+	  GAAP_DATA.FUTURE2 as GAAP_FUTURE2,
+
+      FERC_DATA.COMPANY	As FERC_COMPANY,
+      FERC_DATA.INTERCOMPANY as FERC_INTERCOMPANY,
+      FERC_DATA.FERC_ACCOUNT as FERC_ACCOUNT, 
+	  FERC_DATA.OWNING_ORG as FERC_OWNING_ORG,
+	  FERC_DATA.COST_CENTER as	FERC_COST_CENTER,
+	  FERC_DATA.PROJECT as FERC_PROJECT,
+	  FERC_DATA.REGULATORY_CODE as FERC_REGULATORY_CODE,
+	  FERC_DATA.PRODUCT as FERC_PRODUCT,
+	  FERC_DATA.FUTURE1 as FERC_FUTURE1,
+	  FERC_DATA.FUTURE2 as FERC_FUTURE2,
+      GAAP_DATA.GAAP_CREDIT, 
+      GAAP_DATA.GAAP_DEBITS, 
+      FERC_DATA.FERC_CREDIT, 
+      FERC_DATA.FERC_DEBITS,
+      GAAP_DATA.code_combination_id as GAAP_CCID,
+      GAAP_DATA.posted_date as GAAP_POSTED_DATE,
+      GAAP_DATA.period_name as GAAP_PERIOD_NAME,
+      FERC_DATA.code_combination_id as FERC_CCID,
+      FERC_DATA.posted_date as FERC_POSTED_DATE,
+      FERC_DATA.period_name as FERC_PERIOD_NAME,
+      null as gaap_event_id,
+      GAAP_DATA.GAAP_LINE_NUM as gaap_line_num,
+      null as ferc_event_id,
+      FERC_DATA.FERC_LINE_NUM as ferc_line_num
+      ,
+      nvl(GAAP_DATA.line_status, FERC_DATA.line_status)  as line_status,
+      nvl(GAAP_DATA.header_status, FERC_DATA.header_status) as header_status 
+    FROM 
+      (
+        SELECT 
+          gcc.SEGMENT1	As COMPANY,
+          gcc.SEGMENT2 as INTERCOMPANY,
+          gcc.segment3 AS GAAP_ACCOUNT, 
+			gcc.SEGMENT4 as OWNING_ORG,
+			gcc.SEGMENT5 as	COST_CENTER,
+			gcc.SEGMENT6 as PROJECT,
+			gcc.SEGMENT7 as REGULATORY_CODE,
+			gcc.SEGMENT8 as PRODUCT,
+			gcc.SEGMENT9 as FUTURE1,
+			gcc.SEGMENT10 as FUTURE2,
+          c.accounted_cr AS GAAP_CREDIT, 
+          c.accounted_dr AS GAAP_DEBITS, 
+          B.name as Journal_name ,
+          gcc.code_combination_id,
+            b.posted_date as posted_date,
+            b.period_name as period_name,
+          c.je_line_num as GAAP_LINE_NUM,
+          b.je_source as source,
+          b.je_header_id as header_id,
+          b.parent_je_header_id as parent_header,
+          c.status as line_status,
+          b.status as header_status 
+        FROM  
+          gl_code_combinations gcc, 
+          GL_JE_LINES c, 
+          GL_JE_HEADERS B, 
+          GL_LEDGERS gll 
+        WHERE 1=1
+          and gcc.code_combination_id = c.code_combination_id 
+          AND c.je_header_id = b.je_header_id  
+          AND B.LEDGER_ID = gll.LEDGER_ID (+)
+          AND gll.name LIKE '%GAAP%'
+      ) GAAP_DATA, 
+      (
+        SELECT 
+          gcc.SEGMENT1	As COMPANY,
+          gcc.SEGMENT2 as INTERCOMPANY,
+          gcc.segment3 AS FERC_ACCOUNT, 
+			gcc.SEGMENT4 as OWNING_ORG,
+			gcc.SEGMENT5 as	COST_CENTER,
+			gcc.SEGMENT6 as PROJECT,
+			gcc.SEGMENT7 as REGULATORY_CODE,
+			gcc.SEGMENT8 as PRODUCT,
+			gcc.SEGMENT9 as FUTURE1,
+			gcc.SEGMENT10 as FUTURE2, 
+          c.accounted_cr AS FERC_CREDIT, 
+          c.accounted_dr AS FERC_DEBITS,  
+          B.name as Journal_name,
+          c.je_line_num as FERC_LINE_NUM,
+          b.je_source as source,
+          b.je_header_id as header_id,
+          gcc.code_combination_id,
+            b.posted_date as posted_date,
+            b.period_name as period_name,
+          b.parent_je_header_id as parent_header,
+          c.status as line_status,
+          b.status as header_status 
+        FROM 
+          gl_code_combinations gcc,  
+          GL_JE_LINES c, 
+          GL_JE_HEADERS B, 
+          GL_LEDGERS gll 
+        WHERE 1=1
+          and gcc.code_combination_id = c.code_combination_id
+          AND c.je_header_id = b.je_header_id 
+          AND B.LEDGER_ID = gll.LEDGER_ID (+)
+          AND gll.name LIKE '%FERC%'
+      ) FERC_DATA 
+    where  
+      FERC_DATA.FERC_LINE_NUM = GAAP_DATA.GAAP_LINE_NUM(+)
+      and FERC_DATA.parent_header = GAAP_DATA.header_id(+)
+      and nvl(GAAP_DATA.source, FERC_DATA.source) not in ('Payables', 'Receivables', 'Receipt Accounting', 'projects', 'Project Accounting')
+      )  
+where 
+  1 = 1 
+--   and which = 'FERC at PPM(Transaction)' 
+  and Line_status = 'P'
+--   and TRANSACTION_IDG = '33000'
+--   AND (
+--     Journal_name ='01-03-2024 Miscellaneous Cost' --'Case 4 Test 03-2132 CIP Category Change'
+--   ) --     'CASE 2 FUT TEST-2132 P`OWERPLAN'
+
+order by Transaction_idg
+  ;
+===================================================================================
 ------------------- Script
 #!/bin/ksh
 
