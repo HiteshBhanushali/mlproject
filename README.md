@@ -1,3 +1,7 @@
+With over 4 years of experience in data analytics, I specialize in delivering end-to-end solutions, from data modeling to ETL processes, culminating in the creation of intuitive and professional dashboards. My approach ensures that clients receive not only insightful analytics but also a seamless and user-friendly interface for decision-making. I am confident that my expertise in transforming complex data into actionable insights will add significant value to your project.
+
+
+=====================================
 Current Output							
 PROJECT_NAME	TRANSACTION_IDG	GAAP_ACC	GAAP_CREDIT	GAAP_DEBIT			
 POW POET FUT04 PJ14	31005	184175	223				
