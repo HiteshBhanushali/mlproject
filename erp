@@ -1,5 +1,47 @@
 #!/bin/bash
 
+# Check if the count argument is provided
+if [ -z "$1" ]; then
+  echo "Usage: $0 <count>"
+  exit 1
+fi
+
+# Assign the first argument to the count variable
+count=$1
+
+# Find the file with 'status' in its name in the current directory only
+file=$(find . -maxdepth 1 -type f -name "*status*" -print -quit)
+
+# Check if a file was found
+if [[ -z "$file" ]]; then
+  echo "No file found containing 'status' in its name in the current directory."
+  exit 1
+fi
+
+# Get the base filename and extension
+filename=$(basename "$file")
+extension="${filename##*.}" # Get file extension
+filename_without_ext="${filename%.*}" # Get filename without extension
+
+# If the file has no extension, don't add a dot
+if [[ "$filename" == "$filename_without_ext" ]]; then
+  new_filename="${filename_without_ext}_${count}"
+else
+  new_filename="${filename_without_ext}_${count}.${extension}"
+fi
+
+# Copy the file
+cp "$file" "./$new_filename"
+
+# Inform the user
+echo "File copied to: $new_filename"
+
+
+
+ffffffffffffffffffffff
+
+#!/bin/bash
+
 # Ask user for the count value
 echo "Enter the count value:"
 read count
