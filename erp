@@ -1,3 +1,17 @@
+CASE 
+        WHEN EXPRESSION.OBJECT_VERSION_NUMBER= EXPRESSION.MIN_OBJ_VERSION_NUM  THEN EXPRESSION.CURRENT_AIS_IN_SERV_DT
+        ELSE 
+            CASE 
+                WHEN nvl(EXPRESSION.CURRENT_AIS_IN_SERV_DT,'01-JAN-1900') != 
+                CASE WHEN EXPRESSION.PREV_AIS_IN_SERV_DT= '01-JAN-1900' then '01-JAN-1900'
+				else EXPRESSION.PREV_AIS_IN_SERV_DT
+                END
+                THEN EXPRESSION.CURRENT_AIS_IN_SERV_DT
+                ELSE CASE WHEN EXPRESSION.PREV_AIS_IN_SERV_DT= '01-JAN-1900' then NULL
+				else EXPRESSION.PREV_AIS_IN_SERV_DT
+                END
+            END
+    END 
 #!/bin/bash
 
 # Check if the count argument is provided
