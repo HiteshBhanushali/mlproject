@@ -1,3 +1,45 @@
+mv: cannot move \u2018./project_status_hist.csv\u2019 to \u2018./EFS_POC_PROJECT_STATUS_HISTORY/project_status_hist_2.csv\u2019: No such file or directory
+
+#!/bin/bash
+
+# Check if the count argument is provided
+if [ -z "$1" ]; then
+  echo "Usage: $0 <count>"
+  exit 1
+fi
+
+# Assign the first argument to the count variable
+count=$2
+path=$1
+
+# Find the file with 'status' in its name in the current directory only
+file=$(find . -maxdepth 1 -type f -name "*status*" -print -quit)
+
+# Check if a file was found
+if [[ -z "$file" ]]; then
+  echo "No file found containing 'status' in its name in the current directory."
+  exit 1
+fi
+
+# Get the base filename and extension
+filename=$(basename "$file")
+extension="${filename##*.}" # Get file extension
+filename_without_ext="${filename%.*}" # Get filename without extension
+
+# If the file has no extension, dont add a dot
+if [[ "$filename" == "$filename_without_ext" ]]; then
+  new_filename="${filename_without_ext}_${count}"
+else
+  new_filename="${filename_without_ext}_${count}.${extension}"
+fi
+
+# Copy the file
+mv "$file" "./$path/$new_filename"
+
+# Inform the user
+echo "File copied to: $new_filename"
+
+=====================================================
 CASE 
         WHEN EXPRESSION.OBJECT_VERSION_NUMBER = 1 THEN EXPRESSION.CURRENT_EST_IN_SERV_DT
         ELSE 
