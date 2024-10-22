@@ -1,11 +1,59 @@
+CIHOME=/usr/bin
+ 
+SBUCKET=$1
+ 
+DBUCKET=$2
+ 
+NAMESPACE=$3
+ 
+YEAR=$(date | awk '{print $6}')
+ 
+MONTH=$(date | awk '{print $2}')
+ 
+DAY=$(date | awk '{print $3}')
+ 
+TIME=$(date | awk '{print $4" "$5}'| sed 's/:/-/g')
+ 
+ 
+# object store list to find the file
+ 
+cd $OCIHOME
+ 
+oci os object list --bucket-name $SBUCKET --auth instance_principal --all | grep name | awk '{ print $2 }' | sed 's/"//g' | sed 's/,//g' > /tmp/efs_oos_copy_file.list
+ 
+# copy file to Archive Bucket
+ 
+     for filename in `cat /tmp/efs_oos_copy_file.list`
+ 
+        do oci os object copy --bucket-name $SBUCKET --source-object-name $filename --destination-namespace $NAMESPACE --destination-bucket $DBUCKET --destination-object-name "$YEAR/$MONTH/$DAY/$TIME/$filename" --auth instance_principal
+ 
+        #do echo "$filename"
+ 
+        done
+ 
+# delete file from ODI Bucket
+echo "del -"
+echo "$1"
+echo "EFS_BICC_ODI_DEV01_BKT"
+if ["$SBUCKET" == "EFS_BICC_ODI_DEV01_BKT"]
+then
+        echo "if loop"
+        oci os object bulk-delete --namespace "$NAMESPACE" --bucket-name "$SBUCKET" --auth instance_principal --force
+else
+        for filename in $(cat /tmp/efs_oos_copy_file.list); do
+                if echo "$filename" | grep -qE '[0-9]{4}\.csv$'; then
+                        oci os object delete --namespace "$NAMESPACE" --bucket-name "$SBUCKET" --name "$filename" --auth instance_principal --force
+                fi
+        done
+fi
+
+
+
+
+
 https://talentondemand.deloittenet.deloitte.com/#!/
 https://staffit.deloitteresources.com/WebUI/UserValidation?gw-client=200#/dashboard
 https://dte.deloitte.com/TE/ExpenseSummary.aspx
-
-
-
-
-
 
 ------------------- Change from previous query ---------
 -- Union 1: a.	FERC data should be driving. So, please use outer-join.  
