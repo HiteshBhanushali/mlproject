@@ -1,0 +1,552 @@
+1.Measure of central tendency and compare the measure of central tendency for two different datasets.
+
+import numpy as np
+from scipy import stats
+
+# Dataset 1
+data1 = [12, 15, 14, 10, 13, 17, 18, 20, 19, 16]
+
+# Dataset 2
+data2 = [22, 25, 28, 21, 23, 24, 30, 29, 31, 32]
+
+# Calculating Mean, Median, and Mode for Dataset 1
+mean1 = np.mean(data1)
+median1 = np.median(data1)
+mode1 = stats.mode(data1)[0][0]  # Mode returns an array, so take the first element
+
+# Calculating Mean, Median, and Mode for Dataset 2
+mean2 = np.mean(data2)
+median2 = np.median(data2)
+mode2 = stats.mode(data2)[0][0]
+
+# Displaying the results
+print(f"Dataset 1: {data1}")
+print(f"Mean: {mean1}, Median: {median1}, Mode: {mode1}")
+print("\n")
+print(f"Dataset 2: {data2}")
+print(f"Mean: {mean2}, Median: {median2}, Mode: {mode2}")
+
+2.Hypothesis Testing Using Z-Score
+import numpy as np
+import scipy.stats as stats
+
+# Given data
+sample_mean = 52  # Sample mean
+population_mean = 50  # Population mean
+population_std = 10  # Population standard deviation (known)
+sample_size = 30  # Sample size
+alpha = 0.05  # Significance level
+
+# Z-Score calculation
+z_score = (sample_mean - population_mean) / (population_std / np.sqrt(sample_size))
+
+# Two-tailed test critical value for 95% confidence level
+critical_value = stats.norm.ppf(1 - alpha/2)
+
+# Output the Z-Score and critical value
+print(f"Z-Score: {z_score}")
+print(f"Critical Value: ±{critical_value}")
+
+# Decision based on Z-Score
+if abs(z_score) > critical_value:
+    print("Reject the null hypothesis.")
+else:
+    print("Fail to reject the null hypothesis.")
+
+3 Hypothesis Testing and Visualizing Normal Distribution
+import numpy as np
+import scipy.stats as stats
+import matplotlib.pyplot as plt
+
+# Given data
+sample_mean = 52  # Sample mean
+population_mean = 50  # Population mean
+population_std = 10  # Population standard deviation (known)
+sample_size = 30  # Sample size
+alpha = 0.05  # Significance level
+
+# Z-Score calculation
+z_score = (sample_mean - population_mean) / (population_std / np.sqrt(sample_size))
+
+# Two-tailed test critical value for 95% confidence level
+critical_value = stats.norm.ppf(1 - alpha/2)
+
+# Output the Z-Score and critical value
+print(f"Z-Score: {z_score}")
+print(f"Critical Value: ±{critical_value}")
+
+# Hypothesis testing decision
+if abs(z_score) > critical_value:
+    print("Reject the null hypothesis.")
+else:
+    print("Fail to reject the null hypothesis.")
+
+# Plotting the Normal Distribution
+x = np.linspace(population_mean - 4*population_std, population_mean + 4*population_std, 1000)
+y = stats.norm.pdf(x, population_mean, population_std)
+
+# Plot the normal distribution curve
+plt.plot(x, y, label='Normal Distribution', color='blue')
+
+# Plot the critical regions
+plt.fill_between(x, y, where=(x < population_mean - critical_value) | (x > population_mean + critical_value), 
+                 color='red', alpha=0.5, label='Critical Region')
+
+# Plot the sample mean
+plt.axvline(sample_mean, color='green', linestyle='--', label=f'Sample Mean: {sample_mean}')
+
+# Labels and title
+plt.title('Normal Distribution and Hypothesis Testing')
+plt.xlabel('Value')
+plt.ylabel('Density')
+plt.legend()
+plt.grid(True)
+
+# Show plot
+plt.show()
+
+4 One-Way and Two-Factor ANOVA
+import pandas as pd
+import numpy as np
+import statsmodels.api as sm
+from statsmodels.formula.api import ols
+from statsmodels.stats.anova import anova_lm
+
+# Data (Example: Test scores based on two factors - Teaching Method and Study Time)
+data = {
+    'Teaching_Method': ['A', 'A', 'A', 'B', 'B', 'B', 'C', 'C', 'C'],
+    'Study_Time': ['Low', 'Medium', 'High', 'Low', 'Medium', 'High', 'Low', 'Medium', 'High'],
+    'Test_Score': [23, 21, 19, 31, 30, 29, 24, 26, 22]
+}
+
+df = pd.DataFrame(data)
+
+# Perform Two-Factor ANOVA using the formula 'Test_Score ~ Teaching_Method * Study_Time'
+model = ols('Test_Score ~ C(Teaching_Method) * C(Study_Time)', data=df).fit()
+
+# Perform the ANOVA
+anova_results = anova_lm(model)
+
+# Output the results
+print(anova_results)
+
+
+5 Linear Regression single and multi
+import numpy as np
+import pandas as pd
+import statsmodels.api as sm
+import matplotlib.pyplot as plt
+
+# Data for Simple Linear Regression
+simple_X = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])  # Independent variable
+simple_y = np.array([15, 20, 25, 30, 40, 50, 60, 65, 70, 80])  # Dependent variable
+
+# Data for Multiple Linear Regression
+data = {
+    'Hours_Studied': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    'Class_Participation': [3, 4, 2, 5, 6, 7, 5, 9, 8, 10],
+    'Exam_Score': [15, 20, 25, 30, 40, 50, 60, 65, 70, 80]
+}
+df = pd.DataFrame(data)
+
+# ------------------------------
+# Simple Linear Regression
+# ------------------------------
+
+# Adding a constant for the intercept
+simple_X_with_const = sm.add_constant(simple_X)
+
+# Building the model
+simple_model = sm.OLS(simple_y, simple_X_with_const).fit()
+
+# Summary of the simple regression
+print("Simple Linear Regression Results:")
+print(simple_model.summary())
+
+# Predictions
+simple_y_pred = simple_model.predict(simple_X_with_const)
+
+# Plotting Simple Regression
+plt.figure(figsize=(10, 5))
+plt.scatter(simple_X, simple_y, color='blue', label='Actual Data')
+plt.plot(simple_X, simple_y_pred, color='red', label='Regression Line')
+plt.title('Simple Linear Regression')
+plt.xlabel('Hours Studied')
+plt.ylabel('Exam Score')
+plt.legend()
+plt.grid(True)
+plt.show()
+
+# ------------------------------
+# Multiple Linear Regression
+# ------------------------------
+
+# Define independent (X) and dependent (y) variables
+multi_X = df[['Hours_Studied', 'Class_Participation']]  # Independent variables
+multi_y = df['Exam_Score']  # Dependent variable
+
+# Adding a constant for the intercept
+multi_X_with_const = sm.add_constant(multi_X)
+
+# Building the model
+multi_model = sm.OLS(multi_y, multi_X_with_const).fit()
+
+# Summary of the multiple regression
+print("\nMultiple Linear Regression Results:")
+print(multi_model.summary())
+
+# Predictions
+multi_y_pred = multi_model.predict(multi_X_with_const)
+
+# Plotting Actual vs Predicted for Multiple Regression
+plt.figure(figsize=(10, 5))
+plt.scatter(multi_y, multi_y_pred, color='blue', label='Predicted vs Actual')
+plt.plot([min(multi_y), max(multi_y)], [min(multi_y), max(multi_y)], color='red', linestyle='--', label='Perfect Fit Line')
+plt.title('Multiple Linear Regression: Actual vs Predicted')
+plt.xlabel('Actual Exam Score')
+plt.ylabel('Predicted Exam Score')
+plt.legend()
+plt.grid(True)
+plt.show()
+
+6 Pearson correlation and Spearman rank correlation
+
+import numpy as np
+import scipy.stats as stats
+import matplotlib.pyplot as plt
+
+# Sample Data (e.g., Hours studied vs Exam scores)
+X = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])  # Independent variable (Hours Studied)
+Y = np.array([15, 20, 25, 30, 40, 50, 60, 65, 70, 80])  # Dependent variable (Exam Score)
+
+# ------------------------
+# Pearson Correlation
+# ------------------------
+
+# Calculate Pearson correlation coefficient
+pearson_corr, pearson_p_value = stats.pearsonr(X, Y)
+
+print(f"Pearson Correlation Coefficient: {pearson_corr}")
+print(f"P-value: {pearson_p_value}")
+
+# Plotting the Pearson correlation
+plt.figure(figsize=(6, 4))
+plt.scatter(X, Y, color='blue', label='Data Points')
+plt.title('Pearson Correlation (Linear Relationship)')
+plt.xlabel('Hours Studied')
+plt.ylabel('Exam Score')
+plt.grid(True)
+plt.legend()
+plt.show()
+
+# ------------------------
+# Spearman Rank Correlation
+# ------------------------
+
+# Calculate Spearman rank correlation
+spearman_corr, spearman_p_value = stats.spearmanr(X, Y)
+
+print(f"\nSpearman Rank Correlation Coefficient: {spearman_corr}")
+print(f"P-value: {spearman_p_value}")
+
+# Plotting the Spearman correlation (using the ranks)
+plt.figure(figsize=(6, 4))
+plt.scatter(X, Y, color='green', label='Data Points')
+plt.title('Spearman Rank Correlation (Monotonic Relationship)')
+plt.xlabel('Hours Studied')
+plt.ylabel('Exam Score')
+plt.grid(True)
+plt.legend()
+plt.show()
+
+7 Latin Square design
+import numpy as np
+
+# Function to generate a Latin Square
+def generate_latin_square(n):
+    # Initialize a matrix of size n x n
+    latin_square = np.zeros((n, n), dtype=int)
+    
+    # Populate the matrix such that each row contains a permutation of the numbers 0 to n-1
+    for i in range(n):
+        latin_square[i] = (np.arange(i, n) % n).tolist() + (np.arange(0, i) % n).tolist()
+    
+    return latin_square
+
+# Function to display Latin Square with Treatments (A, B, C, D, etc.)
+def display_latin_square_with_treatments(latin_square, treatments):
+    latin_square_with_treatments = [[treatments[i] for i in row] for row in latin_square]
+    print("Latin Square Design with Treatments:")
+    for row in latin_square_with_treatments:
+        print(row)
+
+# Size of the Latin Square (e.g., 4x4)
+n = 4  # You can change this to any other number for a different size
+
+# Generate the Latin Square
+latin_square = generate_latin_square(n)
+
+# Define treatments (e.g., A, B, C, D for a 4x4 square)
+treatments = ['A', 'B', 'C', 'D']
+
+# Display the Latin Square with treatments
+display_latin_square_with_treatments(latin_square, treatments)
+
+
+8 Time series Analysis
+Trend Analysis
+Seasonal Variation 
+Cyclic Variation
+Irregular Variation
+Decomposition of Time Series
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from statsmodels.tsa.seasonal import seasonal_decompose
+
+# Generating a sample time series data (e.g., Monthly data)
+date_range = pd.date_range(start='1/1/2020', periods=24, freq='M')  # Monthly frequency
+np.random.seed(0)
+trend = np.linspace(100, 200, 24)  # Trend component
+seasonal = 10 * np.sin(np.linspace(0, 2 * np.pi, 24))  # Seasonal component (sinusoidal pattern)
+irregular = np.random.normal(0, 5, 24)  # Irregular component (random noise)
+time_series_data = trend + seasonal + irregular  # Combining components
+
+# Creating a DataFrame
+df = pd.DataFrame({'Date': date_range, 'Value': time_series_data})
+df.set_index('Date', inplace=True)
+
+# Decomposing the time series
+decomposition = seasonal_decompose(df['Value'], model='additive', period=12)
+
+# Plotting the decomposed components
+plt.figure(figsize=(10, 8))
+
+plt.subplot(411)
+plt.plot(df['Value'], label='Original', color='blue')
+plt.title('Original Time Series')
+plt.legend()
+
+plt.subplot(412)
+plt.plot(decomposition.trend, label='Trend', color='green')
+plt.title('Trend Component')
+plt.legend()
+
+plt.subplot(413)
+plt.plot(decomposition.seasonal, label='Seasonal', color='red')
+plt.title('Seasonal Component')
+plt.legend()
+
+plt.subplot(414)
+plt.plot(decomposition.resid, label='Residual/Irregular', color='purple')
+plt.title('Residual/Irregular Component')
+plt.legend()
+
+plt.tight_layout()
+plt.show()
+
+
+9 Time series Analysis and Forecasting 
+Stock Price Analysis
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from statsmodels.tsa.arima.model import ARIMA
+from pandas_datareader import data as pdr
+import yfinance as yf
+
+# Fetch stock data (e.g., Apple stock from Yahoo Finance)
+yf.pdr_override()  # Override pandas data reader with yfinance
+stock_data = pdr.get_data_yahoo('AAPL', start='2010-01-01', end='2023-01-01')
+
+# Plot the closing price
+stock_data['Close'].plot(figsize=(10, 6))
+plt.title('AAPL Stock Price (2010-2023)')
+plt.xlabel('Date')
+plt.ylabel('Price (USD)')
+plt.show()
+
+# ARIMA Model
+train_data = stock_data['Close'][:int(0.8*len(stock_data))]
+test_data = stock_data['Close'][int(0.8*len(stock_data)):]
+
+# Fit ARIMA model
+model = ARIMA(train_data, order=(5, 1, 0))  # (p,d,q) order
+model_fit = model.fit()
+
+# Forecast
+forecast = model_fit.forecast(steps=len(test_data))
+
+# Plot forecasted data
+plt.figure(figsize=(10,6))
+plt.plot(train_data, label='Training Data')
+plt.plot(test_data, label='Test Data', color='green')
+plt.plot(test_data.index, forecast, label='Forecast', color='red')
+plt.title('Stock Price Forecast using ARIMA')
+plt.xlabel('Date')
+plt.ylabel('Price (USD)')
+plt.legend()
+plt.show()
+
+Rain Forecasting Using Trend and Seasonal Analysis
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from statsmodels.tsa.seasonal import seasonal_decompose
+
+# Sample rain data (monthly rainfall for one year)
+data = {'Date': pd.date_range(start='1/1/2020', periods=12, freq='M'),
+        'Rainfall': [35, 40, 30, 60, 75, 120, 110, 95, 85, 70, 55, 45]}
+
+rain_df = pd.DataFrame(data)
+rain_df.set_index('Date', inplace=True)
+
+# Decompose the time series (trend + seasonality + residuals)
+decomposition = seasonal_decompose(rain_df['Rainfall'], model='multiplicative', period=12)
+
+# Plotting the decomposition
+plt.figure(figsize=(10,8))
+
+plt.subplot(411)
+plt.plot(rain_df['Rainfall'], label='Original Rainfall Data', color='blue')
+plt.title('Monthly Rainfall')
+plt.legend()
+
+plt.subplot(412)
+plt.plot(decomposition.trend, label='Trend Component', color='green')
+plt.title('Trend Component')
+plt.legend()
+
+plt.subplot(413)
+plt.plot(decomposition.seasonal, label='Seasonal Component', color='red')
+plt.title('Seasonal Component')
+plt.legend()
+
+plt.subplot(414)
+plt.plot(decomposition.resid, label='Residual/Irregular Component', color='purple')
+plt.title('Residual/Irregular Component')
+plt.legend()
+
+plt.tight_layout()
+plt.show()
+
+from statsmodels.tsa.arima.model import ARIMA
+
+# Train-test split
+train = rain_df['Rainfall'][:10]  # First 10 months for training
+test = rain_df['Rainfall'][10:]   # Last 2 months for testing
+
+# Fit ARIMA model
+model = ARIMA(train, order=(1, 1, 1))  # ARIMA model with (p,d,q)
+model_fit = model.fit()
+
+# Forecast
+forecast = model_fit.forecast(steps=2)
+
+# Plotting the forecast
+plt.figure(figsize=(10,6))
+plt.plot(train, label='Training Data', color='blue')
+plt.plot(test, label='Test Data', color='green')
+plt.plot(test.index, forecast, label='Forecasted Data', color='red')
+plt.title('Rainfall Forecasting with ARIMA')
+plt.xlabel('Date')
+plt.ylabel('Rainfall (mm)')
+plt.legend()
+plt.show()
+
+10 Sales Forecasting Using SARIMAX
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from statsmodels.tsa.statespace.sarimax import SARIMAX
+from pandas_datareader import data as pdr
+import yfinance as yf
+
+# Generate a sample sales data (Monthly sales data)
+np.random.seed(0)
+date_range = pd.date_range(start='1/1/2020', periods=36, freq='M')  # 36 months
+sales_data = 100 + 2 * np.arange(36) + 20 * np.sin(np.linspace(0, 3 * np.pi, 36)) + np.random.normal(0, 5, 36)
+marketing_spend = 10 + 0.2 * np.arange(36)  # Exogenous variable: marketing spend
+
+df = pd.DataFrame({'Date': date_range, 'Sales': sales_data, 'Marketing Spend': marketing_spend})
+df.set_index('Date', inplace=True)
+
+# Plot the sales data
+df['Sales'].plot(figsize=(10, 6), title="Monthly Sales Data")
+plt.xlabel('Date')
+plt.ylabel('Sales')
+plt.show()
+
+# Split data into training and test sets (80% train, 20% test)
+train_size = int(0.8 * len(df))
+train, test = df['Sales'][:train_size], df['Sales'][train_size:]
+
+# SARIMAX Model
+# Order (p, d, q) = (1, 1, 1) for ARIMA components
+# Seasonal order (P, D, Q, m) = (1, 1, 1, 12) for yearly seasonality (m=12 for monthly data)
+# Exogenous variable: 'Marketing Spend'
+model = SARIMAX(train, 
+                order=(1, 1, 1), 
+                seasonal_order=(1, 1, 1, 12), 
+                exog=df['Marketing Spend'][:train_size],
+                enforce_stationarity=False, 
+                enforce_invertibility=False)
+
+# Fit the model
+model_fit = model.fit(disp=False)
+
+# Forecasting
+forecast_steps = len(test)
+forecast = model_fit.forecast(steps=forecast_steps, exog=df['Marketing Spend'][train_size:])
+
+# Plot the forecasted values
+plt.figure(figsize=(10, 6))
+plt.plot(train.index, train, label='Training Data', color='blue')
+plt.plot(test.index, test, label='Test Data', color='green')
+plt.plot(test.index, forecast, label='Forecast', color='red')
+plt.title('Sales Forecasting using SARIMAX')
+plt.xlabel('Date')
+plt.ylabel('Sales')
+plt.legend()
+plt.show()
+
+
+11 Least Square Method
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Sample data (X: independent variable, Y: dependent variable)
+X = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+Y = np.array([2, 4, 5, 4, 5, 7, 8, 9, 10])
+
+# Step 1: Calculate the slope (m) and intercept (b) using the Least Squares Method
+n = len(X)
+sum_x = np.sum(X)
+sum_y = np.sum(Y)
+sum_xx = np.sum(X**2)
+sum_xy = np.sum(X * Y)
+
+# Calculating the slope (m)
+m = (n * sum_xy - sum_x * sum_y) / (n * sum_xx - sum_x**2)
+
+# Calculating the intercept (b)
+b = (sum_y - m * sum_x) / n
+
+# Step 2: Calculate the predicted Y values
+Y_pred = m * X + b
+
+# Step 3: Plot the data and the regression line
+plt.scatter(X, Y, color='blue', label='Data Points')
+plt.plot(X, Y_pred, color='red', label='Regression Line (Least Squares)')
+plt.title('Least Squares Method - Simple Linear Regression')
+plt.xlabel('X')
+plt.ylabel('Y')
+plt.legend()
+plt.show()
+
+# Display the slope and intercept
+print(f"Slope (m): {m}")
+print(f"Intercept (b): {b}")
