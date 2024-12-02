@@ -1,0 +1,5 @@
+Formula Name,Formula,Description,Use Case Example
+Balance Sheet Equation,Assets = Liabilities + Equity,The balance sheet equation represents the basic accounting identity.,"Assets = $500,000, Liabilities = $300,000, Equity = $200,000."
+Net Income,Revenue - Expenses,Net income is the total profit after subtracting all expenses.,"If revenue is $10,000 and expenses are $7,000, net income = $10,000 - $7,000."
+Gross Profit Margin,(Revenue - Cost of Goods Sold) / Revenue,Gross profit margin measures the percentage of revenue that exceeds the cost of goods sold.,"If revenue is $15,000 and COGS is $9,000, margin = (15,000 - 9,000) / 15,000."
+Return on Assets (ROA),Net Income / Total Assets,ROA measures how effectively a company uses its assets to generate profit.,"Net income = $3,000, total assets = $30,000, ROA = 3,000 / 30,000."
