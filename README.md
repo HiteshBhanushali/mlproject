@@ -1,3 +1,36 @@
+
+Exelon Apollo (1 May 2024 to 20 Dec 2024):
+
+Leads comments:
+Hitesh is a consistent performer and has worked exceptionally well in reporting and ETL track. His contribution to GAAP-FERC solution is really commendable. He has gained functional knowledge on the client data which has helped team to develop code in much efficient way
+Hitesh has stepped up and took the new responsibility as an ETL developer when there was need in the project. He has upskilled on ODI and supported both ETL and reporting tracks during hypercare phase of the project. Keep up the same zeal.
+Hitesh is performing exceptionally well in ETL track of the project. He is constantly improving his technical skills at reporting(FAW) and ETL(ODI) front. He is ready to take any new work give to him. He has performed 3+POC on ETL side for custom sorting requirement. His contribution to GAAP-FERC design helped team to close the POC on time which helped us to get additional scope( 2 reports and 1 custom SA). He effectively communicates with team and takes ownership of the assigned task and keep his leads posted on the updates. Hitesh can increase his involvement in requirement discussions and improve his functional knowledge.
+
+I have performed end to end rebuild of 9 BIP approach ETL mapping and dimentions. Using new approach, we are able to reduce the total job execution time from 
+
+Implemented Dseries automation script to schedule all ODI jobs.
+Implemented the Purging logs and 
+
+Functional knowledge upskill:
+Under standing functional requirement with reporting understanding helped me to effectively build ETL objects and helped etl team to understand the requirement more easy and effective which help etl team to understand all the required scenarios. Scenario where it help. While building one of the EIS and AIS related data where multiple scenarios of tracking change was required. Understanding the requirement functionally and then converting in to ETL technical understanding helped to develop efficient.
+Another Scenarios, while developing solution for FERC and GAAP account side by side, understanding functionally help me to understand all the scenario and also raise one of the missing case to Onshre team which help to build better solution. with that completed the POC build and ETL extenstion end to end.
+
+Major Performance improvement ownership:
+Redesigned one of the most complex processes in the existing system to retrieve ERP data without relying on PVOs, utilizing the BIP approach. This optimization significantly reduced job execution time from 60-75 minutes per BIP report to just 2-3 minutes. The solution has been successfully implemented in Dev01 for all 9 BIP reports, and the proof of concept (POC) was approved by the leadership team.
+
+Constellation Apollo (1 Jan 2024 to 30 Apr 2024):
+- up skilled my self as ODI backup resource
+ 
+- implementated major UAT defect of multi load execution on same day was not handled at ODI load plan CLN framework.
+
+Leads comment:
+Hitesh is actively contributing wherever there is a scope and taking up additional responsibilities. Keep up the good work and be consistent on what you do .
+Hitesh upskilled in ETL . He is contributing to both ETL and reporting PODS as when it is required.
+
+As an OAC/FAW Developer & Tester at Constellation Apollo, I've constructed and validated 12+ OAC reports, crucial for the successful build phase completion. For CGS Reports, I developed and validated 6 reports, playing a pivotal role in overall build phase success. Addressing 15+ defects and testing 12+ reports in the SIT2 environment ensured a seamless exit from the testing cycle. In SIT and UAT cycles, I supported business testers, ensuring smooth and timely test execution. Significant contributions to the SIT cycle included preparing 17+ Source Queries and executing Data Validation, ensuring comprehensive end-to-end validation. Additionally, I played a vital role in regression testing for three FAW patch releases, assessing impacts for successful patch applications. My role extended to documenting the development process and providing post go-live support. Furthermore, I enhanced my expertise with two additional Professional-level Certificates in OAC/FAW, empowering me to unfettered
+
+
+
 Practical No. 1
 Aim: Exploring Color Maps in Matplotlib: Visualizing Random Data with Different Color Schemes.
 Code:
