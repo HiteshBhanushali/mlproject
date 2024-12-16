@@ -1,5 +1,21 @@
 **Impact Statement for Promotion**  
 
+**Constellation Apollo (1 Jan 2024 - 30 Apr 2024):**  
+- Addressed 15+ defects during go-live, resolved multi-load execution issues in ODI load plans (CLN framework), and fixed missing partial data scenarios in custom extensions.  
+- Upskilled as an ODI backup resource, contributed to ETL and reporting PODs, and earned two professional-level certifications in OAC/FAW.  
+
+**Exelon Apollo (1 May 2024 - 20 Dec 2024):**  
+- Reduced job execution time for 9 BIP ETL mappings from 60-75 minutes to 2-3 minutes by redesigning processes using the BIP approach.  
+- Automated ODI job scheduling with Dseries and implemented purging scripts to enhance performance.  
+- Delivered 3+ POCs, including custom sorting and GAAP-FERC solutions, enabling scope expansion of 2 reports and 1 custom SA.  
+- Improved ETL accuracy by translating complex functional requirements, resolving missing scenarios in GAAP-FERC, and optimizing EIS/AIS data solutions.  
+- Supported ETL and reporting during hypercare and resolved critical production defects, ensuring system stability.  
+- Maintained strong communication, demonstrated flexibility, and consistently improved skills in FAW and ODI.  
+
+
+
+**Impact Statement for Promotion**  
+
 As a proactive and results-driven professional, I have consistently delivered high-impact contributions in the ETL and reporting domains. My end-to-end rebuild of 9 BIP ETL mappings reduced total job execution time from 60-75 minutes per report to just 2-3 minutes, optimizing critical processes and earning leadership approval for wider implementation. Leveraging my functional knowledge and technical expertise, I effectively bridged the gap between client requirements and technical execution, streamlining data integration and reporting workflows.  
 
 I took ownership of complex POCs, including custom sorting requirements and GAAP-FERC solutions, enabling timely project delivery and expanding scope. My implementation of the Dseries automation script streamlined ODI job scheduling, while purging scripts enhanced system efficiency. Additionally, I resolved critical production defects, addressed 15+ go-live issues, and introduced robust solutions to mitigate patch impacts.  
