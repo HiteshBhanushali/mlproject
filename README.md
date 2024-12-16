@@ -1,3 +1,8 @@
+**Impact Statement for Promotion**  
+
+Addressed 15+ defects during go-live, resolved multi-load execution issues in ODI load plans (CLN framework), and fixed missing partial data scenarios in custom extensions. Upskilled as an ODI backup resource, contributed to ETL and reporting PODs, and earned two professional-level certifications in OAC/FAW. Reduced job execution time for 9 BIP ETL mappings from 60-75 minutes to 2-3 minutes by redesigning ERP data extraction processes using the BIP reports approach. Automated ODI job scheduling with Dseries and implemented purging scripts to enhance performance. Delivered 3+ POCs, including custom sorting and GAAP-FERC solutions, enabling scope expansion of 2 reports and 1 custom SA. Improved ETL accuracy by translating complex functional requirements, resolving missing scenarios in GAAP-FERC, and optimizing EIS/AIS data solutions. Owned the complete ODI technical specification documentation, completed 5+ technical specs, built 5+ reports, contributed to the Master Attribute sheet, wrote test cases, and fixed FUT defects.
+
+
 Constellation Apollo (1 Jan 2024 - 30 Apr 2024):
 
 Addressed 15+ defects during go-live, resolved multi-load execution issues in ODI load plans (CLN framework), and fixed missing partial data scenarios in custom extensions.
