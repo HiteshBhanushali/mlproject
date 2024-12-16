@@ -1,3 +1,20 @@
+Addressed 15+ defects during go-live.
+Resolved multi-load execution issues in ODI load plans (CLN framework).
+Fixed missing partial data scenarios due to length mismatch in custom extensions.
+Upskilled as an ODI backup resource.
+Contributed to ETL and reporting PODs.
+Earned two professional-level certifications in OAC/FAW.
+Optimized the Existing ERP data extraction process for 9 BIP ETL mappings from 60-75 min to 2-3 min per BIP report.
+Automated ODI job scheduling with Dseries and implemented purging scripts.
+Delivered 3+ POCs, including custom sorting and GAAP-FERC solutions lead to scope expansion of 2 reports and 1 custom SA. Build End to end solution of FERC-GAAP Custom ETL extension and reporting.
+12+ ETL pipeline build. Optimized ETL solutions using Functional understanding. 
+Owned complete ODI technical specification documentation.
+Completed 5+ technical specs, Built 5+ reports.
+Contributed to the Master Attribute (MA) sheet, Master Integration document, wrote 10+ test Scripts, Fixed FUT defects.
+Supported 2 oracle patch and data refresh and performed regression testing to ensure the nothing is broken.
+
+
+---
 Let’s confirm:  
 
 ### Points Mentioned:  
