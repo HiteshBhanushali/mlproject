@@ -1,3 +1,28 @@
+**Impact Statement for Promotion**  
+
+As a proactive and results-driven professional, I have consistently delivered high-impact contributions in the ETL and reporting domains. My end-to-end rebuild of 9 BIP ETL mappings reduced total job execution time from 60-75 minutes per report to just 2-3 minutes, optimizing critical processes and earning leadership approval for wider implementation. Leveraging my functional knowledge and technical expertise, I effectively bridged the gap between client requirements and technical execution, streamlining data integration and reporting workflows.  
+
+I took ownership of complex POCs, including custom sorting requirements and GAAP-FERC solutions, enabling timely project delivery and expanding scope. My implementation of the Dseries automation script streamlined ODI job scheduling, while purging scripts enhanced system efficiency. Additionally, I resolved critical production defects, addressed 15+ go-live issues, and introduced robust solutions to mitigate patch impacts.  
+
+Committed to continuous learning, I upskilled in OAC/FAW and ODI, earning certifications and contributing seamlessly across ETL and reporting tracks.
+
+
+**Impact Statement for Promotion**  
+
+- Reduced job execution time for 9 BIP ETL mappings from 60-75 minutes per report to 2-3 minutes by redesigning the process using the BIP approach.  
+- Successfully implemented Dseries automation for ODI job scheduling and purging scripts, enhancing efficiency and reducing manual effort.  
+- Demonstrated strong functional knowledge by understanding client requirements and translating them into efficient ETL solutions, improving team delivery.  
+- Delivered 3+ POCs for custom sorting requirements and GAAP-FERC design, enabling timely project delivery and scope expansion (2 additional reports, 1 custom SA).  
+- Resolved critical production defects, including multi-load execution issues and missing partial data scenarios, ensuring smooth operations in ODI load plans.  
+- Provided go-live support by addressing 15+ defects and assessing patch impacts on applications, ensuring system stability post-deployment.  
+- Actively contributed to ETL and reporting tracks, taking ownership of tasks and providing regular updates to leads.  
+- Upskilled in OAC/FAW and ODI, earning professional certifications and becoming a backup ODI resource.  
+- Redesigned complex ERP data retrieval processes, removing dependency on PVOs and improving system performance.  
+- Maintained strong communication and collaboration with teams, contributing to seamless project execution and delivery.  
+
+
+
+
 Exelon Apollo (1 May 2024 to 20 Dec 2024):
 
 Leads comments:
