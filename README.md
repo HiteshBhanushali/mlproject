@@ -1,4 +1,3 @@
-
 Exelon Apollo (1 May 2024 to 20 Dec 2024):
 
 Leads comments:
@@ -19,17 +18,14 @@ Major Performance improvement ownership:
 Redesigned one of the most complex processes in the existing system to retrieve ERP data without relying on PVOs, utilizing the BIP approach. This optimization significantly reduced job execution time from 60-75 minutes per BIP report to just 2-3 minutes. The solution has been successfully implemented in Dev01 for all 9 BIP reports, and the proof of concept (POC) was approved by the leadership team.
 
 Constellation Apollo (1 Jan 2024 to 30 Apr 2024):
-- up skilled my self as ODI backup resource
- 
-- implementated major UAT defect of multi load execution on same day was not handled at ODI load plan CLN framework.
+- As OAC/FAW Developer, Provided go-live support, addressing 15+ defects. assessing patch impact on applications. provided post golive support upskilled with two additional professional level certificates in OAC/FAW.
+- up skilled my self as ODI backup resource.
+- Implemented missing parshial data due to midmatch in lenght cound between source and target accross custom extensions.
+- implementated major PROD defect of multi load execution on same day was not handled at ODI load plan CLN framework.
 
 Leads comment:
 Hitesh is actively contributing wherever there is a scope and taking up additional responsibilities. Keep up the good work and be consistent on what you do .
 Hitesh upskilled in ETL . He is contributing to both ETL and reporting PODS as when it is required.
-
-As an OAC/FAW Developer & Tester at Constellation Apollo, I've constructed and validated 12+ OAC reports, crucial for the successful build phase completion. For CGS Reports, I developed and validated 6 reports, playing a pivotal role in overall build phase success. Addressing 15+ defects and testing 12+ reports in the SIT2 environment ensured a seamless exit from the testing cycle. In SIT and UAT cycles, I supported business testers, ensuring smooth and timely test execution. Significant contributions to the SIT cycle included preparing 17+ Source Queries and executing Data Validation, ensuring comprehensive end-to-end validation. Additionally, I played a vital role in regression testing for three FAW patch releases, assessing impacts for successful patch applications. My role extended to documenting the development process and providing post go-live support. Furthermore, I enhanced my expertise with two additional Professional-level Certificates in OAC/FAW, empowering me to unfettered
-
-
 
 Practical No. 1
 Aim: Exploring Color Maps in Matplotlib: Visualizing Random Data with Different Color Schemes.
