@@ -1,3 +1,18 @@
+Constellation Apollo (1 Jan 2024 - 30 Apr 2024):
+
+Addressed 15+ defects during go-live, resolved multi-load execution issues in ODI load plans (CLN framework), and fixed missing partial data scenarios in custom extensions.
+Upskilled as an ODI backup resource, contributed to ETL and reporting PODs, and earned two professional-level certifications in OAC/FAW.
+Exelon Apollo (1 May 2024 - 20 Dec 2024):
+
+Reduced job execution time for 9 BIP ETL mappings from 60-75 minutes to 2-3 minutes by redesigning processes used to extract ERP data without PVOs using BIP reports approach.
+Automated ODI job scheduling with Dseries and implemented purging scripts to enhance performance.
+Delivered 3+ POCs, including custom sorting and GAAP-FERC solutions, enabling scope expansion of 2 reports and 1 custom SA.
+Improved ETL accuracy by translating complex functional requirements, resolving missing scenarios in GAAP-FERC, and optimizing EIS/AIS data solutions.
+Owned complete ODI Tech spec documenting.
+As OAC/FAW developer, Completed 5+ Techspec, 5+ report Build. Contributed to Master Attribute(MA) sheet, TestCase writing documnets. FUT defects fixing.
+Maintained strong communication, demonstrated flexibility, and consistently improved skills in FAW and ODI.
+
+
 **Impact Statement for Promotion**  
 
 **Constellation Apollo (1 Jan 2024 - 30 Apr 2024):**  
