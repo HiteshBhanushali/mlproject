@@ -10,6 +10,24 @@
 - Contributed to more the 10% of overall of reports MA & TestCase writing documentation for SIT cycle.
 - Trained ODI team members on OAC/FAW to bridge the gap between ETL and reports.  
 
+For your reference on sentence framing, below is the example of other team member:
+•	Led the CC&B project's(Exelon account's) Reporting ETL thread of 10+ members, delivering 108 reports, used by CXOs to analyze data, identify insights & create better solutions, contributing to the overall value of $2M.
+
+•	Delivered 60+ custom reporting dataflows, conducted & closed design discussions with the client & SI partners to finalize development approaches, enabling the client to build the desired framework for 4+ business use-cases.
+
+•	Played a pivotal role during the BRV/BCT phase(UAT) by providing extremely quick turnarounds, to ensure seamless report user demos, delivering 75+ Critical Day 0 enhancements & 40+ P0 change requests, receiving an award & multiple appreciations from the leadership for the same.
+
+•	As part of Cloud Modernization, accelerated delivery by up-skilling on Azure to deliver 15+ dataflows & lead a 5-member team, training them on ADF & Synapse, enabling autonomous development of 10+ objects. Conducted code reviews, guaranteeing code standards & improved quality.
+
+
+Point to be focussed:
+• Understand technical requirements and develop understanding towards technical specifications
+• Demonstrate strong understanding of primary area of technology/work
+• Able to execute assigned tasks independently
+• Understand technical/design problem and come-up with suggestions
+• Help others on the team with any technical issues/problems
+• Understand project delivery processes and leverages knowledge of best practices, checklists to support deliverables
+
 
 
 - Addressed 15+ defects during go-live, resolving multi-load execution issues in ODI load plans (CLN framework).  
