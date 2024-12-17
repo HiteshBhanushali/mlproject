@@ -1,3 +1,17 @@
+- describe the role: As part of CEG (Hypercare phase & Go-Live) project from 1 Jan to 30 Apr 2024. I was an OAC/FAW developer & tester. 
+- During this time frame I have fixed 15+ High to Medium complex Defect Post Go-live and Hypercare.
+- Upskilled my self as an ODI developer and fill the gap within the ETL team. Played a pivotal role during the CEG (Hypercare phase & Go-Live) by providing extremely quick turnarounds. Contributed to 10+ High to Medium defect to ensure seamless reports availability to Users.
+- As part of EU Apollo Phase 2 project, accelerated delivery by up-skilling on ODI to Built 12+ ETL pipelines as part of Project Change Tracking, GL Detail, Project Costing and Data level Scurity functional areas.
+- Developed ODI Job Execution and logging Unix wrapper script for DSeries scheduling team.
+- Understanding the existing dataflow, I have optimized the data extraction process for 9 ETL Scenarios, reducing the overall runtime by 80%, leads to faster daily load execution and data availability.
+- Contributed to 3+ business use-cases by closelly discussing the design with the client to finalize scenario & approach, lead to POCs completion on time, enabling scope expansion of 2 reports and 1 custom SA.
+- Contributed to ODI Technical doc, Master Integration doc and standardizing the ODI Objects.
+- As part of repoting POD, worked as OAC/FAW Developer, Build 5+ High to medium complex reports and Technical Spec(TS) with ODI extensions. 
+- Contributed to more the 10% of overall of reports MA & TestCase writing documentation for SIT cycle.
+- Trained ODI team members on OAC/FAW to bridge the gap between ETL and reports.  
+
+
+
 - Addressed 15+ defects during go-live, resolving multi-load execution issues in ODI load plans (CLN framework).  
 - Fixed missing partial data scenarios caused by length mismatches in custom extensions.  
 - Upskilled as an ODI backup resource and contributed to ETL and reporting PODs.  
