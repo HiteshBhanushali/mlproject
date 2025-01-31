@@ -1,3 +1,56 @@
+  SELECT
+    DISTINCT ALIAS,DATALAYER_TABLE
+    INTO v_alias_name,v_data_layer_tab
+    FROM
+        EFS_DATA_LAYER.EFS_HIERARCHY_LIST
+	WHERE
+        lower(alt_hier_extract) = lower(v_in_ext_name);
+          open cur for 'SELECT DISTINCT FIXED_HIER_LEVEL FROM '|| v_data_layer_tab;
+          LOOP
+          fetch cur into  fixed_hier_level_var;
+          exit when cur%NOTFOUND;
+          Counter:=31-fixed_hier_level_var;
+            FOR i IN 0..31 - fixed_hier_level_var LOOP
+              -- Construct column names dynamically
+                  if i=Counter then 
+                      DECLARE
+                        level_segment_col VARCHAR2(100);
+                        level_valueset_col VARCHAR2(100); 
+                        --level_segment_id_col VARCHAR2(100);
+                      BEGIN
+                        level_segment_col := 'LEVEL' || i || '_'||v_alias_name||'_SEGMENT';
+                        level_valueset_col := 'LEVEL' || i || '_'||v_alias_name||'_SEGMENT_NAME';
+                        EXECUTE IMMEDIATE 'UPDATE EFS_'||v_alias_name||'_DIMH
+                                          SET ' || level_valueset_col || ' = CONCAT(CONCAT(' || level_segment_col || ', ''~''),' || level_valueset_col || ')
+                                          WHERE fixed_hier_level = :1
+                                          AND YEAR='||varrawyear||'
+                                          AND ' || level_segment_col || ' NOT LIKE ''%~''' USING fixed_hier_level_var;
+                      END;
+                ELSE
+                    DECLARE
+                        level_segment_col VARCHAR2(100);
+                        level_valueset_col VARCHAR2(100); 
+                        --level_segment_id_col VARCHAR2(100);
+                    BEGIN
+                        level_segment_col := 'LEVEL' || i || '_'||v_alias_name||'_SEGMENT';
+                        level_valueset_col := 'LEVEL' || i || '_'||v_alias_name||'_SEGMENT_NAME';
+                        EXECUTE IMMEDIATE 'UPDATE EFS_'||v_alias_name||'_DIMH
+                                          SET ' || level_segment_col || ' = CONCAT(' || level_segment_col || ', ''~''),
+                                              ' || level_valueset_col || ' = CONCAT(CONCAT(CONCAT(' || level_segment_col || ', ''~''),' || level_valueset_col || '), ''~'')
+                                          WHERE fixed_hier_level = :1
+                                          AND YEAR='||varrawyear||'
+                                          AND ' || level_segment_col || ' NOT LIKE ''%~''' USING fixed_hier_level_var;
+                      END;
+                END IF;
+            END LOOP;
+          END LOOP;
+ 
+ 
+END IF;
+
+
+
+
 - describe the role: As part of CEG (Hypercare phase & Go-Live) project from 1 Jan to 30 Apr 2024. I was an OAC/FAW developer & tester. 
 - During this time frame I have fixed 15+ High to Medium complex Defect Post Go-live and Hypercare.
 - Upskilled my self as an ODI developer and fill the gap within the ETL team. Played a pivotal role during the CEG (Hypercare phase & Go-Live) by providing extremely quick turnarounds. Contributed to 10+ High to Medium defect to ensure seamless reports availability to Users.
