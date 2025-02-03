@@ -1,3 +1,13 @@
+SELECT DISTINCT
+    "Fiscal Calendar"."Fiscal Period"
+FROM
+    "PPM - Project Costs"
+WHERE
+    (("Fiscal Calendar"."Fiscal Year" = @{biServer.variables['NQ_SESSION.EFS_CURRENT_FISCAL_YEAR']} AND "Fiscal Calendar"."Fiscal Period Number" IN ( @{biServer.variables['NQ_SESSION.EFS_CURRENT_FISCAL_PERIOD_NUMBER']}, CASE WHEN @{biServer.variables['NQ_SESSION.EFS_CURRENT_FISCAL_PERIOD_NUMBER']} - 1 > 0 THEN @{biServer.variables['NQ_SESSION.EFS_CURRENT_FISCAL_PERIOD_NUMBER']} - 1 ELSE NULL END, CASE WHEN @{biServer.variables['NQ_SESSION.EFS_CURRENT_FISCAL_PERIOD_NUMBER']} - 2 > 0 THEN @{biServer.variables['NQ_SESSION.EFS_CURRENT_FISCAL_PERIOD_NUMBER']} - 2 ELSE NULL END)) OR ("Fiscal Calendar"."Fiscal Year" = @{biServer.variables['NQ_SESSION.EFS_CURRENT_FISCAL_YEAR']} - 1 AND "Fiscal Calendar"."Fiscal Period Number" IN ( CASE WHEN @{biServer.variables['NQ_SESSION.EFS_CURRENT_FISCAL_PERIOD_NUMBER']} - 1 = 0 THEN 12 ELSE NULL END, CASE WHEN @{biServer.variables['NQ_SESSION.EFS_CURRENT_FISCAL_PERIOD_NUMBER']} - 2 <= 0 THEN 11 ELSE NULL END )))
+FETCH FIRST 65001 ROWS ONLY
+  
+  
+  
   SELECT
     DISTINCT ALIAS,DATALAYER_TABLE
     INTO v_alias_name,v_data_layer_tab
