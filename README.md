@@ -1,3 +1,11 @@
+1.Report should include following projects:
+•	All projects identified as target projects where input project list is source projects.
+•	All projects identified as source projects where input project list is target projects.
+2.Report should include secondary list of projects. This secondary list of projects represents any other project acting as source projects for the projects identified in step 1.
+3.Consolidated list of projects should include unique projects identified in step 1, step 2 and input projects.
+
+
+
 SELECT DISTINCT "Fiscal Calendar"."Fiscal Period"
 FROM "PPM - Project Costs"
 WHERE ("Fiscal Calendar"."Fiscal Year" = @{biServer.variables['NQ_SESSION.EFS_CURRENT_FISCAL_YEAR']}
