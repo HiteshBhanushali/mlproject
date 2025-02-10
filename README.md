@@ -1,3 +1,35 @@
+WITH PrimaryProjects AS (
+    -- Step 1: Get projects where input projects are sources
+    SELECT target_project_id AS project_id
+    FROM Project_Relationships
+    WHERE source_project_id IN ({INPUT_PROJECTS}) 
+    UNION 
+    -- Get projects where input projects are targets
+    SELECT source_project_id AS project_id
+    FROM Project_Relationships
+    WHERE target_project_id IN ({INPUT_PROJECTS})
+),
+SecondaryProjects AS (
+    -- Step 2: Get projects acting as sources for the projects identified in Step 1
+    SELECT DISTINCT source_project_id AS project_id
+    FROM Project_Relationships
+    WHERE target_project_id IN (SELECT project_id FROM PrimaryProjects)
+),
+ConsolidatedProjects AS (
+    -- Step 3: Consolidate all unique projects from Step 1, Step 2, and input projects
+    SELECT project_id FROM PrimaryProjects
+    UNION
+    SELECT project_id FROM SecondaryProjects
+    UNION
+    SELECT project_id FROM (SELECT UNNEST(ARRAY[{INPUT_PROJECTS}]) AS project_id) AS input_projects
+)
+-- Final Output
+SELECT * FROM ConsolidatedProjects;
+
+
+
+
+
 1.Report should include following projects:
 •	All projects identified as target projects where input project list is source projects.
 •	All projects identified as source projects where input project list is target projects.
