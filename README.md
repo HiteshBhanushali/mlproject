@@ -1,3 +1,15 @@
+Got it! Here's the updated response:  
+
+This candidate is a great fit for the **Consultant - Microservices & Spring Boot** role at Deloitte. With **6+ years of hands-on experience in Java, Spring Boot, and Microservices**, he exceeds the **3-6 years requirement** and brings strong expertise in **API development, enterprise integration, and cloud technologies (Azure DevOps).**  
+
+He has successfully **migrated legacy applications (Struts & COBOL to Java EE), refactored a 15-year-old codebase (fixing 500+ Sonar issues), and built automated CI/CD pipelines**, demonstrating a solid grasp of **problem-solving, best practices, and DevOps.**  
+
+Beyond technical skills, he has **experience working in Agile teams, collaborating with stakeholders, and ensuring high-quality, secure code**. His **Azure certifications and multiple performance awards** further prove his expertise and commitment.  
+
+Overall, he ticks all the right boxes—**strong tech skills, problem-solving mindset, and a proven track record**—making him a perfect match for this role!
+
+===============
+
 Position summary
 
 
