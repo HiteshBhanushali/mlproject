@@ -9,138 +9,88 @@ Beyond technical skills, he has **experience working in Agile teams, collaborati
 Overall, he ticks all the right boxes—**strong tech skills, problem-solving mindset, and a proven track record**—making him a perfect match for this role!
 
 ===============
-
+1. Full Stack-JAVA-Consultant-Hyderabad/Bengaluru/Mumbai :
 Position summary
-
-
 At Deloitte, we take immense pride in the dynamic and innovative environment we have cultivated. Our people are our greatest asset, and we are dedicated to fostering a culture of growth, innovation, collaboration, and excellence. We are thrilled to announce that we are expanding our team and are seeking passionate, talented individuals to join us on this exciting journey.
-
 Role
 
 Level: Consultant
-
 As a consultant with us, you will be responsible for individually delivering high quality work product within due timelines in agile framework. On requirement basis consultants will be mentoring and/or directing junior team members/liaising with onsite/offshore teams to understand the functional requirements.
 
 Qualifications
-
-Education:
+Education: 
 
 B.E./B. Tech/M.C.A./M.Sc (CS) degree or equivalent from accredited university   
 
-Prior Experience:
+Prior Experience: 
 
-3 – 6 years of experience working with hands-on Microservices, Spring boot on cloud technologies
+3 – 6 years of experience working with hands-on Java full stack development, Angular/React, Microservices, Spring boot on cloud technologies
 
 Skills / Project Experience:
 
 Must Have:
 
-• Excellent written and verbal communication skills
-
-• 3 to 6 years of experience with Microservices Architecture, Web services, API development, and Enterprise integration
-
-• Proficient in implementing Microservices architecture, visualization, and development processes
-
-• Strong technical skills in Java and Spring Boot framework
-
-• Experience with Restful and SOAP Webservices
-
-• Skilled in implementing service layers using multiple integration technologies
-
-• Knowledge of API management, Service discovery, service orchestration, and security as a service
-
-• Proficient in XML, Version Control Systems like GitHub & SVN, and build tools such as Maven/Gradle/ANT
-
-• Familiar with best practices like OOP Principles, Exception handling, Generics, and reusable code; tools like JUnit, Mockito, SOAP UI, Postman, Checkstyle, SonarQube
-
-• Experience with SQL databases like MySQL/PostgreSQL/Oracle and frameworks such as JPA/Hibernate
-
-• Experience using logging and monitoring tools like Splunk, Dynatrace, or similar
+3 to 6 years of hands-on experience in Java full stack development, including Angular/React, Microservices, and Spring Boot on cloud technologies
+Experience in best practices such as OOPs Principles, Exception handling and usage of Generics and well-defined reusable easy to maintain code and tools like JUnit, Mockito, Check style, SonarQube etc.
+Experience with SQL databases like MySQL, PostgreSQL, Oracle, and frameworks such as JPA/Hibernate, as well as NoSQL databases like MongoDB and DynamoDB
+Experience in Agile Frameworks, SDLC lifecycle and tools such as JIRA.
+Experience with Git/SVN and DevOps processes, including CI/CD (Continuous Integration and Continuous Delivery)
+Ability to estimate work products
+Strong interpersonal and communication skills
+Flexible and innovative, able to apply technical solutions and learnings across varied business domains and industries
+Proficient with Microsoft Office tools
+Experience with build tools such as Maven
+Familiarity with design patterns and proficiency in Object-Oriented design principles, with strong experience in collection implementation
+Experience with front-end technologies such as HTML, CSS, JavaScript, and modern front-end frameworks like React and Angular
+Experience with logging frameworks like log4j and Winston
 
 Good to Have:
 
-• Preferred experience with Docker and Kubernetes
-
-• Experience with NoSQL databases like MongoDB and DynamoDB
-
-• Proficiency in at least one cloud platform: AWS, Azure, or GCP
-
-• Experience with Build and Test Automation and Continuous Integration (CI) using Jenkins/Hudson
-
-• Knowledge of Agile and Scrum methodologies
-
-• Experience with NoSQL and DevOps
-
-• Knowledge on design patterns like circuit breaker pattern, proxy pattern, etc.
-
-• Experience in using messaging broker tools like Apache Kafka, ActiveMQ, etc.
-
-• Experience in deploying Microservices on cloud platforms
+Experience with NoSQL databases such as MongoDB, Document DB, Redis, etc.,
+Understanding of cloud platforms, Docker, and Kubernetes
+Familiarity with microservice architecture and ability to build modular applications
+Knowledge of Docker (Container Orchestration, Compose) and services like EKS, ECS (AKS/GKS)
+Understanding of Authentication and Authorization providers (OpenID, SAML, Okta, Keycloak) and analysis tools for SAST and DAST scans
+Experience with ELK, Splunk, New Relic, Dynatrace, and Datadog
+Experience with AWS, GCP, Azure, or Oracle
+Experience in serverless architecture, Lambdas, Reactive Programming, and AI/ML tools for application development
 
 The work you will do includes:
 
-• Understand business requirements and processes
+·       Understand business requirements and processes
 
-• Develop software solutions using Agile, Waterfall, and various architectural patterns
+·       Develop software solutions using industry-standard delivery methodologies like Agile and Waterfall across different architectural patterns
 
-• Write clean, efficient, and well-documented code adhering to industry and client standards, ensuring code quality and coverage, and debugging/resolving issues
+·       Write clean, efficient, and well-documented code, maintaining industry and client standards, ensuring code quality and coverage, and debugging/resolving issues
 
-• Actively participate in Agile processes, including sprint planning, daily stand-ups, and retrospectives
+·       Actively participate in Agile processes, including sprint planning, daily stand-ups, and retrospectives
 
-• Resolve user-reported issues and escalate quality concerns to team leads/scrum masters/project leaders
+·       Resolve user-reported issues and escalate quality concerns to team leads, scrum masters, or project leaders
 
-• Develop knowledge in the end-to-end construction cycle, including design (low and high level), coding, unit testing, deployment, and defect fixing, while coordinating with stakeholders
+·       Develop knowledge in the end-to-end construction cycle, including design (low and high level), coding, unit testing, deployment, and defect fixing, while coordinating with stakeholders
 
-• Create and maintain technical documentation, such as design specifications, API documentation, and usage guidelines
+·       Understand UX designs and effectively deliver code using frontend technologies
 
-• Demonstrate a problem-solving mindset and the ability to analyze business requirements
+·       Create and maintain technical documentation, including design specifications, API documentation, and usage guidelines
 
-Location:
+·       Demonstrate a problem-solving mindset and the ability to analyze business requirements
+
+
+Location: 
 
 Bengaluru/Hyderabad/Mumbai
+
+
 
 Core Business Operations
 
 The Core Business Operations (CBO) portfolio is an integrated set of offerings that addresses our clients’ heart-of-the-business issues. This portfolio combines our functional and technical capabilities to help clients transform, modernize, and run their existing technology platforms across industries. As our clients navigate dynamic and disruptive markets, these solutions are designed to help them drive product and service innovation, improve financial performance, accelerate speed to market, and operate their platforms to innovate continuously.
 
-The Team
+
+The Team   
 
 Our Technology Consulting practice is dedicated to helping our clients build tomorrow by solving today’s complex business problems involving strategy, procurement, design, delivery, and assurance of technology solutions. Our service areas include analytics and information management, delivery, cyber risk services, and technical strategy and architecture, as well as the spectrum of digital strategy, design, and development services Core Business Operations Practice optimizes clients’ business operations and helps them take advantage of new technologies. Drives product and service innovation, improves financial performance, accelerates speed to market, and operates client platforms to innovate continuously. Learn more about our Technology Consulting practice on www.deloitte.com
 
-For information on CBO visit - https://www.youtube.com/watch?v=L1cGlScLuX0
-
-For information on life of a Consultant at CBO visit- https://www.youtube.com/watch?v=CMe0DkmMQHI
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Recruiting tips
-
-From developing a stand out resume to putting your best foot forward in the interview, we want you to feel prepared and confident as you explore opportunities at Deloitte. Check out recruiting tips from Deloitte recruiters.
-Benefits
-
-At Deloitte, we know that great people make a great organization. We value our people and offer employees a broad range of benefits. Learn more about what working at Deloitte can mean for you.
-Our people and culture
-
-Our diverse, equitable, and inclusive culture empowers our people to be who they are, contribute their unique perspectives, and make a difference individually and collectively. It enables us to leverage different ideas and perspectives, and bring more creativity and innovation to help solve our client most complex challenges. This makes Deloitte one of the most rewarding places to work. Learn more about our inclusive culture.
-Our purpose
-
-Deloitte’s purpose is to make an impact that matters for our clients, our people, and in our communities. We are creating trust and confidence in a more equitable society. At Deloitte, purpose is synonymous with how we work every day. It defines who we are. We are focusing our collective efforts to advance sustainability, equity, and trust that come to life through our core commitments. Learn more about Deloitte's purpose, commitments, and impact.
-Professional development
-
-From entry-level employees to senior leaders, we believe there’s always room to learn. We offer opportunities to build new skills, take on leadership opportunities and connect and grow through mentorship. From on-the-job learning experiences to formal development programs, our professionals have a variety of opportunities to continue to grow throughout their career.
 
 ======================
 Below is the person's resume which i want to refer
