@@ -1,3 +1,141 @@
+Position summary
+
+
+At Deloitte, we take immense pride in the dynamic and innovative environment we have cultivated. Our people are our greatest asset, and we are dedicated to fostering a culture of growth, innovation, collaboration, and excellence. We are thrilled to announce that we are expanding our team and are seeking passionate, talented individuals to join us on this exciting journey.
+
+Role
+
+Level: Consultant
+
+As a consultant with us, you will be responsible for individually delivering high quality work product within due timelines in agile framework. On requirement basis consultants will be mentoring and/or directing junior team members/liaising with onsite/offshore teams to understand the functional requirements.
+
+Qualifications
+
+Education:
+
+B.E./B. Tech/M.C.A./M.Sc (CS) degree or equivalent from accredited university   
+
+Prior Experience:
+
+3 – 6 years of experience working with hands-on Microservices, Spring boot on cloud technologies
+
+Skills / Project Experience:
+
+Must Have:
+
+• Excellent written and verbal communication skills
+
+• 3 to 6 years of experience with Microservices Architecture, Web services, API development, and Enterprise integration
+
+• Proficient in implementing Microservices architecture, visualization, and development processes
+
+• Strong technical skills in Java and Spring Boot framework
+
+• Experience with Restful and SOAP Webservices
+
+• Skilled in implementing service layers using multiple integration technologies
+
+• Knowledge of API management, Service discovery, service orchestration, and security as a service
+
+• Proficient in XML, Version Control Systems like GitHub & SVN, and build tools such as Maven/Gradle/ANT
+
+• Familiar with best practices like OOP Principles, Exception handling, Generics, and reusable code; tools like JUnit, Mockito, SOAP UI, Postman, Checkstyle, SonarQube
+
+• Experience with SQL databases like MySQL/PostgreSQL/Oracle and frameworks such as JPA/Hibernate
+
+• Experience using logging and monitoring tools like Splunk, Dynatrace, or similar
+
+Good to Have:
+
+• Preferred experience with Docker and Kubernetes
+
+• Experience with NoSQL databases like MongoDB and DynamoDB
+
+• Proficiency in at least one cloud platform: AWS, Azure, or GCP
+
+• Experience with Build and Test Automation and Continuous Integration (CI) using Jenkins/Hudson
+
+• Knowledge of Agile and Scrum methodologies
+
+• Experience with NoSQL and DevOps
+
+• Knowledge on design patterns like circuit breaker pattern, proxy pattern, etc.
+
+• Experience in using messaging broker tools like Apache Kafka, ActiveMQ, etc.
+
+• Experience in deploying Microservices on cloud platforms
+
+The work you will do includes:
+
+• Understand business requirements and processes
+
+• Develop software solutions using Agile, Waterfall, and various architectural patterns
+
+• Write clean, efficient, and well-documented code adhering to industry and client standards, ensuring code quality and coverage, and debugging/resolving issues
+
+• Actively participate in Agile processes, including sprint planning, daily stand-ups, and retrospectives
+
+• Resolve user-reported issues and escalate quality concerns to team leads/scrum masters/project leaders
+
+• Develop knowledge in the end-to-end construction cycle, including design (low and high level), coding, unit testing, deployment, and defect fixing, while coordinating with stakeholders
+
+• Create and maintain technical documentation, such as design specifications, API documentation, and usage guidelines
+
+• Demonstrate a problem-solving mindset and the ability to analyze business requirements
+
+Location:
+
+Bengaluru/Hyderabad/Mumbai
+
+Core Business Operations
+
+The Core Business Operations (CBO) portfolio is an integrated set of offerings that addresses our clients’ heart-of-the-business issues. This portfolio combines our functional and technical capabilities to help clients transform, modernize, and run their existing technology platforms across industries. As our clients navigate dynamic and disruptive markets, these solutions are designed to help them drive product and service innovation, improve financial performance, accelerate speed to market, and operate their platforms to innovate continuously.
+
+The Team
+
+Our Technology Consulting practice is dedicated to helping our clients build tomorrow by solving today’s complex business problems involving strategy, procurement, design, delivery, and assurance of technology solutions. Our service areas include analytics and information management, delivery, cyber risk services, and technical strategy and architecture, as well as the spectrum of digital strategy, design, and development services Core Business Operations Practice optimizes clients’ business operations and helps them take advantage of new technologies. Drives product and service innovation, improves financial performance, accelerates speed to market, and operates client platforms to innovate continuously. Learn more about our Technology Consulting practice on www.deloitte.com
+
+For information on CBO visit - https://www.youtube.com/watch?v=L1cGlScLuX0
+
+For information on life of a Consultant at CBO visit- https://www.youtube.com/watch?v=CMe0DkmMQHI
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Recruiting tips
+
+From developing a stand out resume to putting your best foot forward in the interview, we want you to feel prepared and confident as you explore opportunities at Deloitte. Check out recruiting tips from Deloitte recruiters.
+Benefits
+
+At Deloitte, we know that great people make a great organization. We value our people and offer employees a broad range of benefits. Learn more about what working at Deloitte can mean for you.
+Our people and culture
+
+Our diverse, equitable, and inclusive culture empowers our people to be who they are, contribute their unique perspectives, and make a difference individually and collectively. It enables us to leverage different ideas and perspectives, and bring more creativity and innovation to help solve our client most complex challenges. This makes Deloitte one of the most rewarding places to work. Learn more about our inclusive culture.
+Our purpose
+
+Deloitte’s purpose is to make an impact that matters for our clients, our people, and in our communities. We are creating trust and confidence in a more equitable society. At Deloitte, purpose is synonymous with how we work every day. It defines who we are. We are focusing our collective efforts to advance sustainability, equity, and trust that come to life through our core commitments. Learn more about Deloitte's purpose, commitments, and impact.
+Professional development
+
+From entry-level employees to senior leaders, we believe there’s always room to learn. We offer opportunities to build new skills, take on leadership opportunities and connect and grow through mentorship. From on-the-job learning experiences to formal development programs, our professionals have a variety of opportunities to continue to grow throughout their career.
+
+======================
+Below is the person's resume which i want to refer
+
+MeProfessional ExperienceAwardsAmbitious, determined, and detail-oriented individualwith strong technical experience of 6+ years with aimto enhance my knowledge and utilize my skills towardsthe growth of the organization.SkillsProgramming Java, Spring Boot ,Spring MVC, HTML5, CSS3, VueJs,HibernateCode Versioning - GIT, BitBucket,Azure ReposCode Quality Tools - SonarQube,Fortify, Nexus CICD Tools - Jenkins , XL Release, XlDeploy, U deploy , Azure PipelinesIDE - Intellij, VS code, EclipseBuild & Test Tools - Maven &NeoLoadCloud : Azure DevOpsIndividual Skill - StakeholderManagement, Analytical ProblemSolving, Agile, Team CollaborationEducation BackgroundMy Contactsameerbhanushali62@gmail.comThane, Maharashtra 400604+91 9619603458https://www.linkedin.com/in/sameer -bhanushali-a90679130 Tata Consultancy Services | IT Analyst /DevOps EngineerICICI Bank | Web DeveloperFeb 2020 – PresentSep 2018 - Feb 2020As a DevOps Engineer I am responsible for JavaDevelopment of our application and also maintaining theapplication.I have successfully migrated an application from Struts toJAVA EE, COBOL to JAVA and hosted on Azure platformwith fully automated CICD pipelines.Development of CICD PipelinesRefactored 15 year old legacy core java application tobring it upto standard by reducing more than 500+ sonarissuesAnalyze technical issues, find resolutions, and providesolutions in an easy to understand Dashboard to ourstakeholders/clients.Maintainance of Website using OpenText CMS ToolCreation of new product pages on website as perrequirement from various product teamsCreation of offer pages for various offers by bankPublishing Quaterly Press Release on websiteUniversity of Mumbai — BE - 6.89 CGPA2014 - 2018Bachelor of Engineering in Electronics &Telecommunications from KJ SomaiyaInstitute of Engineering & InformationTechnologyCertificationMicrosoft Azure 900 Fundamentals &Azure 204 Developer AssociateCertificate of Appreciation for outstanding performancein TCS Info Security FestSustainability Champion Award for implementing greencode to reduce CO2 emissionsSpecial Initiative Award for reducing security issues inapplicationOn The Spot award for providing solutions to make codemore efficientBest Team Award(Twice) for outstanding contribution inproduction implementation
+
+=========================================================
 WITH audit_data AS (
    SELECT
        PROJECT_ID,
