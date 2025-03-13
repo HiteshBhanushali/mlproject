@@ -1,4 +1,14 @@
+Hi Krishna,
 
+I went through the 25.R1 patch release notes but couldn't find any mention of this change. Could you please share the specific section where it is documented?
+
+Additionally, I have a couple of clarifications:
+
+Tables converted to views – Will these views be refreshed automatically with the latest data as new transactions are recorded?
+Base tables replaced by _SEC tables – Could you provide a list of tables where this change has been implemented, at least for the GL and PPM modules?
+
+
+=-------------------------------
 Hi Team,
 
 There was a mention about this tables in the release notes :
