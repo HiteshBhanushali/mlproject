@@ -1,3 +1,57 @@
+
+Hi Team,
+
+There was a mention about this tables in the release notes :
+
+https://docs.oracle.com/en/cloud/saas/analytics/25r1/fawwn/index.html#GUID-27505232-5CDD-41B3-9ED2-C253139B49CA
+
+=================
+
+Tables converted to views    
+The following GL tables have been converted to views and the WHO columns have been removed from the views:
+DW_GL_JOURNAL_CA
+DW_GL_BALANCE_CF
+DW_GL_BALANCE_CA
+If you need to extract the Actuals data using the WHO columns, then use these tables instead with the ACTUAL_FLAG='A' filter:
+DW_GL_JOURNAL_ALL_CA
+DW_GL_BALANCE_ALL_CF
+DW_GL_BALANCE_ALL_CA
+
+====================
+
+Since the old tables are converted to views the base tables are replaced by 
+
+DW_GL_BALANCE_CA_SEC
+
+DW_GL_BALANCE_CF_SEC
+
+DW_GL_JOURNAL_CA_SEC
+
+DW_GL_JOURNAL_CF_SEC
+
+Currently there is no deprecation plan proposed on the existing GL views .
+
+Since the old tables are exiting as views , your custom views will still work .
+
+Regards,
+
+Krishna.
+
+
+I want to respond above discussion with below detail. can you please frame it accordingly?
+
+Hi Krishna,
+
+I have went through the release not of 25.R1 patch documnet but unable to find anything mentioned related to this change.
+
+Can you please share the section where it is mentioned in the release note?
+
+Tables converted to views -- Will this view will be refreshed with the latest data as and new data comes ?
+
+old tables are converted to views the base tables are replaced by _SEC  --> Can you provide the list of tables where this change is implemented atleast for GL and PPM modules ?
+
+
+================================
 Got it! Here's the updated response:  
 
 This candidate is a great fit for the **Consultant - Microservices & Spring Boot** role at Deloitte. With **6+ years of hands-on experience in Java, Spring Boot, and Microservices**, he exceeds the **3-6 years requirement** and brings strong expertise in **API development, enterprise integration, and cloud technologies (Azure DevOps).**  
