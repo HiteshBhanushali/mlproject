@@ -14,12 +14,16 @@ Proxima AI is a cutting-edge interview preparation platform that combines modern
 - **Real-time Feedback**: Instant analysis of responses for clarity, relevance, and completeness
 - **Adaptive Difficulty**: Questions adapt based on user performance and confidence levels
 - **Multi-format Support**: Handles technical, behavioral, and situational interview questions
+- **Natural Language Processing**: Advanced NLP for understanding context and nuances in responses
+- **Sentiment Analysis**: Real-time analysis of response tone and emotional content
 
 ### Interactive UI/UX
 - **Responsive Design**: Seamless experience across desktop, tablet, and mobile devices
 - **Intuitive Navigation**: User-friendly interface with clear progression paths
 - **Real-time Animations**: Smooth transitions and feedback indicators
 - **Accessibility Features**: WCAG 2.1 compliant with screen reader support
+- **Dark/Light Mode**: Customizable theme settings for optimal viewing
+- **Interactive Code Editor**: Built-in Monaco editor for technical interviews
 
 ### Advanced Interview Features
 - **Webcam Integration**: 
@@ -27,12 +31,16 @@ Proxima AI is a cutting-edge interview preparation platform that combines modern
   - Body language and facial expression analysis
   - Gesture recognition for engagement metrics
   - Downloadable session recordings
+  - Real-time posture feedback
+  - Eye contact tracking
 
 - **Voice Analysis**:
   - Speech clarity assessment
   - Pace and tone evaluation
   - Filler word detection
   - Confidence level analysis
+  - Accent neutrality feedback
+  - Voice modulation suggestions
 
 ### Personalization & Learning
 - **Custom Learning Paths**:
@@ -40,12 +48,16 @@ Proxima AI is a cutting-edge interview preparation platform that combines modern
   - Role-based competency assessment
   - Skill gap analysis
   - Personalized improvement recommendations
+  - Adaptive learning algorithms
+  - Custom practice schedules
 
 - **Progress Tracking**:
   - Detailed performance metrics
   - Improvement trends
   - Skill proficiency scores
   - Interview readiness index
+  - Comparative benchmarking
+  - Historical performance data
 
 ### Analytics & Insights
 - **Performance Dashboard**:
@@ -53,12 +65,94 @@ Proxima AI is a cutting-edge interview preparation platform that combines modern
   - Response quality metrics
   - Communication effectiveness scores
   - Comparative performance analysis
+  - Real-time progress indicators
+  - Custom performance reports
 
 - **Improvement Metrics**:
   - Skill development tracking
   - Weak area identification
   - Success rate analytics
   - Personalized improvement suggestions
+  - Learning velocity metrics
+  - Competency heat maps
+
+### Collaborative Features
+- **Peer Review System**:
+  - Interview recording sharing
+  - Feedback exchange
+  - Community ratings
+  - Expert mentorship connections
+
+- **Group Practice**:
+  - Mock interview sessions
+  - Real-time collaboration
+  - Shared learning resources
+  - Team feedback mechanisms
+
+### Interview Question Bank
+- **Comprehensive Collection**:
+  - 10,000+ curated questions
+  - Industry-specific sets
+  - Difficulty-based categorization
+  - Regular updates
+
+- **Question Categories**:
+  - Technical interviews
+  - Behavioral questions
+  - System design problems
+  - Company-specific questions
+  - Coding challenges
+  - Brain teasers
+
+### Aptitude Assessment
+- **Test Categories**:
+  - Quantitative Aptitude
+  - Logical Reasoning
+  - Verbal Ability
+  - Data Interpretation
+  - General Knowledge
+  - Technical Aptitude
+
+- **Assessment Features**:
+  - Adaptive difficulty levels
+  - Timed sections
+  - Detailed solutions
+  - Performance analytics
+  - Practice mode
+  - Mock tests
+
+- **Scoring System**:
+  - Section-wise scoring
+  - Percentile ranking
+  - Comparative analysis
+  - Time management metrics
+  - Accuracy tracking
+  - Improvement suggestions
+
+### Project Portfolio
+- **Project Categories**:
+  - Web Development
+  - Mobile Applications
+  - Machine Learning
+  - Data Science
+  - System Design
+  - Cloud Architecture
+
+- **Project Features**:
+  - Real-world scenarios
+  - Industry-aligned challenges
+  - Guided implementations
+  - Code review system
+  - Version control integration
+  - Collaboration tools
+
+- **Learning Integration**:
+  - Project-based assessments
+  - Skill validation
+  - Portfolio builder
+  - Progress tracking
+  - Mentor feedback
+  - Industry benchmarking
 
 ## Project Architecture
 ### Frontend Architecture
@@ -67,6 +161,7 @@ Proxima AI is a cutting-edge interview preparation platform that combines modern
 - **State Management**: React hooks and context for local state management
 - **Styling**: Tailwind CSS for responsive and maintainable styling
 - **Animations**: Framer Motion for smooth transitions and interactions
+- **Code Editor**: Monaco Editor integration for technical interviews
 
 ### Backend Architecture
 - **API Routes**: Next.js API routes for serverless backend functionality
@@ -74,6 +169,8 @@ Proxima AI is a cutting-edge interview preparation platform that combines modern
 - **ORM**: Drizzle for type-safe database queries and migrations
 - **Authentication**: Clerk for secure user authentication and management
 - **AI Integration**: Google Gemini API for intelligent interview interactions
+- **WebRTC**: Real-time video and audio streaming
+- **WebSocket**: Real-time collaboration and messaging
 
 ## Tech Stack
 - **Frontend**: Next.js 14, React, Tailwind CSS, Framer Motion
@@ -82,6 +179,8 @@ Proxima AI is a cutting-edge interview preparation platform that combines modern
 - **Database**: PostgreSQL with Neon (Serverless)
 - **ORM**: Drizzle
 - **AI Integration**: Google Gemini API
+- **Video Processing**: WebRTC, MediaRecorder API
+- **Code Editor**: Monaco Editor
 
 ## User Flow
 ### 1. Onboarding
@@ -89,6 +188,8 @@ Proxima AI is a cutting-edge interview preparation platform that combines modern
 - Skill assessment and goal setting
 - Industry and role selection
 - Experience level configuration
+- Learning path customization
+- Initial readiness assessment
 
 ### 2. Interview Preparation
 - **Pre-interview Setup**:
@@ -96,24 +197,32 @@ Proxima AI is a cutting-edge interview preparation platform that combines modern
   - Choose specific focus areas
   - Configure session duration
   - Test audio/video settings
+  - Review preparation materials
+  - Set practice goals
 
 - **During Interview**:
   - Real-time question presentation
   - Response recording and analysis
   - Immediate feedback on key metrics
   - Progress indicators
+  - AI-powered suggestions
+  - Performance monitoring
 
 - **Post-interview**:
   - Comprehensive performance report
   - Detailed feedback on each response
   - Improvement suggestions
   - Practice recommendations
+  - Personalized study plan
+  - Success metrics
 
 ### 3. Progress Tracking
 - View historical performance
 - Track improvement metrics
 - Access saved sessions
 - Review feedback history
+- Compare with benchmarks
+- Generate progress reports
 
 ## Getting Started
 ### Prerequisites
@@ -121,6 +230,8 @@ Proxima AI is a cutting-edge interview preparation platform that combines modern
 - PostgreSQL database (or Neon account)
 - Clerk account for authentication
 - Gemini API key
+- WebRTC-compatible browser
+- Webcam and microphone access
 
 ### Environment Setup
 1. Clone the repository
@@ -135,6 +246,8 @@ Proxima AI is a cutting-edge interview preparation platform that combines modern
    NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=
    DATABASE_URL=
    GEMINI_API_KEY=
+   WEBSOCKET_URL=
+   MEDIA_STORAGE_KEY=
    ```
 
 ### Installation
