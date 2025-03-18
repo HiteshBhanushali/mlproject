@@ -1,85 +1,58 @@
-Hi Krishna,
+#!/bin/ksh
+#-----------------------------------------------------------------------------------------------------------------------------------
+# Script Name: cfs_common_odi_trigger_oos_bkt_archival
+# Author: Monish S.S.
+# Date: 04-Nov-2022
+# Description: A KornShell script to archive all file contents of the source bucket to the destination bucket.
+#              The script takes 3 arguments in order -> source_bucket_name, destination_bucket_name, oracle_object_storage_namespace		
+#-----------------------------------------------------------------------------------------------------------------------------------
+# Change History
+# Date          Description                                         Changed by
+#
+#
+#
+#
+#
+#
+#
+#-----------------------------------------------------------------------------------------------------------------------------------
+CIHOME=/usr/bin 
+SBUCKET=$1
+DBUCKET=$2
+NAMESPACE=$3
+YEAR=$(date | awk '{print $6}')
+MONTH=$(date | awk '{print $2}')
+DAY=$(date | awk '{print $3}')
+TIME=$(date | awk '{print $4" "$5}'| sed 's/:/-/g')
+FOLDER_NAME=$4
+FILE_FILTER=$5
 
-I went through the 25.R1 patch release notes but couldn't find any mention of this change. Could you please share the specific section where it is documented?
-
-Additionally, I have a couple of clarifications:
-
-Tables converted to views – Will these views be refreshed automatically with the latest data as new transactions are recorded?
-Base tables replaced by _SEC tables – Could you provide a list of tables where this change has been implemented, at least for the GL and PPM modules?
-
-
-=-------------------------------
-Hi Team,
-
-There was a mention about this tables in the release notes :
-
-https://docs.oracle.com/en/cloud/saas/analytics/25r1/fawwn/index.html#GUID-27505232-5CDD-41B3-9ED2-C253139B49CA
-
-=================
-
-Tables converted to views    
-The following GL tables have been converted to views and the WHO columns have been removed from the views:
-DW_GL_JOURNAL_CA
-DW_GL_BALANCE_CF
-DW_GL_BALANCE_CA
-If you need to extract the Actuals data using the WHO columns, then use these tables instead with the ACTUAL_FLAG='A' filter:
-DW_GL_JOURNAL_ALL_CA
-DW_GL_BALANCE_ALL_CF
-DW_GL_BALANCE_ALL_CA
-
-====================
-
-Since the old tables are converted to views the base tables are replaced by 
-
-DW_GL_BALANCE_CA_SEC
-
-DW_GL_BALANCE_CF_SEC
-
-DW_GL_JOURNAL_CA_SEC
-
-DW_GL_JOURNAL_CF_SEC
-
-Currently there is no deprecation plan proposed on the existing GL views .
-
-Since the old tables are exiting as views , your custom views will still work .
-
-Regards,
-
-Krishna.
-
-
-I want to respond above discussion with below detail. can you please frame it accordingly?
-
-Hi Krishna,
-
-I have went through the release not of 25.R1 patch documnet but unable to find anything mentioned related to this change.
-
-Can you please share the section where it is mentioned in the release note?
-
-Tables converted to views -- Will this view will be refreshed with the latest data as and new data comes ?
-
-old tables are converted to views the base tables are replaced by _SEC  --> Can you provide the list of tables where this change is implemented atleast for GL and PPM modules ?
-
-
-================================
-Got it! Here's the updated response:  
-
-This candidate is a great fit for the **Consultant - Microservices & Spring Boot** role at Deloitte. With **6+ years of hands-on experience in Java, Spring Boot, and Microservices**, he exceeds the **3-6 years requirement** and brings strong expertise in **API development, enterprise integration, and cloud technologies (Azure DevOps).**  
-
-He has successfully **migrated legacy applications (Struts & COBOL to Java EE), refactored a 15-year-old codebase (fixing 500+ Sonar issues), and built automated CI/CD pipelines**, demonstrating a solid grasp of **problem-solving, best practices, and DevOps.**  
-
-Beyond technical skills, he has **experience working in Agile teams, collaborating with stakeholders, and ensuring high-quality, secure code**. His **Azure certifications and multiple performance awards** further prove his expertise and commitment.  
-
-Overall, he ticks all the right boxes—**strong tech skills, problem-solving mindset, and a proven track record**—making him a perfect match for this role!
-
-===============
-
-
-======================
-Below is the person's resume which i want to refer
-
-MeProfessional ExperienceAwardsAmbitious, determined, and detail-oriented individualwith strong technical experience of 6+ years with aimto enhance my knowledge and utilize my skills towardsthe growth of the organization.SkillsProgramming Java, Spring Boot ,Spring MVC, HTML5, CSS3, VueJs,HibernateCode Versioning - GIT, BitBucket,Azure ReposCode Quality Tools - SonarQube,Fortify, Nexus CICD Tools - Jenkins , XL Release, XlDeploy, U deploy , Azure PipelinesIDE - Intellij, VS code, EclipseBuild & Test Tools - Maven &NeoLoadCloud : Azure DevOpsIndividual Skill - StakeholderManagement, Analytical ProblemSolving, Agile, Team CollaborationEducation BackgroundMy Contactsameerbhanushali62@gmail.comThane, Maharashtra 400604+91 9619603458https://www.linkedin.com/in/sameer -bhanushali-a90679130 Tata Consultancy Services | IT Analyst /DevOps EngineerICICI Bank | Web DeveloperFeb 2020 – PresentSep 2018 - Feb 2020As a DevOps Engineer I am responsible for JavaDevelopment of our application and also maintaining theapplication.I have successfully migrated an application from Struts toJAVA EE, COBOL to JAVA and hosted on Azure platformwith fully automated CICD pipelines.Development of CICD PipelinesRefactored 15 year old legacy core java application tobring it upto standard by reducing more than 500+ sonarissuesAnalyze technical issues, find resolutions, and providesolutions in an easy to understand Dashboard to ourstakeholders/clients.Maintainance of Website using OpenText CMS ToolCreation of new product pages on website as perrequirement from various product teamsCreation of offer pages for various offers by bankPublishing Quaterly Press Release on websiteUniversity of Mumbai — BE - 6.89 CGPA2014 - 2018Bachelor of Engineering in Electronics &Telecommunications from KJ SomaiyaInstitute of Engineering & InformationTechnologyCertificationMicrosoft Azure 900 Fundamentals &Azure 204 Developer AssociateCertificate of Appreciation for outstanding performancein TCS Info Security FestSustainability Champion Award for implementing greencode to reduce CO2 emissionsSpecial Initiative Award for reducing security issues inapplicationOn The Spot award for providing solutions to make codemore efficientBest Team Award(Twice) for outstanding contribution inproduction implementation
-
+# object store list to find the file
+cd $OCIHOME
+oci os object list --bucket-name $SBUCKET --auth instance_principal --all | grep name | awk '{ print $2 }' | sed 's/"//g' | sed 's/,//g' > /tmp/cfs_oos_copy_file.list
+# copy file to Archive Bucket 
+if [ -z "$FOLDER_NAME" ]
+then
+	echo "IN FIRST"
+    for filename in `cat /tmp/cfs_oos_copy_file.list` 
+        do oci os object copy --bucket-name $SBUCKET --source-object-name $filename --destination-namespace $NAMESPACE --destination-bucket $DBUCKET --destination-object-name "$YEAR/$MONTH/$DAY/$TIME/$filename" --auth instance_principal 
+        #do echo "$filename"
+		done
+	# delete file from ODI Bucket
+	oci os object bulk-delete --namespace $NAMESPACE --bucket-name $SBUCKET --auth instance_principal --force
+else
+	echo "IN ELSE"
+	for filename in `cat /tmp/cfs_oos_copy_file.list`
+		do 
+		if [[ "$filename" == *"$FILE_FILTER"* ]];
+		then
+			oci os object copy --bucket-name $SBUCKET --source-object-name $filename --destination-namespace $NAMESPACE --destination-bucket $DBUCKET --destination-object-name "$FOLDER_NAME/$YEAR/$MONTH/$DAY/$TIME/$filename" --auth instance_principal 
+        #do echo "$filename"
+		fi
+	done
+	# delete file from ODI Bucket
+	oci os object bulk-delete --namespace $NAMESPACE --bucket-name $SBUCKET --auth instance_principal --force --include *$FILE_FILTER*
+fi
 =========================================================
 WITH audit_data AS (
    SELECT
