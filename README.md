@@ -1,420 +1,249 @@
-# Proxima AI
+ Step 1: 
+BEGIN
 
-<div align="center">
-An advanced AI-powered interview preparation platform with real-time feedback and interactive features.
-</div>
+  dbms_cloud.copy_data(
+    schema_name => '$[statement.getStagingSchema()]',
+{# IF ($[dynamicURIList] != 'true') #}
+    table_name =>'$[statement.getStagingTableName()]',
+    file_uri_list =>'{# FOR ($[statement.getResourceList()]) IN ($[RESOURCE]) SEP = ',' #}$[statement.getDirectory()]/o/$[RESOURCE]{# ENDFOR #}',
+{# ELSE #}
+    table_name => staging_table_name,
+    file_uri_list => uri_list,
+{# ENDIF #}
+    credential_name =>'$[statement.getCredentialName()]',
+{# IF ($[statement.getFieldsDefinitions()] != '') #}
+    field_list => '$[statement.getFieldsDefinitions()]',
+{# ENDIF #}
+    format => json_object(
+{# IF ($[statement.getFileFormat()]  == 'F') #}
+    'delimiter' VALUE '',
+    'recorddelimiter' VALUE '$[statement.getRecordSeparator()]',
+  {# IF ($[statement.getTextDelimiter()]  != '') #}
+    'quote' VALUE '$[statement.getTextDelimiter()]',
+  {# ENDIF #}
+{# ELSIF ($[statement.getFileFormat()]  == 'D') #}
+    'delimiter' VALUE '$[statement.getFieldSeparator()]',
+    'recorddelimiter' VALUE '$[statement.getRecordSeparator()]',
+  {# IF ($[statement.getTextDelimiter()]  != '') #}
+    'quote' VALUE '$[statement.getTextDelimiter()]',
+  {# ENDIF #}
+{# ELSIF ($[statement.getFileFormat()]  == 'CSV') #}
+    'type' VALUE '$[statement.getFileFormat()]',
+{# ENDIF #}
+    'skipheaders' VALUE '$[statement.getSkipHeaders()]'{# IF (!$[statement.getFormatProperties().isEmpty()]) #},
+    {# FOR ($[statement.getFormatProperties()]) IN ($[PROP]) SEP = ',
+    ' #}$[PROP]{# ENDFOR #}{# ENDIF #}{# IF ($[statement.getFormatPropertiesPlus()] != '') #},
+    $[statement.getFormatPropertiesPlus()]{# ENDIF #})
+ );
+  
+END;
+            
+            
 
-## Overview
-Proxima AI is a cutting-edge interview preparation platform that combines modern UI/UX with powerful AI capabilities. Built with Next.js 14, Tailwind CSS, and the Gemini API, it offers a seamless and interactive experience for job seekers to practice and enhance their interview skills. The platform leverages advanced AI algorithms to simulate realistic interview scenarios, provide instant feedback, and help users improve their interview performance systematically.
+{#NL#}
+SELECT {# IF ($[QUERY.hasSelectHints()] == 'true') #}
+  /*+ {# FOR ($[QUERY.getSelectHints()]) IN ($[HL]) SEP = '  ' #} $[HL] {# ENDFOR #} */ {# ENDIF #}
+{# IF $[QUERY.isDistinct()] #}{#NL#}
+  DISTINCT 
+{# ENDIF #}
+{# IF ($[QUERY.getAliasList()] != 'null') #}{#NL#}
+{# LIST #}  $[QUERY.getSelectList().foreach(getText())] $[QUERY.getColumnAliasSeparator()] $[QUERY.getAliasList()] {# SEP #},{#NL#}{# ENDLIST #} 
+{# ELSE #}{#NL#}
+{# LIST #}  $[QUERY.getSelectList().foreach(getText())] {# SEP #},{#NL#}{# ENDLIST #}
+{# ENDIF #} 
+{#NL#}
+{# IF $[QUERY.isConstantQuery()] #} 
+{#NL#}
+$[QUERY.getConstantFromClauseText()] 
+{# ELSE #}FROM {#NL#}
+{# LIST #}  $[QUERY.getFromList().foreach(getText())]{# SEP #} ,{#NL#} {# ENDLIST #} 
+{# ENDIF #} 
+{# IF ($[QUERY.isPivot()] == 'true') #}
+  PIVOT {# IF ($[QUERY.isGenerateXML()] == 'true') #} XML  {# ENDIF #}
+  (
+    {# FOR ($[QUERY.getAggregateExpressions()]) IN ($[AE]) SEP = ',  ' #} $[QUERY.getAggregateFunction()]($[AE]) AS $[AE] {# ENDFOR #}
+    for $[QUERY.getRowLocatorExpressionAlias()] in
+    ({# IF ($[QUERY.isGenerateXML()] == 'true') #}{# IF ($[QUERY.getSubQuerytoGenerateXML()] != 'null' AND $[QUERY.getSubQuerytoGenerateXML().length()] > '0') #}
+             $[QUERY.getSubQuerytoGenerateXML()] {# ELSE #}
+             ANY{# ENDIF #}{# ELSE #}
+             {# FOR ($[QUERY.getInColumnMatchingRows()],$[QUERY.getInColumnAliases()]) IN ($[SL],$[AL]) SEP = ',  ' #} $[SL]  AS $[AL] {# ENDFOR #}{# ENDIF #}
+    )
+  ){# ENDIF #}
+{# IF ($[QUERY.getWhereList()] != 'null' AND $[QUERY.getWhereList().size()] > '0') #}{#NL#}
+WHERE{#NL#}
+{# LIST #}  ($[QUERY.getWhereList()]{#NL#}) {# SEP #}AND {# ENDLIST #}
+{# ENDIF #}
+{# IF ($[QUERY.getGroupByList()] != 'null' AND $[QUERY.getGroupByList().size()] > '0') #}
+{# IF ($[QUERY.getGroupByList()] != 'null' AND $[QUERY.getGroupByList().size()] > '0') #}{#NL#}
+GROUP BY{#NL#}
+{# LIST #}  $[QUERY.getGroupByList().foreach(getText())] {#SEP#}, {# ENDLIST #}
+{# ENDIF #}
+{# ENDIF #}
+{# IF ($[QUERY.getHavingList()] != 'null' AND $[QUERY.getHavingList().size()] > '0')#}
+{# IF ($[QUERY.getHavingList()] != 'null' AND $[QUERY.getHavingList().size()] > '0') #}{#NL#}
+HAVING{#NL#}
+{# LIST #}  $[QUERY.getHavingList().foreach(getText())] {#SEP#} AND {# ENDLIST #}
+{# ENDIF #}
+{# ENDIF #}
+{# IF ($[QUERY.getOrderByList()] != 'null' AND $[QUERY.getOrderByList().size()] > '0') #}{#NL#}
+ORDER BY{#NL#}
+{# LIST #}  $[QUERY.getOrderByList()] {#SEP#}, {# ENDLIST #}
+{# ENDIF #}
+{# IF ($[QUERY.getSetOperation()] != 'null' AND $[QUERY.getSetOperation().length()] > '0') #} {#NL#}
+  $[QUERY.getSetOperation()]{#NL#}
+  ( $[QUERY.getSetOperand().getText()] )
+{# ENDIF #}
 
-## Key Features
+$[JOIN.getLeftText()] $[JOIN.getJoinTypeText()] $[JOIN.getRightText()] 
+{# IF ($[JOIN.getPredicateText()] != 'null' AND !$[JOIN.isCrossOrNatural()]) #} 
+{#NL#}    ON  $[JOIN.getPredicateText()]{#NL#} {# ENDIF #}
+    
 
-### AI-Powered Interviews
-- **Dynamic Question Generation**: Utilizes Gemini API to generate contextually relevant questions based on the selected job role and experience level
-- **Real-time Feedback**: Instant analysis of responses for clarity, relevance, and completeness
-- **Adaptive Difficulty**: Questions adapt based on user performance and confidence levels
-- **Multi-format Support**: Handles technical, behavioral, and situational interview questions
-- **Natural Language Processing**: Advanced NLP for understanding context and nuances in responses
-- **Sentiment Analysis**: Real-time analysis of response tone and emotional content
+$[TABLE.getFullGeneratedName()]
 
-### Interactive UI/UX
-- **Responsive Design**: Seamless experience across desktop, tablet, and mobile devices
-- **Intuitive Navigation**: User-friendly interface with clear progression paths
-- **Real-time Animations**: Smooth transitions and feedback indicators
-- **Accessibility Features**: WCAG 2.1 compliant with screen reader support
-- **Dark/Light Mode**: Customizable theme settings for optimal viewing
-- **Interactive Code Editor**: Built-in Monaco editor for technical interviews
+  TABLE ( $[TF.getFunctionName()] ({# FOR ($[TF.getParameterTypes()],$[TF.getParameters()]) IN ($[TYPE],$[PARAMETER]) SEP = ',  ' #}
+  {# IF ($[TYPE] == 'SCALAR') #} $[PARAMETER] {# ELSE #} CURSOR($[PARAMETER]){# ENDIF #}{# ENDFOR #}
+  ))
 
-### Advanced Interview Features
-- **Webcam Integration**: 
-  - HD video recording capability
-  - Body language and facial expression analysis
-  - Gesture recognition for engagement metrics
-  - Downloadable session recordings
-  - Real-time posture feedback
-  - Eye contact tracking
+{#IF $[hasTableAlias]#}
+$[ATTR.getSQLAccessName(TABLE_ALIAS)]
+{#ELSE#}
+$[ATTR.getSQLAccessName()]
+{#ENDIF#}
 
-- **Voice Analysis**:
-  - Speech clarity assessment
-  - Pace and tone evaluation
-  - Filler word detection
-  - Confidence level analysis
-  - Accent neutrality feedback
-  - Voice modulation suggestions
 
-### Personalization & Learning
-- **Custom Learning Paths**:
-  - Industry-specific question sets
-  - Role-based competency assessment
-  - Skill gap analysis
-  - Personalized improvement recommendations
-  - Adaptive learning algorithms
-  - Custom practice schedules
 
-- **Progress Tracking**:
-  - Detailed performance metrics
-  - Improvement trends
-  - Skill proficiency scores
-  - Interview readiness index
-  - Comparative benchmarking
-  - Historical performance data
+  ------------------- Step 2 - -----------------
 
-### Analytics & Insights
-- **Performance Dashboard**:
-  - Session-wise analysis
-  - Response quality metrics
-  - Communication effectiveness scores
-  - Comparative performance analysis
-  - Real-time progress indicators
-  - Custom performance reports
+   
 
-- **Improvement Metrics**:
-  - Skill development tracking
-  - Weak area identification
-  - Success rate analytics
-  - Personalized improvement suggestions
-  - Learning velocity metrics
-  - Competency heat maps
+table_name = '$[statement.getStagingTableName()]';
 
-### Collaborative Features
-- **Peer Review System**:
-  - Interview recording sharing
-  - Feedback exchange
-  - Community ratings
-  - Expert mentorship connections
+sql = """
+DECLARE
+  uri_list CLOB;
+  staging_table_name varchar2(200);
+BEGIN
+  dbms_lob.createtemporary(uri_list, TRUE);
 
-- **Group Practice**:
-  - Mock interview sessions
-  - Real-time collaboration
-  - Shared learning resources
-  - Team feedback mechanisms
+  """
+  uris.each{
+  sql = sql + "dbms_lob.append(uri_list,'"+it+"'); \n"
+  }
 
-### Interview Question Bank
-- **Comprehensive Collection**:
-  - 10,000+ curated questions
-  - Industry-specific sets
-  - Difficulty-based categorization
-  - Regular updates
+  sql = sql + """
 
-- **Question Categories**:
-  - Technical interviews
-  - Behavioral questions
-  - System design problems
-  - Company-specific questions
-  - Coding challenges
-  - Brain teasers
+  staging_table_name := '${table_name}';
 
-### Aptitude Assessment
-- **Test Categories**:
-  - Quantitative Aptitude
-  - Logical Reasoning
-  - Verbal Ability
-  - Data Interpretation
-  - General Knowledge
-  - Technical Aptitude
+  dbms_cloud.copy_data(
+    schema_name => '$[statement.getStagingSchema()]',
+{# IF ($[dynamicURIList] != 'true') #}
+    table_name =>'$[statement.getStagingTableName()]',
+    file_uri_list =>'{# FOR ($[statement.getResourceList()]) IN ($[RESOURCE]) SEP = ',' #}$[statement.getDirectory()]/o/$[RESOURCE]{# ENDFOR #}',
+{# ELSE #}
+    table_name => staging_table_name,
+    file_uri_list => uri_list,
+{# ENDIF #}
+    credential_name =>'$[statement.getCredentialName()]',
+{# IF ($[statement.getFieldsDefinitions()] != '') #}
+    field_list => '$[statement.getFieldsDefinitions()]',
+{# ENDIF #}
+    format => json_object(
+{# IF ($[statement.getFileFormat()]  == 'F') #}
+    'delimiter' VALUE '',
+    'recorddelimiter' VALUE '$[statement.getRecordSeparator()]',
+  {# IF ($[statement.getTextDelimiter()]  != '') #}
+    'quote' VALUE '$[statement.getTextDelimiter()]',
+  {# ENDIF #}
+{# ELSIF ($[statement.getFileFormat()]  == 'D') #}
+    'delimiter' VALUE '$[statement.getFieldSeparator()]',
+    'recorddelimiter' VALUE '$[statement.getRecordSeparator()]',
+  {# IF ($[statement.getTextDelimiter()]  != '') #}
+    'quote' VALUE '$[statement.getTextDelimiter()]',
+  {# ENDIF #}
+{# ELSIF ($[statement.getFileFormat()]  == 'CSV') #}
+    'type' VALUE '$[statement.getFileFormat()]',
+{# ENDIF #}
+    'skipheaders' VALUE '$[statement.getSkipHeaders()]'{# IF (!$[statement.getFormatProperties().isEmpty()]) #},
+    {# FOR ($[statement.getFormatProperties()]) IN ($[PROP]) SEP = ',
+    ' #}$[PROP]{# ENDFOR #}{# ENDIF #}{# IF ($[statement.getFormatPropertiesPlus()] != '') #},
+    $[statement.getFormatPropertiesPlus()]{# ENDIF #})
+ );
+  
+END;
+"""
+odiRef.setSummaryMessage(sql)
 
-- **Assessment Features**:
-  - Adaptive difficulty levels
-  - Timed sections
-  - Detailed solutions
-  - Performance analytics
-  - Practice mode
-  - Mock tests
+if ( con == null ) {
+    con = odiRef.getJDBCConnection( "DEST" )
+}
+try {
+    stmt = con.createStatement()
+    stmt.execute( sql )
+} finally {
+    if (stmt != null) { stmt.closeOnCompletion() }
+}
+  
+            
+            
 
-- **Scoring System**:
-  - Section-wise scoring
-  - Percentile ranking
-  - Comparative analysis
-  - Time management metrics
-  - Accuracy tracking
-  - Improvement suggestions
+{#NL#}
+SELECT 
+{# IF $[QUERY.isDistinct()] #}{#NL#}
+  DISTINCT 
+{# ENDIF #}
+{# IF ($[QUERY.getAliasList()] != 'null') #}{#NL#}
+{# LIST #}  $[QUERY.getSelectList().foreach(getText())] $[QUERY.getColumnAliasSeparator()] $[QUERY.getAliasList()] {# SEP #},{#NL#}{# ENDLIST #} 
+{# ELSE #}{#NL#}
+{# LIST #}  $[QUERY.getSelectList().foreach(getText())] {# SEP #},{#NL#}{# ENDLIST #}
+{# ENDIF #} 
+{#NL#}
+{# IF $[QUERY.isConstantQuery()] #} 
+{#NL#}
+$[QUERY.getConstantFromClauseText()] 
+{# ELSE #}FROM {#NL#}
+{# LIST #}  $[QUERY.getFromList().foreach(getText())]{# SEP #} ,{#NL#} {# ENDLIST #} 
+{# ENDIF #} 
 
-### Project Portfolio
-- **Project Categories**:
-  - Web Development
-  - Mobile Applications
-  - Machine Learning
-  - Data Science
-  - System Design
-  - Cloud Architecture
+{# IF ($[QUERY.getWhereList()] != 'null' AND $[QUERY.getWhereList().size()] > '0') #}{#NL#}
+WHERE{#NL#}
+{# LIST #}  ($[QUERY.getWhereList()]{#NL#}) {# SEP #}AND {# ENDLIST #}
+{# ENDIF #}
+{# IF ($[QUERY.getGroupByList()] != 'null' AND $[QUERY.getGroupByList().size()] > '0') #}
+{# IF ($[QUERY.getGroupByList()] != 'null' AND $[QUERY.getGroupByList().size()] > '0') #}{#NL#}
+GROUP BY{#NL#}
+{# LIST #}  $[QUERY.getGroupByList().foreach(getText())] {#SEP#}, {# ENDLIST #}
+{# ENDIF #}
+{# ENDIF #}
+{# IF ($[QUERY.getHavingList()] != 'null' AND $[QUERY.getHavingList().size()] > '0')#}
+{# IF ($[QUERY.getHavingList()] != 'null' AND $[QUERY.getHavingList().size()] > '0') #}{#NL#}
+HAVING{#NL#}
+{# LIST #}  $[QUERY.getHavingList().foreach(getText())] {#SEP#} AND {# ENDLIST #}
+{# ENDIF #}
+{# ENDIF #}
+{# IF ($[QUERY.getOrderByList()] != 'null' AND $[QUERY.getOrderByList().size()] > '0') #}{#NL#}
+ORDER BY{#NL#}
+{# LIST #}  $[QUERY.getOrderByList()] {#SEP#}, {# ENDLIST #}
+{# ENDIF #}
+{# IF ($[QUERY.getSetOperation()] != 'null' AND $[QUERY.getSetOperation().length()] > '0') #} {#NL#}
+  $[QUERY.getSetOperation()]{#NL#}
+  ( $[QUERY.getSetOperand().getText()] )
+{# ENDIF #}
 
-- **Project Features**:
-  - Real-world scenarios
-  - Industry-aligned challenges
-  - Guided implementations
-  - Code review system
-  - Version control integration
-  - Collaboration tools
+$[JOIN.getLeftText()] $[JOIN.getJoinTypeText()] $[JOIN.getRightText()] 
+{# IF ($[JOIN.getPredicateText()] != 'null' AND !$[JOIN.isCrossOrNatural()]) #} 
+{#NL#}    ON  $[JOIN.getPredicateText()]{#NL#} {# ENDIF #}
+    
 
-- **Learning Integration**:
-  - Project-based assessments
-  - Skill validation
-  - Portfolio builder
-  - Progress tracking
-  - Mentor feedback
-  - Industry benchmarking
+$[TABLE.getFullGeneratedName()]
 
-## Project Architecture
-### Frontend Architecture
-- **Pages & Routing**: Next.js 14 App Router for efficient page navigation
-- **Components**: Reusable UI components built with React and Shadcn UI
-- **State Management**: React hooks and context for local state management
-- **Styling**: Tailwind CSS for responsive and maintainable styling
-- **Animations**: Framer Motion for smooth transitions and interactions
-- **Code Editor**: Monaco Editor integration for technical interviews
+  TABLE ( $[TF.getFunctionName()] ({# FOR ($[TF.getParameterTypes()],$[TF.getParameters()]) IN ($[TYPE],$[PARAMETER]) SEP = ',  ' #}
+  {# IF ($[TYPE] == 'SCALAR') #} $[PARAMETER] {# ELSE #} CURSOR($[PARAMETER]){# ENDIF #}{# ENDFOR #}
+  ))
 
-### Backend Architecture
-- **API Routes**: Next.js API routes for serverless backend functionality
-- **Database**: PostgreSQL with Neon for serverless database operations
-- **ORM**: Drizzle for type-safe database queries and migrations
-- **Authentication**: Clerk for secure user authentication and management
-- **AI Integration**: Google Gemini API for intelligent interview interactions
-- **WebRTC**: Real-time video and audio streaming
-- **WebSocket**: Real-time collaboration and messaging
-
-## Tech Stack
-- **Frontend**: Next.js 14, React, Tailwind CSS, Framer Motion
-- **UI Components**: Shadcn UI
-- **Authentication**: Clerk
-- **Database**: PostgreSQL with Neon (Serverless)
-- **ORM**: Drizzle
-- **AI Integration**: Google Gemini API
-- **Video Processing**: WebRTC, MediaRecorder API
-- **Code Editor**: Monaco Editor
-
-## User Flow
-### 1. Onboarding
-- User registration and profile creation
-- Skill assessment and goal setting
-- Industry and role selection
-- Experience level configuration
-- Learning path customization
-- Initial readiness assessment
-
-### 2. Interview Preparation
-- **Pre-interview Setup**:
-  - Select interview type (Technical/Behavioral)
-  - Choose specific focus areas
-  - Configure session duration
-  - Test audio/video settings
-  - Review preparation materials
-  - Set practice goals
-
-- **During Interview**:
-  - Real-time question presentation
-  - Response recording and analysis
-  - Immediate feedback on key metrics
-  - Progress indicators
-  - AI-powered suggestions
-  - Performance monitoring
-
-- **Post-interview**:
-  - Comprehensive performance report
-  - Detailed feedback on each response
-  - Improvement suggestions
-  - Practice recommendations
-  - Personalized study plan
-  - Success metrics
-
-### 3. Progress Tracking
-- View historical performance
-- Track improvement metrics
-- Access saved sessions
-- Review feedback history
-- Compare with benchmarks
-- Generate progress reports
-
-## Getting Started
-### Prerequisites
-- Node.js 18+ installed
-- PostgreSQL database (or Neon account)
-- Clerk account for authentication
-- Gemini API key
-- WebRTC-compatible browser
-- Webcam and microphone access
-
-### Environment Setup
-1. Clone the repository
-2. Copy `.env.local.example` to `.env.local`
-3. Configure the following environment variables:
-   ```
-   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
-   CLERK_SECRET_KEY=
-   NEXT_PUBLIC_CLERK_SIGN_IN_URL=
-   NEXT_PUBLIC_CLERK_SIGN_UP_URL=
-   NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=
-   NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=
-   DATABASE_URL=
-   GEMINI_API_KEY=
-   WEBSOCKET_URL=
-   MEDIA_STORAGE_KEY=
-   ```
-
-### Installation
-1. Install dependencies:
-   ```bash
-   npm install
-   ```
-2. Run database migrations:
-   ```bash
-   npm run db:migrate
-   ```
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
-
-## Docker Support
-The project includes Docker support for containerized deployment:
-
-1. Build the image:
-   ```bash
-   docker build -t proxima-ai .
-   ```
-2. Run the container:
-   ```bash
-   docker run -p 3000:3000 proxima-ai
-   ```
-
-## Contributing
-Contributions are welcome! Please follow these steps:
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## Support
-Show your support by giving the project a ⭐️!
-
-## Contact
-For questions or feedback, reach out to:
-- Email: [hbhanushali2017@gmail.com](mailto:hbhanushali2017@gmail.com)
-
-## License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-==============================
-# Proxima AI
-
-<div align="center">
-An advanced AI-powered interview preparation platform with real-time feedback and interactive features.
-</div>
-
-## Overview
-Proxima AI is a cutting-edge interview preparation platform that combines modern UI/UX with powerful AI capabilities. Built with Next.js 14, Tailwind CSS, and the Gemini API, it offers a seamless and interactive experience for job seekers to practice and enhance their interview skills.
-
-## Key Features
-- **AI-Powered Interviews**: Dynamic interview sessions with intelligent question generation and real-time feedback
-- **Interactive UI**: Modern, responsive interface with smooth animations and transitions
-- **Webcam Integration**: Optional video recording feature for a more realistic interview experience
-- **Personalized Experience**: Tailored questions based on job roles, industries, and experience levels
-- **Comprehensive Question Bank**: Extensive collection of interview questions across various domains
-- **Performance Analytics**: Detailed feedback, insights, and overall grading for each session
-- **Progress Tracking**: Easy access to recent interviews and improvement metrics
-- **Dark/Light Mode**: Support for both dark and light themes
-
-## Project Architecture
-### Frontend Architecture
-- **Pages & Routing**: Next.js 14 App Router for efficient page navigation
-- **Components**: Reusable UI components built with React and Shadcn UI
-- **State Management**: React hooks and context for local state management
-- **Styling**: Tailwind CSS for responsive and maintainable styling
-- **Animations**: Framer Motion for smooth transitions and interactions
-
-### Backend Architecture
-- **API Routes**: Next.js API routes for serverless backend functionality
-- **Database**: PostgreSQL with Neon for serverless database operations
-- **ORM**: Drizzle for type-safe database queries and migrations
-- **Authentication**: Clerk for secure user authentication and management
-- **AI Integration**: Google Gemini API for intelligent interview interactions
-
-## Tech Stack
-- **Frontend**: Next.js 14, React, Tailwind CSS, Framer Motion
-- **UI Components**: Shadcn UI
-- **Authentication**: Clerk
-- **Database**: PostgreSQL with Neon (Serverless)
-- **ORM**: Drizzle
-- **AI Integration**: Google Gemini API
-
-## Getting Started
-### Prerequisites
-- Node.js 18+ installed
-- PostgreSQL database (or Neon account)
-- Clerk account for authentication
-- Gemini API key
-
-### Environment Setup
-1. Clone the repository
-2. Copy `.env.local.example` to `.env.local`
-3. Configure the following environment variables:
-   ```
-   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
-   CLERK_SECRET_KEY=
-   NEXT_PUBLIC_CLERK_SIGN_IN_URL=
-   NEXT_PUBLIC_CLERK_SIGN_UP_URL=
-   NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=
-   NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=
-   DATABASE_URL=
-   GEMINI_API_KEY=
-   ```
-
-### Installation
-1. Install dependencies:
-   ```bash
-   npm install
-   ```
-2. Run database migrations:
-   ```bash
-   npm run db:migrate
-   ```
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
-
-## Usage Guide
-1. **Sign Up/Login**: Create an account or log in using Clerk authentication
-2. **Dashboard**: Access your interview dashboard with recent sessions and analytics
-3. **Start Interview**: 
-   - Choose interview type (technical/behavioral)
-   - Select job role and experience level
-   - Optional: Enable webcam for video recording
-   - Begin the interview session
-4. **During Interview**:
-   - Respond to AI-generated questions
-   - Receive real-time feedback and suggestions
-5. **Post Interview**:
-   - Review detailed performance analysis
-   - Access improvement recommendations
-   - Save and track progress
-
-## Docker Support
-The project includes Docker support for containerized deployment:
-
-1. Build the image:
-   ```bash
-   docker build -t proxima-ai .
-   ```
-2. Run the container:
-   ```bash
-   docker run -p 3000:3000 proxima-ai
-   ```
-
-## Contributing
-Contributions are welcome! Please follow these steps:
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## Support
-Show your support by giving the project a ⭐️!
-
-## Contact
-For questions or feedback, reach out to:
-- Email: [hbhanushali2017@gmail.com](mailto:hbhanushali2017@gmail.com)
-
-## License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+{#IF $[hasTableAlias]#}
+$[ATTR.getSQLAccessName(TABLE_ALIAS)]
+{#ELSE#}
+$[ATTR.getSQLAccessName()]
+{#ENDIF#}
+  
