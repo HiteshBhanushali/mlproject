@@ -1,3 +1,5 @@
+case when  SUBSTRING("DFF - Project Costing Details"."PROJECTS_STD_COST_COLLECTION_WORK_ORDER_" FROM 1 FOR 1) = '[' then SUBSTRING("DFF - Project Costing Details"."PROJECTS_STD_COST_COLLECTION_WORK_ORDER_" FROM 2 FOR 8) else SUBSTRING("DFF - Project Costing Details"."PROJECTS_STD_COST_COLLECTION_WORK_ORDER_" FROM 1 FOR 8) end
+
 create or replace PROCEDURE                  "COPY_EFS_PRC_CUSTOM_DATA_VALIDATION" 
 authid current_user
 AS 
