@@ -1,3 +1,13 @@
+https://www.linkedin.com/jobs/view/oracle-etl-developer-odi-obiee-at-kforce-inc-4211011888?trk=public_jobs_topcard-title
+https://mx.linkedin.com/jobs/view/odi-sql-oac-obiee-at-oracle-4091608262?trk=public_jobs_topcard-title
+https://uk.linkedin.com/jobs/view/oracle-reporting-platform-engineer-at-bank-of-england-4222825391?trk=public_jobs_topcard-title
+https://in.linkedin.com/jobs/view/oracle-fusion-data-intelligence-platform-technical-consultant-at-talent-worx-4231017626?position=26&pageNum=0&refId=SDJTfrY%2BWG%2BzfyKv95N6tw%3D%3D&trackingId=1BPtXR5EjEhHytgEZj374w%3D%3D
+https://in.linkedin.com/jobs/view/oac-odi-developer-at-ntt-data-north-america-4206575150?position=32&pageNum=0&refId=SDJTfrY%2BWG%2BzfyKv95N6tw%3D%3D&trackingId=w4NyHGsnsVQ1pZd7A%2FyR7g%3D%3D
+https://www.linkedin.com/jobs/view/sr-oracle-analytics-engineer-at-net2source-inc-4230037095?trk=public_jobs_topcard-title
+https://sg.linkedin.com/jobs/view/data-analytics-oac-obiee-at-randstad-singapore-4226083155?trk=public_jobs_topcard-title
+https://in.linkedin.com/jobs/view/oac-faw-%2B-odi-consultant-at-apps-associates-4129624154?trk=public_jobs_topcard-title
+https://uk.linkedin.com/jobs/view/oracle-reporting-platform-engineer-closing-date-28-may-2025-at-hackajob-4225461346?trk=public_jobs_topcard-title
+
 case when  SUBSTRING("DFF - Project Costing Details"."PROJECTS_STD_COST_COLLECTION_WORK_ORDER_" FROM 1 FOR 1) = '[' then SUBSTRING("DFF - Project Costing Details"."PROJECTS_STD_COST_COLLECTION_WORK_ORDER_" FROM 2 FOR 8) else SUBSTRING("DFF - Project Costing Details"."PROJECTS_STD_COST_COLLECTION_WORK_ORDER_" FROM 1 FOR 8) end
 
 create or replace PROCEDURE                  "COPY_EFS_PRC_CUSTOM_DATA_VALIDATION" 
