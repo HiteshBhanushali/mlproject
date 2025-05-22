@@ -1,3 +1,5 @@
+https://www.udemy.com/course/oracle-data-integrator-odi-12c-developer-course/?couponCode=CP130525
+
 ========================EY GDS 1st round =====================================
 general ques - about project - checked
 --------ODI -
