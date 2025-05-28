@@ -1,3 +1,9 @@
+https://www.naukri.com/job-listings-oracle-analytics-cloud-consultant-the-it-mind-kolkata-mumbai-new-delhi-hyderabad-pune-chennai-bengaluru-3-to-10-years-190225500886?src=jobsearchDesk&sid=17484366972547696&xp=4&px=1&nignbevent_src=jobsearchDeskGNB
+https://www.naukri.com/job-listings-oracle-analytics-cloud-oac-consultant-best-hawk-infosystems-pvt-ltd-mumbai-new-delhi-pune-2-to-7-years-220525934217?src=jobsearchDesk&sid=17484366972547696&xp=3&px=1&nignbevent_src=jobsearchDeskGNB
+https://www.naukri.com/job-listings-oracle-analytics-with-btp-otbi-fdi-xforia-technologies-hyderabad-bengaluru-greater-noida-4-to-9-years-060525035325?src=simjobsjd_bottom
+https://www.naukri.com/job-listings-oac-odi-developer-ntt-data-information-processing-services-private-l-imited-hyderabad-1-to-2-years-080525913863?src=simjobsjd_rt
+https://www.naukri.com/job-listings-oracle-cloud-technical-consultant-genpact-noida-hyderabad-bengaluru-5-to-10-years-210125013341?src=simjobsjd_rt
+
 https://www.udemy.com/course/oracle-data-integrator-odi-12c-developer-course/?couponCode=CP130525
 
 ========================EY GDS 1st round =====================================
