@@ -1,3 +1,140 @@
+WITH 
+SAWITH0 AS (select sum(T575361.XLA_GLOBAL_AMOUNT) as c1,
+     T625856.COMPANY_SEGMENT_NAME as c2,
+     cast(T575361.EXPENDITURE_ITEM_ID as  VARCHAR ( 38 ) ) as c3,
+     T3542.FISCAL_PERIOD_NAME as c4,
+     T625867.ACCOUNT_SEGMENT as c5,
+     T625877.PROJECT_SEGMENT_DESCRIPTION as c6,
+     T625877.PROJECT_SEGMENT_NAME as c7,
+     T625877.PROJECT_SEGMENT as c8,
+     T634964.SOURCE_PROJECT as c9,
+     T575361.EXPENDITURE_ITEM_ID as c11,
+     T575361.TRANSACTION_SOURCE_ID as c12,
+     T3542.FISCAL_PERIOD_SORT_KEY as c13,
+     T3542.FISCAL_PERIOD_SET_NAME as c14,
+     T625877.HIERARCHY_VALUESET_CODE as c15,
+     T625856.COMPANY_SEGMENT as c16,
+     T625856.HIERARCHY_VALUESET_CODE as c17,
+     cast(T575361.TRANSACTION_SOURCE_ID as  VARCHAR ( 38 ) ) as c19
+from 
+     (
+          (
+               (
+                    OAX$OAC.DW_FISCAL_DAY_D T3542 /* Dim_DW_FISCAL_DAY_D */  inner join (
+                         (
+                              OAX$OAC.DW_PROJECT_D T3792 /* Dim_DW_PROJECT_D */  left outer join EFS_DATA_LAYER.EFS_P2P_ALLOC_PROJECTS_DIM T634964 /* Project_Dim_DW_PROJECTS_D_TL_Dim_EFS_P2P_ALLOC_PROJECTS_DIM_extendDim */  On T3792.PROJECT_NUMBER = T634964.PROJECT) inner join OAX$OAC.DW_PROJECT_SLA_COST_CF_SEC T575361 /* Fact_DW_PROJECT_SLA_COST_CF */  On T3792.PROJECT_ID = T575361.PROJECT_ID) On T3542.FISCAL_DAY_DATE = T575361.XLA_ACCOUNTING_DATE and T3542.FISCAL_PERIOD_SET_NAME = T575361.FISCAL_PERIOD_SET_NAME and T3542.FISCAL_PERIOD_TYPE = T575361.FISCAL_PERIOD_TYPE and T3542.ADJUSTMENT_PERIOD_FLAG in ('N', '~NOVALUE~')) left outer join 
+                    EFS_DATA_LAYER.EFS_PROJECT_DIMH T625877 /* Dim_Project_Alternate_Dim_EFS_PROJECT_DIMH_customDim */  On T575361.GL_SEGMENT6_VALUESET_CODE = T625877.HIERARCHY_VALUESET_CODE and T575361.GL_SEGMENT6 = T625877.PROJECT_SEGMENT) left outer join 
+               EFS_DATA_LAYER.EFS_BALANCE_SEGMENT_CURRENT_V T625856 /* Dim_Balance_Segment_Current_Dim_EFS_BALANCE_SEGMENT_CURRENT_V_customDim */  On T575361.GL_BLNC_SGMNT_VALUESET_CODE = T625856.HIERARCHY_VALUESET_CODE and T575361.GL_BALANCING_SEGMENT = T625856.COMPANY_SEGMENT) left outer join 
+          EFS_DATA_LAYER.EFS_ACCOUNT_DIMH T625867 /* Dim_Natural_Account_Alternate_Dim_EFS_ACCOUNT_DIMH_customDim */  On T575361.NATURAL_ACCOUNT_SEGMENT = T625867.ACCOUNT_SEGMENT and T575361.NTRL_ACNT_SGMNT_VALUESET_CODE = T625867.HIERARCHY_VALUESET_CODE
+where  ( T625877.PROJECT_SEGMENT = 'XITEED730' and (T575361.EXPENDITURE_ITEM_ID in (4701694, 4756974)) ) 
+group by T3542.FISCAL_PERIOD_SORT_KEY, T3542.FISCAL_PERIOD_NAME, T3542.FISCAL_PERIOD_SET_NAME, T575361.TRANSACTION_SOURCE_ID, T575361.EXPENDITURE_ITEM_ID, T625856.COMPANY_SEGMENT, T625856.COMPANY_SEGMENT_NAME, T625856.HIERARCHY_VALUESET_CODE, T625867.ACCOUNT_SEGMENT, T625877.HIERARCHY_VALUESET_CODE, T625877.PROJECT_SEGMENT, T625877.PROJECT_SEGMENT_NAME, T625877.PROJECT_SEGMENT_DESCRIPTION, T634964.SOURCE_PROJECT),
+SAWITH1 AS (select  /*+ no_merge */  T6610.USER_TRANSACTION_SOURCE as c1,
+     T6610.TRANSACTION_SOURCE_ID as c2
+from 
+     OAX$OAC.DW_PROJECT_TXN_SOURCE_TL T6610 /* Lookup_DW_PROJECT_TXN_SOURCE_TL */ 
+where  ( T6610.LANGUAGE = 'US' ) ),
+SAWITH2 AS (select D1.c1 as c1,
+     D1.c2 as c2,
+     D1.c3 as c3,
+     D1.c4 as c4,
+     D1.c5 as c5,
+     D1.c6 as c6,
+     D1.c7 as c7,
+     D1.c8 as c8,
+     D1.c9 as c9,
+     nvl(D2.c1 , D1.c19) as c10,
+     D1.c11 as c11,
+     D1.c12 as c12,
+     D1.c13 as c13,
+     D1.c14 as c14,
+     D1.c15 as c15,
+     D1.c16 as c16,
+     D1.c17 as c17
+from 
+     SAWITH0 D1 left outer join SAWITH1 D2 On  SYS_OP_MAP_NONNULL(D1.c12) = SYS_OP_MAP_NONNULL(D2.c2) ),
+SAWITH3 AS (select D1.c1 as c1,
+     D1.c2 as c2,
+     D1.c3 as c3,
+     D1.c4 as c4,
+     D1.c5 as c5,
+     D1.c6 as c6,
+     D1.c7 as c7,
+     D1.c8 as c8,
+     D1.c9 as c9,
+     D1.c10 as c10,
+     D1.c11 as c11,
+     D1.c12 as c12,
+     D1.c13 as c13,
+     D1.c14 as c14,
+     D1.c15 as c15,
+     D1.c16 as c16,
+     D1.c17 as c17,
+     D1.c18 as c18,
+     D1.c19 as c19,
+     D1.c20 as c20,
+     D1.c21 as c21,
+     D1.c22 as c22,
+     D1.c23 as c23,
+     D1.c24 as c24
+from 
+     (select 0 as c1,
+               D1.c2 as c2,
+               D1.c3 as c3,
+               D1.c4 as c4,
+               D1.c5 as c5,
+               D1.c6 as c6,
+               D1.c7 as c7,
+               D1.c8 as c8,
+               D1.c9 as c9,
+               D1.c10 as c10,
+               'Month' as c11,
+               D1.c11 as c12,
+               D1.c12 as c13,
+               D1.c13 as c14,
+               D1.c1 as c15,
+               0 as c16,
+               0 as c17,
+               0 as c18,
+               0 as c19,
+               0 as c20,
+               D1.c14 as c21,
+               D1.c15 as c22,
+               D1.c16 as c23,
+               D1.c17 as c24,
+               ROW_NUMBER() OVER (PARTITION BY D1.c2, D1.c3, D1.c4, D1.c5, D1.c6, D1.c7, D1.c8, D1.c9, D1.c11, D1.c12, D1.c13, D1.c14, D1.c15, D1.c16, D1.c17 ORDER BY D1.c2 ASC, D1.c3 ASC, D1.c4 ASC, D1.c5 ASC, D1.c6 ASC, D1.c7 ASC, D1.c8 ASC, D1.c9 ASC, D1.c11 ASC, D1.c12 ASC, D1.c13 ASC, D1.c14 ASC, D1.c15 ASC, D1.c16 ASC, D1.c17 ASC) as c25
+          from 
+               SAWITH2 D1
+     ) D1
+where  ( D1.c25 = 1 ) )
+select D1.c1 as c1,
+     D1.c2 as c2,
+     D1.c3 as c3,
+     D1.c4 as c4,
+     D1.c5 as c5,
+     D1.c6 as c6,
+     D1.c7 as c7,
+     D1.c8 as c8,
+     D1.c9 as c9,
+     D1.c10 as c10,
+     D1.c11 as c11,
+     D1.c12 as c12,
+     D1.c13 as c13,
+     D1.c14 as c14,
+     D1.c15 as c15,
+     D1.c16 as c16,
+     D1.c17 as c17,
+     D1.c18 as c18,
+     D1.c19 as c19,
+     D1.c20 as c20,
+     D1.c21 as c21,
+     D1.c22 as c22,
+     D1.c23 as c23,
+     D1.c24 as c24
+from 
+     SAWITH3 D1
+order by c4, c6, c13, c12, c3, c10, c21, c14, c5, c22, c8, c7, c23, c2, c24, c9
+
+===================================================================
 https://www.naukri.com/job-listings-oracle-analytics-cloud-consultant-the-it-mind-kolkata-mumbai-new-delhi-hyderabad-pune-chennai-bengaluru-3-to-10-years-190225500886?src=jobsearchDesk&sid=17484366972547696&xp=4&px=1&nignbevent_src=jobsearchDeskGNB
 https://www.naukri.com/job-listings-oracle-analytics-cloud-oac-consultant-best-hawk-infosystems-pvt-ltd-mumbai-new-delhi-pune-2-to-7-years-220525934217?src=jobsearchDesk&sid=17484366972547696&xp=3&px=1&nignbevent_src=jobsearchDeskGNB
 https://www.naukri.com/job-listings-oracle-analytics-with-btp-otbi-fdi-xforia-technologies-hyderabad-bengaluru-greater-noida-4-to-9-years-060525035325?src=simjobsjd_bottom
