@@ -1,3 +1,5 @@
+https://in.linkedin.com/in/samir-kumar-jha-32689529
+
 WITH 
 SAWITH0 AS (select sum(T575361.XLA_GLOBAL_AMOUNT) as c1,
      T625856.COMPANY_SEGMENT_NAME as c2,
