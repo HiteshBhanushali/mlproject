@@ -1,0 +1,180 @@
+CREATE OR REPLACE PROCEDURE EFS_PRC_CUSTOM_DATA_VALIDATION 
+AUTHID CURRENT_USER
+AS 
+BEGIN
+  DECLARE
+    v_location_uri        VARCHAR2(100) := 'https://swiftobjectstorage.us-ashburn-1.oraclecloud.com/v1/';
+    v_uri_list            VARCHAR2(4000) := 'https://objectstorage.us-ashburn-1.oraclecloud.com/n/';
+    v_credential_name     VARCHAR2(255);
+    v_src_bkt_name        VARCHAR2(255);
+    v_dest_bkt_name       VARCHAR2(255);
+    v_file_name_filter    VARCHAR2(255);
+    v_ext_file_extract    VARCHAR2(255) := 'BICC_BUCKET_ARCHIVAL';
+    v_trunc_sql           VARCHAR2(255);
+    v_oos_namespace       VARCHAR2(255);
+  BEGIN
+    -- Truncate staging tables
+    FOR tbl IN (
+      SELECT 'EFS_OOS_TO_RAW_COUNT' AS tbl FROM dual UNION ALL
+      SELECT 'EFS_RAW_TABLE_COUNT' FROM dual UNION ALL
+      SELECT 'EFS_RAW_TABLE_COUNT_VALIDATION' FROM dual UNION ALL
+      SELECT 'EFS_DAL_TABLE_COUNT_VALIDATION' FROM dual UNION ALL
+      SELECT 'EFS_DAL_TABLE_COUNT' FROM dual
+    ) LOOP
+      v_trunc_sql := 'TRUNCATE TABLE ' || tbl.tbl;
+      EXECUTE IMMEDIATE v_trunc_sql;
+    END LOOP;
+
+    -- Get credentials and bucket names
+    SELECT credential_name INTO v_credential_name FROM user_credentials;
+    SELECT ARCHIVAL_SRC_BKT_NAME, ARCHIVAL_DEST_BKT_NAME, OOS_NAMESPACE
+    INTO v_src_bkt_name, v_dest_bkt_name, v_oos_namespace
+    FROM EFS_RAW.EFS_EXT_FILE_LIST WHERE EXT_FILE_EXTRACT = v_ext_file_extract;
+
+    -- Fetch files modified in last two days
+    FOR i IN (
+      SELECT DISTINCT REPLACE(REPLACE(object_name, ' ', '%20'), '/', '%2F') AS file_name
+      FROM TABLE (dbms_cloud.list_objects(
+        credential_name => v_credential_name,
+        location_uri => v_location_uri || v_oos_namespace || '/' || v_dest_bkt_name || '/'))
+      WHERE UPPER(object_name) LIKE UPPER('%JSON%')
+      AND TRUNC(last_modified) BETWEEN TRUNC(SYSDATE) - 1 AND TRUNC(SYSDATE)
+    ) LOOP
+      dbms_cloud.copy_data(
+        table_name => 'EFS_OOS_TO_RAW_COUNT',
+        credential_name => v_credential_name,
+        file_uri_list => v_uri_list || v_oos_namespace || '/b/' || v_dest_bkt_name || '/o/' || i.file_name,
+        format => JSON_OBJECT('type' VALUE 'json', 'columnpath' VALUE '["$.statuses.name","$.statuses.rowCount","$.statuses.runDate"]')
+      );
+    END LOOP;
+  END;
+
+  DECLARE
+    v_sql_query CLOB;
+  BEGIN
+    -- Load raw table counts
+    FOR i IN (SELECT DISTINCT raw_table_name, alias FROM EFS_PVO_TO_RAW_TABLE_MAPPING) LOOP
+      v_sql_query := 'INSERT INTO EFS_RAW_TABLE_COUNT (SELECT ''' || i.raw_table_name || ''', (SELECT COUNT(1) FROM EFS_RAW.' || i.raw_table_name || ' WHERE TRUNC(W_LOAD_DT) BETWEEN TRUNC(SYSDATE)-1 AND TRUNC(SYSDATE)), SYSDATE, ''' || i.alias || ''' FROM dual)';
+      EXECUTE IMMEDIATE v_sql_query;
+      COMMIT;
+    END LOOP;
+  END;
+
+  BEGIN
+    -- Validate PVO with RAW
+    INSERT INTO EFS_RAW_TABLE_COUNT_VALIDATION
+    SELECT A.PVO_NAME, B.RAW_TABLE_NAME, A.ROW_COUNT, C.ROW_COUNT,
+           CASE WHEN A.ROW_COUNT <> C.ROW_COUNT THEN 'NOT MATCHING' ELSE 'MATCHING' END AS STATUS,
+           C.AS_OF_DATE
+    FROM EFS_OOS_TO_RAW_COUNT A
+    LEFT JOIN EFS_PVO_TO_RAW_TABLE_MAPPING B ON A.PVO_NAME = B.PVO_NAME
+    LEFT JOIN EFS_RAW_TABLE_COUNT C ON B.RAW_TABLE_NAME = C.RAW_TABLE_NAME;
+    COMMIT;
+  END;
+
+  DECLARE
+    v_sql_query CLOB;
+  BEGIN
+    -- Update raw table counts with filter conditions
+    FOR i IN (SELECT raw_table_name, filter_condition, alias FROM EFS_RAW_TO_DAL_MAPPING WHERE filter_condition <> '1=1' AND source_dal_table IS NULL) LOOP
+      v_sql_query := 'UPDATE EFS_RAW_TABLE_COUNT SET ROW_COUNT = (SELECT COUNT(1) FROM EFS_RAW.' || i.raw_table_name || ' WHERE TRUNC(W_LOAD_DT) BETWEEN TRUNC(SYSDATE)-1 AND TRUNC(SYSDATE) AND ' || i.filter_condition || ') WHERE ALIAS = ''' || i.alias || ''' AND RAW_TABLE_NAME = ''' || i.raw_table_name || '''';
+      EXECUTE IMMEDIATE v_sql_query;
+      COMMIT;
+    END LOOP;
+  END;
+
+  DECLARE
+    v_sql_query CLOB;
+  BEGIN
+    -- Load DAL row count for full load
+    FOR i IN (SELECT DISTINCT raw_table_name, filter_condition, alias FROM EFS_RAW_TO_DAL_MAPPING WHERE filter_condition <> '1=1' AND source_dal_table IS NULL AND full_load_status = 'Y') LOOP
+      v_sql_query := 'INSERT INTO EFS_RAW_TABLE_COUNT (SELECT ''' || i.raw_table_name || ''', (SELECT COUNT(1) FROM EFS_RAW.' || i.raw_table_name || ' WHERE ' || i.filter_condition || '), SYSDATE, ''' || i.alias || ''' FROM dual)';
+      EXECUTE IMMEDIATE v_sql_query;
+      COMMIT;
+    END LOOP;
+  END;
+
+  DECLARE
+    v_sql_query CLOB;
+  BEGIN
+    -- Count DAL tables
+    FOR i IN (SELECT dal_table_name, full_load_status FROM EFS_RAW_TO_DAL_MAPPING) LOOP
+      v_sql_query := 'INSERT INTO EFS_DAL_TABLE_COUNT (SELECT ''' || i.dal_table_name || ''', (SELECT COUNT(1) FROM ' || i.dal_table_name || ' WHERE TRUNC(W_LOAD_DT) BETWEEN TRUNC(SYSDATE)-1 AND TRUNC(SYSDATE)), SYSDATE, 0, ''' || i.full_load_status || ''' FROM dual)';
+      EXECUTE IMMEDIATE v_sql_query;
+      COMMIT;
+    END LOOP;
+  END;
+
+  BEGIN
+    -- Validate RAW with DAL - FULL LOAD
+    INSERT INTO EFS_DAL_TABLE_COUNT_VALIDATION
+    SELECT D.raw_table_name, D.dal_table_name,
+           D.raw_table_count + CASE WHEN D.dal_table_name = 'EFS_PPM_PROJECT_DIM' THEN (SELECT COUNT(*) FROM EFS_PPM_PROJECT_DIM WHERE w_active_flag = 0) ELSE 0 END,
+           C.row_count,
+           CASE WHEN D.raw_table_count + CASE WHEN D.dal_table_name = 'EFS_PPM_PROJECT_DIM' THEN (SELECT COUNT(*) FROM EFS_PPM_PROJECT_DIM WHERE w_active_flag = 0) ELSE 0 END <> C.row_count THEN 'NOT MATCHING' ELSE 'MATCHING' END,
+           D.filter_condition, C.as_of_date
+    FROM (
+      SELECT A.raw_table_name, B.dal_table_name, A.row_count, B.full_load_status, B.alias, B.filter_condition
+      FROM EFS_RAW_TABLE_COUNT A
+      JOIN EFS_RAW_TO_DAL_MAPPING B ON A.alias = B.alias
+      WHERE B.full_load_status = 'Y') D
+    LEFT JOIN EFS_DAL_TABLE_COUNT C ON D.dal_table_name = C.dal_table_name
+    WHERE C.full_load_status = 'Y';
+    COMMIT;
+  END;
+
+  BEGIN
+    -- Validate RAW with DAL - INCREMENTAL
+    INSERT INTO EFS_DAL_TABLE_COUNT_VALIDATION
+    SELECT D.raw_table_name, D.dal_table_name, D.raw_table_count, C.row_count,
+           CASE WHEN D.raw_table_count <> C.row_count THEN 'NOT MATCHING' ELSE 'MATCHING' END,
+           D.filter_condition, C.as_of_date
+    FROM (
+      SELECT A.raw_table_name, B.dal_table_name, A.row_count, B.full_load_status, B.alias, B.filter_condition
+      FROM EFS_RAW_TABLE_COUNT A
+      JOIN EFS_RAW_TO_DAL_MAPPING B ON A.alias = B.alias
+      WHERE B.full_load_status = 'N') D
+    LEFT JOIN EFS_DAL_TABLE_COUNT C ON D.dal_table_name = C.dal_table_name
+    WHERE C.full_load_status = 'N';
+    COMMIT;
+  END;
+
+  DECLARE
+    v_sql_query CLOB;
+  BEGIN
+    -- Update DAL to DAL counts
+    FOR i IN (SELECT raw_table_name, filter_condition, alias FROM EFS_RAW_TO_DAL_MAPPING WHERE source_dal_table IS NOT NULL) LOOP
+      IF i.raw_table_name = 'EFS_PPM_PROJECT_STATUS_HIS_DIM' THEN
+        v_sql_query := 'UPDATE EFS_DAL_TABLE_COUNT SET SOURCE_DAL_COUNT = (SELECT COUNT(1) FROM EFS_DATA_LAYER.' || i.raw_table_name || ' WHERE ' || i.filter_condition || ') WHERE DAL_TABLE_NAME = ''' || i.raw_table_name || '''';
+      ELSE
+        v_sql_query := 'UPDATE EFS_DAL_TABLE_COUNT SET SOURCE_DAL_COUNT = (SELECT COUNT(1) FROM EFS_DATA_LAYER.' || i.raw_table_name || ' WHERE TRUNC(W_INSERT_DT) BETWEEN TRUNC(SYSDATE)-1 AND TRUNC(SYSDATE) AND ' || i.filter_condition || ') WHERE DAL_TABLE_NAME = ''' || i.raw_table_name || '''';
+      END IF;
+      EXECUTE IMMEDIATE v_sql_query;
+      COMMIT;
+    END LOOP;
+  END;
+
+  DECLARE
+    v_sql_query CLOB;
+  BEGIN
+    -- Final DAL row count update
+    FOR i IN (SELECT dal_table_name, filter_condition, alias FROM EFS_RAW_TO_DAL_MAPPING WHERE source_dal_table IS NOT NULL) LOOP
+      v_sql_query := 'UPDATE EFS_DAL_TABLE_COUNT SET ROW_COUNT = (SELECT COUNT(1) FROM EFS_DATA_LAYER.' || i.dal_table_name || ' WHERE TRUNC(W_INSERT_DT) BETWEEN TRUNC(SYSDATE)-1 AND TRUNC(SYSDATE)) WHERE DAL_TABLE_NAME = ''' || i.dal_table_name || '''';
+      EXECUTE IMMEDIATE v_sql_query;
+      COMMIT;
+    END LOOP;
+  END;
+
+  BEGIN
+    -- Final validation
+    INSERT INTO EFS_DAL_TABLE_COUNT_VALIDATION
+    SELECT A.dal_table_name, B.dal_table_name, A.source_dal_count, C.row_count,
+           CASE WHEN A.source_dal_count <> C.row_count THEN 'NOT MATCHING' ELSE 'MATCHING' END,
+           B.filter_condition, C.as_of_date
+    FROM EFS_DAL_TABLE_COUNT A
+    JOIN EFS_RAW_TO_DAL_MAPPING B ON A.dal_table_name = B.source_dal_table
+    JOIN EFS_DAL_TABLE_COUNT C ON B.dal_table_name = C.dal_table_name
+    WHERE B.dal_table_name IS NOT NULL;
+    COMMIT;
+  END;
+END;
