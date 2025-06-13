@@ -1,3 +1,24 @@
+select * from EFS_PPM_AUDIT_HIST_LKP where concat(concat(project_id,'~'),OBJECT_VERSION_NUMBER) in  
+(select concat(concat(a.PROJECT_ID, '~'), a.OBJECT_VERSION_NUMBER)   from 
+ ((
+   SELECT
+       PROJECT_ID,
+       OBJECT_VERSION_NUMBER,
+       ATTRIBUTE2_DATE,
+       ATTRIBUTE1_DATE,
+	   CREATION_DATE,
+w_insert_dt,
+       nvl(LAG(ATTRIBUTE2_DATE,1) OVER (PARTITION BY PROJECT_ID ORDER BY OBJECT_VERSION_NUMBER),'01-JAN-1900') AS PREV_AIS_IN_SERV_DT,
+       nvl(LAG(ATTRIBUTE1_DATE,1) OVER (PARTITION BY PROJECT_ID ORDER BY OBJECT_VERSION_NUMBER),'01-JAN-1900') AS PREV_EST_IN_SERV_DT,
+       MIN(OBJECT_VERSION_NUMBER) OVER (PARTITION BY PROJECT_ID ORDER BY CREATION_DATE) AS MIN_OBJ_VERSION_NUM
+   FROM EFS_DATA_LAYER.EFS_PPM_AUDIT_HIST_LKP ) )a
+WHERE
+   (a.ATTRIBUTE2_DATE !=a.PREV_AIS_IN_SERV_DT
+    OR a.ATTRIBUTE1_DATE != a.PREV_EST_IN_SERV_DT)  
+AND a.OBJECT_VERSION_NUMBER != a.MIN_OBJ_VERSION_NUM 
+and trunc(a.w_insert_dt)= trunc(sysdate));
+
+
 ======================================== Data Validation Procedure ===================================
 create or replace PROCEDURE                  "EFS_PRC_CUSTOM_DATA_VALIDATION" 
 authid current_user
