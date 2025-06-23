@@ -1,4 +1,97 @@
 SELECT 
+  'Net CCONs: End of Period' AS Account,
+  SUM(NVL(CCON.amt_1, 0) + NVL(PCON.amt_2, 0)) AS Amount,
+  NVL(CCON.PERIOD_1, PCON.PERIOD_2) AS PERIOD_4
+FROM 
+(
+  SELECT 
+    gb.ledger_id AS LEDGER_ID_1,
+    (NVL(SUM(gb.period_net_dr - gb.period_net_cr), 0) * -1) AS amt_1,
+    gb.period_name AS PERIOD_1
+  FROM 
+    gl_balances gb,
+    gl_code_combinations gcc,
+    gl_ledgers gl
+  WHERE
+    gcc.code_combination_id = gb.code_combination_id
+    AND gl.currency_code = gb.currency_code
+    AND gl.ledger_id = gb.ledger_id
+    AND gl.name = 'EXC USD GAAP LEDGER'
+    AND gb.period_name = 'Jun-25'
+    AND gcc.segment6 = 'BENWMAMGT'
+    AND gcc.segment1 IN ('98001')
+    AND gcc.segment3 IN (
+      SELECT child FROM (
+        SELECT 
+          tree.parent_pk1_value AS parent,
+          CONNECT_BY_ISLEAF AS IsLeaf,
+          LEVEL AS lv,
+          tree.pk1_start_value AS child
+        FROM fnd_tree_node tree
+        WHERE tree.tree_structure_code = 'GL_ACCT_FLEX'
+          AND tree.tree_code = 'ACCOUNT' 
+          AND tree.tree_version_id = (
+            SELECT tree_version_id 
+            FROM fnd_tree_version_vl
+            WHERE tree_code = 'ACCOUNT'
+              AND tree_version_name = 'ACCOUNT_CURRENT'
+          )
+        START WITH tree.pk1_start_value IN ('CCONHC')
+        CONNECT BY PRIOR tree_node_id = parent_tree_node_id
+      ) WHERE IsLeaf = 1
+    )
+  GROUP BY gb.period_name, gb.ledger_id
+) CCON
+
+FULL OUTER JOIN
+
+(
+  SELECT 
+    gb.ledger_id AS LEDGER_ID_2,
+    (NVL(SUM(gb.period_net_dr - gb.period_net_cr), 0) * -1) AS amt_2,
+    gb.period_name AS PERIOD_2
+  FROM 
+    gl_balances gb,
+    gl_code_combinations gcc,
+    gl_ledgers gl
+  WHERE
+    gcc.code_combination_id = gb.code_combination_id
+    AND gl.currency_code = gb.currency_code
+    AND gl.ledger_id = gb.ledger_id
+    AND gl.name = 'EXC USD GAAP LEDGER'
+    AND gb.period_name = 'Jun-25'
+    AND gcc.segment6 = 'BENWMAMGT'
+    AND gcc.segment1 IN ('98001')
+    AND gcc.segment3 IN (
+      SELECT child FROM (
+        SELECT 
+          tree.parent_pk1_value AS parent,
+          CONNECT_BY_ISLEAF AS IsLeaf,
+          LEVEL AS lv,
+          tree.pk1_start_value AS child
+        FROM fnd_tree_node tree
+        WHERE tree.tree_structure_code = 'GL_ACCT_FLEX'
+          AND tree.tree_code = 'ACCOUNT' 
+          AND tree.tree_version_id = (
+            SELECT tree_version_id 
+            FROM fnd_tree_version_vl
+            WHERE tree_code = 'ACCOUNT'
+              AND tree_version_name = 'ACCOUNT_CURRENT'
+          )
+        START WITH tree.pk1_start_value IN ('PCONHC')
+        CONNECT BY PRIOR tree_node_id = parent_tree_node_id
+      ) WHERE IsLeaf = 1
+    )
+  GROUP BY gb.period_name, gb.ledger_id
+) PCON
+
+ON CCON.PERIOD_1 = PCON.PERIOD_2
+
+GROUP BY NVL(CCON.PERIOD_1, PCON.PERIOD_2);
+
+
+888888888888888888888888888888888888888888888888888888
+SELECT 
 'Net CCONs: End of Period' as Account,
 SUM(CCON.amt_1+PCON.amt_2) as Amount,
 CCON.PERIOD_1 as PERIOD_4
