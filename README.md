@@ -1,3 +1,29 @@
+Select 
+distinct 
+'Month-Prev year' as metric,
+'Benefit Expenses - RX Drugs COBRA' as ACCOUNT,
+nvl(SUM(gb.period_net_dr - gb.period_net_cr),0) as amt,
+gb.period_name
+FROM
+gl_balances gb,
+gl_code_combinations gcc,
+gl_ledgers gl
+
+Where
+gcc.code_combination_id = gb.code_combination_id
+and gl.currency_code = gb.currency_code
+and gl.ledger_id = gb.ledger_id
+and gl.name='EXC USD GAAP LEDGER'
+AND gb.period_name = 'Jul-23'
+and gcc.segment1 in ('98001')
+and gcc.SEGMENT8 = '958'
+AND gcc.segment3 = '500070'
+group by gb.period_name
+============================================
+'"410020"."ACCOUNT"{Detail}=410020~Company Contribution - Dental{Detail}' + '"400020"."ACCOUNT"{Detail}=400020~Participant Contribution - Dental{Detail}' - '"500020"."ACCOUNT"{Detail}=500020~Benefit Expenses - Dental{Detail}'
+
+'"410040"."ACCOUNT"{Detail}=410040~Company Contribution - Medical{Detail}' + '"400044"."ACCOUNT"{Detail}=400044~Participant Contribution - Medical{Detail}' - '"500040"."ACCOUNT"{Detail}=500040~Benefit Expenses - Medical{Detail}'
+---------------------
 update EFS_DAL_TABLE_COUNT_VALIDATION
 set filter_condition = "(project_id,OBJECT_VERSION_NUMBER) in  
 (select a.PROJECT_ID, a.OBJECT_VERSION_NUMBER   from 
