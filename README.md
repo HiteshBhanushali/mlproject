@@ -1,29 +1,82 @@
 SELECT 
-  DISTINCT 
-  'Month-Prev year' AS metric,
-  'Net Dental Contributions' AS ACCOUNT,
-  NVL(SUM(CASE 
-            WHEN gcc.segment3 = '410020' THEN (gb.period_net_dr - gb.period_net_cr)
-            WHEN gcc.segment3 = '400020' THEN (gb.period_net_dr - gb.period_net_cr)
-            WHEN gcc.segment3 = '500020' THEN -(gb.period_net_dr - gb.period_net_cr)
-            ELSE 0
-          END), 0) AS amt,
-  gb.period_name
-FROM
-  gl_balances gb,
-  gl_code_combinations gcc,
-  gl_ledgers gl
-WHERE
-  gcc.code_combination_id = gb.code_combination_id
-  AND gl.currency_code = gb.currency_code
-  AND gl.ledger_id = gb.ledger_id
-  AND gl.name = 'EXC USD GAAP LEDGER'
-  AND gb.period_name = 'Jun-25'
-  AND gcc.segment1 IN ('98001')
-  AND gcc.segment3 IN ('410020', '400020', '500020')
-  AND gcc.segment6 = 'BHSIDIDID'
-GROUP BY 
-  gb.period_name;
+'Net CCONs: End of Period' as Account,
+SUM(CCON.amt_1+PCON.amt_2) as Amount,
+CCON.PERIOD_1 as PERIOD_4
+
+FROM 
+(
+Select 
+distinct 
+gb.ledger_id AS LEDGER_ID_1,
+(nvl(SUM(gb.period_net_dr - gb.period_net_cr),0)*-1) as amt_1,
+gb.period_name Period_1
+ FROM 
+gl_balances gb,
+gl_code_combinations gcc,
+gl_ledgers gl
+Where
+gcc.code_combination_id = gb.code_combination_id
+and gl.currency_code = gb.currency_code
+and gl.ledger_id = gb.ledger_id
+and gl.name='EXC USD GAAP LEDGER'
+AND gb.period_name = 'Jun-25'
+and gcc.SEGMENT6 = 'BENWMAMGT'
+and gcc.segment1 in ('98001')
+AND gcc.segment3
+    in(select child from (
+						SELECT tree.parent_pk1_value parent, CONNECT_BY_ISLEAF IsLeaf, level lv,
+						tree.pk1_start_value child
+						FROM fnd_tree_node tree
+						WHERE tree.tree_structure_code = 'GL_ACCT_FLEX'
+						AND tree.tree_code = 'ACCOUNT' 
+						AND tree.tree_version_id = (select tree_version_id 
+						from fnd_tree_version_vl
+						where tree_code = 'ACCOUNT'
+						and tree_version_name = 'ACCOUNT_CURRENT')
+						START WITH tree.pk1_start_value in('CCONHC')-- Account num should be provided
+						CONNECT BY prior tree_node_id = parent_tree_node_id)
+ 						where IsLeaf=1
+)
+group by gb.period_name, gb.ledger_id) CCON,
+
+(
+Select 
+distinct 
+gb.ledger_id AS LEDGER_ID_2,
+(nvl(SUM(gb.period_net_dr - gb.period_net_cr),0)*-1)  as amt_2,
+gb.period_name Period_2
+ FROM 
+gl_balances gb,
+gl_code_combinations gcc,
+gl_ledgers gl
+Where
+gcc.code_combination_id = gb.code_combination_id
+and gl.currency_code = gb.currency_code
+and gl.ledger_id = gb.ledger_id
+and gl.name='EXC USD GAAP LEDGER'
+AND gb.period_name = 'Jun-25'
+and gcc.segment1 in ('98001')
+and gcc.SEGMENT6 = 'BENWMAMGT'
+AND gcc.segment3
+    in(select child from (
+						SELECT tree.parent_pk1_value parent, CONNECT_BY_ISLEAF IsLeaf, level lv,
+						tree.pk1_start_value child
+						FROM fnd_tree_node tree
+						WHERE tree.tree_structure_code = 'GL_ACCT_FLEX'
+						AND tree.tree_code = 'ACCOUNT' 
+						AND tree.tree_version_id = (select tree_version_id 
+						from fnd_tree_version_vl
+						where tree_code = 'ACCOUNT'
+						and tree_version_name = 'ACCOUNT_CURRENT')
+						START WITH tree.pk1_start_value in('PCONHC')-- Account num should be provided
+						CONNECT BY prior tree_node_id = parent_tree_node_id)
+ 						where IsLeaf=1
+)
+group by gb.period_name, gb.ledger_id) PCON
+WHERE 
+CCON.PERIOD_1 = PCON.PERIOD_2
+GROUP BY CCON.PERIOD_1
+
 
 ===================
 Select 
