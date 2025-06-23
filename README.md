@@ -1,3 +1,31 @@
+SELECT 
+  DISTINCT 
+  'Month-Prev year' AS metric,
+  'Net Dental Contributions' AS ACCOUNT,
+  NVL(SUM(CASE 
+            WHEN gcc.segment3 = '410020' THEN (gb.period_net_dr - gb.period_net_cr)
+            WHEN gcc.segment3 = '400020' THEN (gb.period_net_dr - gb.period_net_cr)
+            WHEN gcc.segment3 = '500020' THEN -(gb.period_net_dr - gb.period_net_cr)
+            ELSE 0
+          END), 0) AS amt,
+  gb.period_name
+FROM
+  gl_balances gb,
+  gl_code_combinations gcc,
+  gl_ledgers gl
+WHERE
+  gcc.code_combination_id = gb.code_combination_id
+  AND gl.currency_code = gb.currency_code
+  AND gl.ledger_id = gb.ledger_id
+  AND gl.name = 'EXC USD GAAP LEDGER'
+  AND gb.period_name = 'Jun-25'
+  AND gcc.segment1 IN ('98001')
+  AND gcc.segment3 IN ('410020', '400020', '500020')
+  AND gcc.segment6 = 'BHSIDIDID'
+GROUP BY 
+  gb.period_name;
+
+===================
 Select 
 distinct 
 'Month-Prev year' as metric,
