@@ -67,3 +67,12 @@ BILL_ACCOUNT_KEY,TARIFF_KEY,GL_TRANSACTION_DT_KEY,GL_ACCOUNT_KEY,FT_ID,GL_SEQ_NB
 8383673,811,20240903,1541585491,91455316343,6,CEERRCASPR,03-09-2024 00:00,C-R70R  ,10601,6600,400010,0,ILLOWINC       ,0,309,0,0,351,0.08,0,Electric,10601.06600     .000000    .400010.000000    .ILLOWINC       .0000000000.309   .00000000.00000.351  .IL103,BS,1,BillAcct#5,Residential,C-R70R - Electric RDS Residential Single,Company#1
 5777493,811,20240903,1534083784,8.66455E+11,4,CEERRCARES,03-09-2024 00:00,C-R70R  ,10601,6600,400010,0,ILLOWINC       ,0,281,0,0,351,0.4,0,Electric,10601.06600     .000000    .400010.000000    .ILLOWINC       .0000000000.281   .00000000.00000.351  .IL502,BS,1,BillAcct#6,Residential,C-R70R - Electric RDS Residential Single,Company#1
 2335640,741,20240903,1535180721,6.87549E+11,4,CEERRCARES,03-09-2024 00:00,C-R71R  ,10601,6600,400010,0,ILLOWINC       ,0,281,0,0,352,0.4,0,Electric,10601.06600     .000000    .400010.000000    .ILLOWINC       .0000000000.281   .00000000.00000.352  .IL598,BS,1,BillAcct#7,Residential,C-R71R - Electric RDS Residential Multiple,Company#1
+
+
+Denormalized as it has both transactional and descriptive metadata columns
+| Subject Area                  | Relevance                                                                    |
+| ----------------------------- | ---------------------------------------------------------------------------- |
+| `General Ledger Transactions` | Based on `GL_ACCOUNT_KEY`, `GL_TRANSACTION_DT_KEY`, `FT_ID`, `GL_AMOUNT`     |
+| `Tariff and Rate Schedules`   | Fields like `TARIFF_KEY`, `RATE_SCHEDULE`, `TARIFF_RATE_TYP`, `SERVICE_TYPE` |
+| `Billing & Revenue`           | `USAGE`, `CUSTOMER_SEGMENT`, `PRODUCT`, `DEPARTMENT`, `PROJECT`              |
+| `Customer Billing Accounts`   | Linked via `BILL_ACCOUNT_KEY` to prior dataset for customer context          |
