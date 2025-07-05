@@ -1,3 +1,5 @@
+https://www.nobroker.in/property/1-bhk-apartment-for-lease-in-bhyandar-east--mumbai-for-rs-1500000/8a9f9184972bc7a401972bcb82f5003a/detail
+
 SELECT 
   'Net CCONs: End of Period' AS Account,
   SUM(NVL(CCON.amt_1, 0) + NVL(PCON.amt_2, 0)) AS Amount,
