@@ -1,3 +1,6 @@
+darshan tower:
+https://www.nobroker.in/property/1-bhk-apartment-for-rent-in-mahavir-darshan-tower-mumbai-for-rs-13000/8a9f95827c3b4f3c017c3b5d91c00715/detail?nbFr=list-rent
+
 https://www.nobroker.in/property/1-bhk-apartment-for-rent-in-om-hema-residency-mumbai-for-rs-19000/ff80818159179b4601591aef4b5620d2/detail?nbFr=list-rent  -- 19k floor1
 https://www.nobroker.in/property/1-bhk-apartment-for-rent-in-bhayander-west-mumbai-for-rs-18000/8a9f878597e34b220197e3c51513372c/detail?nbFr=list-rent  -- 18k  floor 2
 
