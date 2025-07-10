@@ -1,3 +1,18 @@
+about me, 
+
+I am pure veg, Gujarati family. 
+
+property is on first floor ?
+water supply ka source kya hai ?
+is this property currently on rent ??
+other tanent are owners or rented ?
+
+are you open to Negotiate or not ?
+
+
+9699030260
+
+
 darshan tower:
 https://www.nobroker.in/property/1-bhk-apartment-for-rent-in-mahavir-darshan-tower-mumbai-for-rs-13000/8a9f95827c3b4f3c017c3b5d91c00715/detail?nbFr=list-rent
 
