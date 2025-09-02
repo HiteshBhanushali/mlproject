@@ -1,3 +1,18 @@
+Industry Scenario-Based Use Case – Learn to explain a real-world inspired project scenario aligned with business goals.
+Comprehensive Project Lifecycle Walkthrough – Understand every phase of a data project from planning to monitoring.
+Data Pipeline Architecture Insights – Visualize and interpret complete data pipeline flows and architecture.
+Understanding Roles & Stakeholders – Know who does what in a data project and how they collaborate.
+Technology Stack & Tooling Rationale – Learn which tools are used and why they are chosen in real projects.
+Data Volume & Processing Patterns – Understand the scale, ingestion frequency, and processing logic of the data.
+Data Source Landscape – Get clarity on various source systems and how they're integrated into the pipeline.
+Project-Level Challenges & Their Solutions – Learn common real-world issues and how they are effectively resolved.
+Schema Design & Data Modeling Techniques – Grasp key concepts in table design, partitioning, and data modeling.
+Resume Project Highlighting Techniques – Learn how to present the project on your resume to attract recruiters..
+Testing, Validation & Debugging Approaches – Learn the methods used for ensuring data quality and reliability.
+Automation Practices & CI/CD Concepts – Explore how CI/CD and automation streamline modern data projects.
+Scalability & Optimization Best Practices – Discover techniques to optimize data pipelines for scale and performance.
+
+
 about me, 
 
 I am pure veg, Gujarati family. 
