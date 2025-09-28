@@ -13,28 +13,140 @@ Automation Practices & CI/CD Concepts – Explore how CI/CD and automation strea
 Scalability & Optimization Best Practices – Discover techniques to optimize data pipelines for scale and performance.
 
 
-about me, 
+===================================== resume =============
+Consultant
 
-I am pure veg, Gujarati family. 
-
-property is on first floor ?
-water supply ka source kya hai ?
-is this property currently on rent ??
-other tanent are owners or rented ?
-
-are you open to Negotiate or not ?
-
-
-9699030260
+Summary of Experience and Qualifications
+•	Assistant Manager in Genpact (Bangalore) with experience in FMCG for Unilever for Developing dashboards with dataflows as the data source and 3 tier architecture. 
+•	Analytics Consultant at phData Inc (Bangalore) – Worked for KHC Power BI Premium Migration Project in developing PPU And PPC with standardized power BI Dashboard development.
+•	Also, Worked on Allegis SSRS Report Migration from Snowflake to Power BI Service and Report Builder.
+•	Consultant at LTI (Larsen and Toubro Infotech) (Navi Mumbai) – Worked on Data Processing and analytics. Reporting and Analytics [SharePoint, Power BI and Snowflake]. Also, developing visual reports, dashboards and KPI scorecards using Power BI desktop. Connecting to data sources, importing data and transforming data for Business intelligence. 
+•	Postgraduate — master’s in computer applications (MCA) from Bharati Vidyapeeth Pune, India.
+•	Bachelor’s degree of Sciences in Computer Science from University of Gadchiroli, India.
 
 
-darshan tower:
-https://www.nobroker.in/property/1-bhk-apartment-for-rent-in-mahavir-darshan-tower-mumbai-for-rs-13000/8a9f95827c3b4f3c017c3b5d91c00715/detail?nbFr=list-rent
+Key Achievements
+ 
+•	GoMx Q4FY21 Epic Winner (LTI- Clarios AMS): Demonstrated Excellent ownership, dedication and trust towards project. 
+•	Pat on the back Award: For outstanding performance, service and dedication towards the Clarios Project. 
 
-https://www.nobroker.in/property/1-bhk-apartment-for-rent-in-om-hema-residency-mumbai-for-rs-19000/ff80818159179b4601591aef4b5620d2/detail?nbFr=list-rent  -- 19k floor1
-https://www.nobroker.in/property/1-bhk-apartment-for-rent-in-bhayander-west-mumbai-for-rs-18000/8a9f878597e34b220197e3c51513372c/detail?nbFr=list-rent  -- 18k  floor 2
 
-https://www.nobroker.in/property/1-bhk-apartment-for-lease-in-bhyandar-east--mumbai-for-rs-1500000/8a9f9184972bc7a401972bcb82f5003a/detail
+Deloitte Experience
+	Industry:  FD&A
+Service Line:
+Client Description: CARGILL
+Role: ANALYTICS ENGINEER
+Key Responsibilities: Developing dashboards and working on Agile approach. 
+Technical Environment: Power BI, ADO, Power Automate, Power BI Report Builder.
+
+
+
+
+
+
+
+
+Previous Experience
+
+Industry:  Manufacturing  
+Service Area: Data Visualization and dashboard building.
+Service Line:   Power BI
+Assistant Manager: Three months.  
+Genpact, Bangalore, India
+Client: Unilever is a British-Dutch multinational consumer goods company, headquartered in London, England. The company owns over 400 brands. Its products include food, energy drink, ice cream, tea, cleaning agents, beauty products, and personal care products.
+Role: Developing dashboards with dataflows as the data source and 3 tier architecture.
+Key Responsibilities: 
+•	Understanding the requirements and creating demo on the initial sprint and phases. Developing dashboards with dataflows as the data source and 3 tier architecture. 
+•	Optimizing new ways of visuals like power Gantt chart to be represented as a matrix for simpler modules. 
+•	Presentation skills and creative approach towards problem solving. 
+Technical Environment: Power BI Desktop, Power BI Service, SharePoint, Power BI Dataflows.
+
+Industry:  Manufacturing  
+Service Area: Data Visualization and dashboard building.
+Service Line:   Power BI
+Analytics Consultant: 1.1 Years.  
+phData, Bangalore, India
+Client: Formed in 2015 through the merger of Kraft Foods Group, Inc. and H.J. Heinz Holding Corporation, The Kraft Heinz Company is a globally trusted producer of high quality, great tasting, and nutritious food and beverages. Kraft Heinz is co-headquartered in Chicago and Pittsburgh. 
+Role: KHC Power BI Premium Migration Project in developing PPU And PPC with standardized power BI Dashboard development.
+Key Responsibilities: 
+•	Understanding and working on creating the sprint/SOW/Blueprint for the project as per client requirement. 
+•	Setting up the Virtual machines and Gateways in order to create data sources in Power BI Service. 
+•	Working on Data Modelling, DAX, Filters, Slicers, Calculated measures, Query sections and transformations in Power BI Desktop. 
+•	Connecting to dimensional Modelling and understanding the existing data models to migrate those to the premium capacity from SAP HANA to Snowflake. 
+•	Overall documentation of the project lifecycle from installing the Power BI applications to troubleshooting and fixing the issues. 
+•	Documenting the decks for Enablement sessions for the client calls. 
+•	Testing the gateways, data sources, workspaces, datasets, reports, data hubs, metrics, Apps and refreshes in Power BI Service. 
+•	Contributing to the internal and client calls and the sessions as well. 
+•	Fetching tables from Snowflake warehouse and building reports out of it, publishing them to Workspaces, Apps for region wise as per requirement from the client. 
+•	Implementing Row level security to the reports and workspaces in desktop. 
+•	Workspace Cleanup Activity. 
+•	Good Communication and Presentation skills. Strong Analytical and Problem-Solving skills. 
+Technical Environment: Power BI Desktop, Power BI Service, Snowflake, Microsoft Azure, Power Automate, Power BI Applications, SharePoint, OneDrive, Deployment pipelines, CI/CD Integration, VMs, Gateways.
+
+
+
+	Industry:  Manufacturing  
+Service Area: Data Visualization and dashboard building.
+Service Line:   Power BI
+Analytics Consultant: 5 Months.  
+phData, Bangalore, India
+Client: Allegis Group, Inc. is a multinational talent management firm headquartered in Hanover, Maryland, United States.
+Role: Allegis SSRS Report Migration from Snowflake to Power BI Service and Report Builder.
+Key Responsibilities: 
+•	Create a dataset using Power BI Desktop and its native connection to Snowflake. 
+•	Custom Snowflake queries are used to create the different queries in the Power BI dataset Publish Power BI dataset to Power BI Service workspace. 
+•	Establish connection to Power BI dataset in Power BI Report 
+•	Builder Rewire datasets (queries) in Power BI Report Builder to use Power BI dataset Use DAX (Power BI language) to write query to connect to the Power BI datasets/queries. 
+•	Integrate parameters into DAX queries - The current process requires using Power BI Desktop to publish a dataset to Power BI Service, and then using DAX query language to indirectly read the dataset. 
+•	Each report would need its own separate published dataset. 
+•	Proposed new solution under discussion: The proposed process will create a one-time gateway connection between Power BI Service and Snowflake, allowing the Power BI Service to query Snowflake using SQL (not DAX). This gateway is set up once per Snowflake instance. 
+Technical Environment: Power BI Desktop, Power BI Service, Snowflake, SQL reporting server, Power BI Report builder.
+
+
+
+Industry:  Manufacturing  
+Service Area: Data Visualization and IM Support.
+Service Line:   Power BI
+Analytics Consultant: 2.5 years.  
+LTI, Navi Mumbai, India
+Client: Clarios, LLC provides energy storage solutions. The Company manufactures lead-acid automotive and advanced batteries for hybrid and electric vehicles. Clarios serves customers worldwide.
+Role: Data Processing and analytics
+Key Responsibilities: 
+•	Data Processing and analytics. Reporting and Analytics [SharePoint, Power BI and Snowflake]. Also, developing visual reports, dashboards and KPI scorecards using Power BI desktop. Connecting to data sources, importing data and transforming data for Business intelligence. 
+
+	
+•	Analyze business processes, identify reports based on client data. (Example: SCM Reports, KPI Reports, Best Business Practice Reports, TPM, EPM, HRMX, Catman Reports, etc.) 
+•	Worked on the Power BI reports & dashboards with SQL Server Used to create different visualizations like Bar, Card, Funnels, Table, Matrix, slicers and custom visualizations by Formatting visuals and creating Filters in Visual level, page level, Drill through and Report level in Power BI. 
+•	Managing Gateways and Project Status for financial tracking and Reporting including end Client Reporting using Power BI tools. Experience in publishing reports to power BI service and setting up the necessary connection Worked on on-premises gateway to refresh the data sources/creating a live connection. 
+•	Worked on custom Query with ODBC connection from Snowflake to Power BI services. Implemented Role Based Security as part of user level security in Power BI. 
+•	Worked on ETL tools like IBM TWS, Qlik Replicate (Attunity), LTI Mosaic Decisions, Snowflake – Creating jobs from Landing/Staging/Core/INTR layers. Performing ETL Operations over the loads and jobs and performing full load and CDC (Change Data Capture) operations in order to pull the data and update it over the source side. 
+•	Designing views using Snowflake on the application side and taking those views to Power BI side so that users can see the reports. 
+•	Worked as Incident management/Consultant in Clarios Project. Expertise Level knowledge on ServiceNow (ITIL) 
+•	Work details: - Incident management, Service Management, Change/Release/Problem Management, Auditing/Follow up of tickets, Weekly reporting, High priority ticket management, Interaction with clients/teams for Application troubleshooting, Knowledge transfer to new joiners and other teams using ServiceNow tool. 
+
+Technical Environment: Power BI Desktop, Power BI Service, Snowflake, ETL, Qlik Replicate, Attunity, IBM Tivoli Workload Schedular, BLOB Storage, Gateway, VMs, Patching, ServiceNow, Saviynt.
+
+
+
+System Experience 
+
+	Software/Products: Microsoft Power BI, SQL Server Reporting server 
+
+	Development Tools/Languages:   
+Power BI  
+
+	Hardware/Operating System: Windows 
+	Middleware/Databases: SQL Server, Snowflake 
+	General Tools:   O365 Package (Word, Excel) 
+
+
+Professional Affiliations/Certifications
+
+•	DA-100 | Microsoft Certified: Data Analyst Associate (Certification number: I 134-0117) 
+•	PL-900 | Microsoft Certified: Power Platform Fundamentals (Certification Number: I505-7014) 
+•	DP-900 | Microsoft Certified: Azure Data Fundamentals (Certification Number: I505-7434)
+
+=================================================================================================================
 
 SELECT 
   'Net CCONs: End of Period' AS Account,
