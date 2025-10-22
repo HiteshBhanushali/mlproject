@@ -1,3 +1,17 @@
+======================== Resume Snowflake ===========================
+TMT Industry – Snowflake cloud DWH, Informatica Power Centre: 
+Nandeesha has experience managing Snowflake platform support, including RBAC, network policies, and implementing security measures like column/row-level policies. Additionally, he has worked on cost and resource optimization, Snowflake credit consumption alerts, data replication, and platform tuning. He also manages Snowflake Marketplace and GitHub for code deployments.
+Snowflake Cloud Data Warehouse Developer for a Large Automotive Industry 
+Expertise in designing and optimizing Snowflake ELT processes, ensuring high-performance query execution through materialized views, clustering, and search optimization. He has successfully migrated data from Teradata to Snowflake, implemented bulk data loading using Snow pipe and COPY commands, and fine-tuned complex SQL queries for efficiency.
+Cloud based Advanced Analytics solution for a large Retail organization​:
+Working in an Agile environment, Nandeesha has collaborated with business users to implement Snowflake solutions and enhance reporting with Power BI. He has automated workflows using Control-M and Tidal, implemented Snowflake utilities such as stored procedures, streams, and tasks, and provided insights to improve data models and ELT processes.
+Additional Expertise:
+Extensive background in Snowflake data modeling and ELT, including SAS Program conversion to Snow SQL.
+Understand the underlying data and flow of data and pipeline monitoring in ADF 
+Expertise with Snow SQL advanced concepts (query performance tuning, time travel streams, task, store Procedures etc.)
+Basic familiarity with DBT (Data Build Tool), leveraging its capabilities to enhance and streamline data transformation processes.<img width="3865" height="406" alt="image" src="https://github.com/user-attachments/assets/73a4f5f8-8b9d-4654-a955-235552078a84" />
+
+=====================
 Industry Scenario-Based Use Case – Learn to explain a real-world inspired project scenario aligned with business goals.
 Comprehensive Project Lifecycle Walkthrough – Understand every phase of a data project from planning to monitoring.
 Data Pipeline Architecture Insights – Visualize and interpret complete data pipeline flows and architecture.
