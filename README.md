@@ -9,7 +9,7 @@ Additional Expertise:
 Extensive background in Snowflake data modeling and ELT, including SAS Program conversion to Snow SQL.
 Understand the underlying data and flow of data and pipeline monitoring in ADF 
 Expertise with Snow SQL advanced concepts (query performance tuning, time travel streams, task, store Procedures etc.)
-Basic familiarity with DBT (Data Build Tool), leveraging its capabilities to enhance and streamline data transformation processes.<img width="3865" height="406" alt="image" src="https://github.com/user-attachments/assets/73a4f5f8-8b9d-4654-a955-235552078a84" />
+Basic familiarity with DBT (Data Build Tool), leveraging its capabilities to enhance and streamline data transformation processes
 
 =====================
 Industry Scenario-Based Use Case – Learn to explain a real-world inspired project scenario aligned with business goals.
