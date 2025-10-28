@@ -1,3 +1,9 @@
+	Expertise in Power BI Filters, Interactions, KPI, Bookmarks, Parameters, Groups, hierarchies, DAX, Conditional Formatting, Merge Queries, Joins, Appending Queries, Shape and combine data from multiple sources, M Query, Row Level Security, Custom Visuals..
+	Mastered in creating solution driven dashboards by developing different chart types including Funnel chart, Bar in Bar, Scatter plot chart, Semi Donut Chart, Sankey Chart, Sparkline chart, waterfall chart, Map box chart, bullet charts, Heat Maps, Calendar chart, Ven diagram, Tree Maps, Pie Chart, Donut Chart, Word Cloud, Bar and Line Charts.
+	Expertise in Managing sites and projects, Schedule the refresh, User level and Group level permissions, Ownership of Reports.
+	Expertise in improve the report performance using different performance tuning Techniques.
+
+
 ======================== Resume Snowflake ===========================
 TMT Industry – Snowflake cloud DWH, Informatica Power Centre: 
 Nandeesha has experience managing Snowflake platform support, including RBAC, network policies, and implementing security measures like column/row-level policies. Additionally, he has worked on cost and resource optimization, Snowflake credit consumption alerts, data replication, and platform tuning. He also manages Snowflake Marketplace and GitHub for code deployments.
