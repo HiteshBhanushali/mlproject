@@ -1,3 +1,9 @@
+https://www.nobroker.in/property/buy/2-bhk-apartment-for-sale-in-fursungi-pune/8a9f8f03924676e40192468eb0ad05ef/detail?nbFr=list-buy
+https://mbtrk.co/7IZGZE2O29YuCGRDQ3RuRg
+https://mbtrk.co/2a1b-9wkiqsHQyHNJVAg3Q
+https://mbtrk.co/YnsK7xhL8a6o4BzXF7WtJA
+
+
 	Expertise in Power BI Filters, Interactions, KPI, Bookmarks, Parameters, Groups, hierarchies, DAX, Conditional Formatting, Merge Queries, Joins, Appending Queries, Shape and combine data from multiple sources, M Query, Row Level Security, Custom Visuals..
 	Mastered in creating solution driven dashboards by developing different chart types including Funnel chart, Bar in Bar, Scatter plot chart, Semi Donut Chart, Sankey Chart, Sparkline chart, waterfall chart, Map box chart, bullet charts, Heat Maps, Calendar chart, Ven diagram, Tree Maps, Pie Chart, Donut Chart, Word Cloud, Bar and Line Charts.
 	Expertise in Managing sites and projects, Schedule the refresh, User level and Group level permissions, Ownership of Reports.
