@@ -1,0 +1,112 @@
+Act as an expert full-stack developer and SEO specialist. Your task is to build a complete, serverless web application called "SlideBoss.ai". This application will be ready to deploy on Vercel's free tier and will be optimized for search engines from the start.
+
+**Primary Objective:** Build a single-page application where a user can enter a text description, and after an AI-powered process, download a complete Microsoft PowerPoint (.pptx) presentation. The application must be stateless (no login, no database) and built for maximum organic search visibility.
+
+---
+
+### **Part 1: SEO, Branding, and Content Mandates**
+
+This is the most critical part. The entire frontend must be built to these exact specifications.
+
+1.  **Website Identity:**
+    *   **Name:** SlideBoss.ai
+    *   **Motto:** "From Idea to Impact, Instantly."
+
+2.  **Core SEO HTML Tags (for `frontend/index.html`):**
+    *   **Page Title:** `<title>SlideBoss.ai: Free AI Presentation Maker & Slide Generator</title>`
+    *   **Meta Description:** `<meta name="description" content="Turn your ideas into stunning, editable presentations for free. SlideBoss.ai uses AI to instantly create professional slides from your text or documents. No login required.">`
+    *   **Canonical URL:** `<link rel="canonical" href="https://www.slideboss.ai/">` (We will use a custom domain later).
+
+3.  **On-Page Content and Keyword Strategy (for the main component):**
+    *   **Main H1 Heading:** `The Ultimate Free AI Presentation Maker`
+    *   **Main Subheading:** Use the motto: `From Idea to Impact, Instantly.`
+    *   **Introductory Paragraph:** "Welcome to SlideBoss.ai! The revolutionary free tool that uses artificial intelligence to craft professional, editable PowerPoint presentations in seconds. Forget complex software—just describe your idea and download a ready-to-present slideshow."
+    *   **Feature Section 1 (H2 Heading):** `Your Personal AI Slide Generator`
+        *   **Content:** "Simply type in your topic, an outline, or even paste the content of an existing document. Our intelligent AI will analyze the text, structure the content, and design beautiful, coherent slides."
+    *   **Feature Section 2 (H2 Heading):** `A Powerful, Free PowerPoint Alternative`
+        *   **Content:** "Get the power of a premium presentation tool, completely free. SlideBoss.ai is perfect for students creating academic presentations, professionals building business pitch decks, and anyone who needs to visualize ideas quickly. No registration, no fees, no hassle."
+    *   **Call-to-Action Section:** This is where the main `textarea` and "Generate" button will live. The heading for this section should be an H3: `Start Creating Now`.
+
+---
+
+### **Part 2: Project Setup and Structure**
+
+Create the following monorepo structure, optimized for Vercel deployment.
+
+*(Note: I've removed tsconfig files as Replit often handles this implicitly, but if you create them, that's fine).*
+
+---
+
+### **Part 3: Frontend Implementation (React + Vite + Tailwind CSS)**
+
+**Location:** `/frontend/`
+
+1.  **Initialize & Install:** Use Vite for React + TypeScript. Install `tailwindcss`, `postcss`, `autoprefixer`, `axios`, and `file-saver` (with `@types/file-saver`).
+2.  **Configure `index.html`:** Update the `frontend/index.html` file to include the exact Title and Meta Description tags from Part 1.
+3.  **Configure Tailwind:** Set up `tailwind.config.js`, `postcss.config.js`, and `frontend/src/index.css`.
+4.  **Build the Main Component (`App.tsx`):**
+    *   Create a single component that holds the entire UI and application logic.
+    *   **State Management:** Use `useState` for `prompt` (string), `isLoading` (boolean), and `error` (string).
+    *   **UI Construction:**
+        *   Build the UI using semantic HTML. Use the exact H1, H2, H3, and paragraph text specified in the **On-Page Content Strategy** from Part 1.
+        *   Style the page cleanly using Tailwind CSS.
+        *   The Call-to-Action section must contain the `textarea` and the "Generate Slides" button.
+        *   Implement a loading state (spinner/message) that appears when `isLoading` is true.
+        *   Display the `error` message if one occurs.
+    *   **Client-Side Logic (`handleSubmit`):**
+        *   On button click, set `isLoading` to true.
+        *   Make a `POST` request to `/api/generate` using `axios`, sending `{ "prompt": prompt }` in the body. The request MUST have `responseType: 'blob'`.
+        *   On success, use `file-saver` to save the blob as `SlideBoss_presentation.pptx`.
+        *   On error, populate the `error` state.
+        *   Set `isLoading` to false in all cases (success or error).
+
+---
+
+### **Part 4: Backend Implementation (Python Serverless Function)**
+
+**Location:** `/api/`
+
+1.  **Create `requirements.txt`:** Include `Flask`, `python-pptx`, `google-generativeai`, and `Flask-CORS`.
+2.  **Create `generate.py`:**
+    *   Set up a basic Flask `app`.
+    *   **Security:** Configure the Gemini client using an environment variable: `os.environ.get("GEMINI_API_KEY")`.
+    *   **API Endpoint (`/api/generate`):**
+        *   This endpoint must accept `POST` requests.
+        *   Get the user's prompt from the request body.
+        *   **Crucial Prompt Engineering:** Create a system prompt for the Gemini model that commands it to respond ONLY with a JSON object structured exactly like this: `{"slides": [{"title": "Slide 1 Title", "content": "Slide 1 content as a string."}, ...]}`.
+        *   Call the Gemini API.
+        *   Parse the returned JSON.
+        *   **PPTX Generation:** Use `python-pptx` to create a new presentation in memory (`io.BytesIO`).
+        *   Iterate through the `slides` array from the AI's response. For each object, add a new slide to the presentation, populating the title and content placeholders.
+        *   **Return the File:** Use Flask's `send_file` to return the in-memory presentation buffer as an attachment with the correct MIME type.
+
+---
+
+### **Part 5: Deployment Configuration (Vercel)**
+
+**Location:** `/` (root)
+
+1.  **Create `vercel.json`:** Use the following configuration to tell Vercel how to build the frontend and route requests to the backend function.
+
+    ```json
+    {
+      "version": 2,
+      "builds": [
+        {
+          "src": "frontend/package.json",
+          "use": "@vercel/static-build",
+          "config": { "distDir": "frontend/dist" }
+        },
+        {
+          "src": "api/generate.py",
+          "use": "@vercel/python"
+        }
+      ],
+      "routes": [
+        { "src": "/api/(.*)", "dest": "api/generate.py" },
+        { "src": "/(.*)", "dest": "frontend/dist/index.html" }
+      ]
+    }
+    ```
+
+Execute these steps to build the complete, SEO-optimized, and functional SlideBoss.ai application.
