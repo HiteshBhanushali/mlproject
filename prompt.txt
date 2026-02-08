@@ -1,0 +1,34 @@
+**Objective:** Initialize the project structure for our AI presentation tool, "SlideBoss.ai," using a modern tech stack. The output should be a clean, runnable boilerplate ready for future development.
+
+**Your Task:**
+
+1.  **Initialize the Project:**
+    *   Use `Vite` to create a new `React` project named `slideboss-frontend`.
+    *   Ensure the project is set up to use `TypeScript`.
+
+2.  **Integrate Styling:**
+    *   Add and configure `Tailwind CSS` to the project for all styling purposes. Follow the official Vite integration guide.
+
+3.  **Create Initial File Structure:**
+    *   Inside the `src` directory, create the following subdirectories:
+        *   `pages`
+        *   `components`
+        *   `assets`
+
+4.  **Build the Home Page:**
+    *   Create a new file: `src/pages/HomePage.tsx`.
+    *   Inside `HomePage.tsx`, create a simple functional component. This component will serve as our main landing page.
+    *   The component should render a basic layout with a main heading, a subheading, and a placeholder for the future input form. Use the following details:
+        *   **Main Heading (H1):** "From Idea to Impact, Instantly."
+        *   **Subheading (p):** "Welcome to SlideBoss.ai, the free AI presentation generator. Describe your presentation, and watch the magic happen."
+        *   **Form Area:** A `div` containing a text `input` field and a `button` that says "Generate Slides". These will not have any functionality yet.
+
+5.  **Update App Entrypoint:**
+    *   Modify `src/App.tsx` to import and render only the `HomePage` component. Remove all default Vite boilerplate content.
+
+**Final Output:**
+Provide me with:
+1.  The exact terminal commands to execute steps 1 and 2.
+2.  The complete code for the `tailwind.config.js` file.
+3.  The complete code for the `src/pages/HomePage.tsx` file.
+4.  The complete code for the updated `src/App.tsx` file.
