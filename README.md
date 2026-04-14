@@ -1,3 +1,12 @@
+Strong Snowflake expertise (data modeling, complex procedures, performance tuning)
+Advanced DBT implementation experience
+AWS Lambda and AWS Batch
+Hands-on technical lead capable of code reviews, setting standards, and overseeing developers
+Expert-level experience building data processing solutions
+Working with Bitbucket, deployment pipelines, Flyway
+
+
+
 https://www.bajajgeneralinsurance.com/download-documents/claim/health/ReimbursementFormA+B2013-editable.pdf
 
 
