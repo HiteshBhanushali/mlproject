@@ -1,3 +1,23 @@
+Audio Profile (The Persona):
+
+"You are a friendly, confident, and highly trusted American female home improvement expert in your early 30s. You speak with a warm, reassuring, and professional tone that immediately puts homeowners at ease."
+
+Scene (The Environment):
+
+"A high-end, fast-paced Instagram Reel commercial for CR3 American Exteriors. The video shows dramatic before-and-after transformations of roofs and home exteriors in Pennsylvania and Maryland. The goal is to build local trust and drive homeowners to click a link for a free estimate."
+
+Director's Notes (The Execution):
+
+"Start with a tone of relatable empathy—you understand the frustration of an ugly roof. By the second sentence, smoothly transition into an upbeat, confident, and authoritative voice. Emphasize the words 'restore', 'premium craftsmanship', and 'neighbors already trust'. End with a clear, warm, and slightly urgent call to action. Use natural, conversational pacing."
+
+----------- Script
+
+Tired of looking at a roof that drags down your home’s value? ...
+At CR3 American Exteriors, we don't just fix roofs—we restore your home’s curb appeal, and your peace of mind.
+Whether it's roofing, siding, or new windows... we bring local P. A. and Maryland families the premium craftsmanship they deserve.
+Don't let a small repair become a big problem. Choose the team your neighbors already trust.
+Tap below, to claim your free, no-obligation estimate today.
+
 Strong Snowflake expertise (data modeling, complex procedures, performance tuning)
 Advanced DBT implementation experience
 AWS Lambda and AWS Batch
